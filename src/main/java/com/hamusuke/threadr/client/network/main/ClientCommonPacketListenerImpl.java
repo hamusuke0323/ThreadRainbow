@@ -83,6 +83,10 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
         this.hostId = packet.getId();
     }
 
+    public int getHostId() {
+        return this.hostId;
+    }
+
     @Override
     public void onDisconnected() {
         this.client.clientSpiders.clear();

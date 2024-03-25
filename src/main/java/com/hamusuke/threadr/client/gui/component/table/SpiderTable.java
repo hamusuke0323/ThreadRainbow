@@ -33,7 +33,7 @@ public class SpiderTable extends JTable {
                     var num = "???";
                     if (spider instanceof LocalSpider local) {
                         num = Byte.toString(local.getLocalCard().num());
-                    } else if (spider instanceof RemoteSpider remote && remote.getRemoteCard().canBeSeen()) {
+                    } else if (spider instanceof RemoteSpider remote && remote.getRemoteCard() != null && remote.getRemoteCard().canBeSeen()) {
                         num = Byte.toString(remote.getRemoteCard().getNumber());
                     }
 
@@ -46,6 +46,10 @@ public class SpiderTable extends JTable {
     }
 
     public void addCardNumCol() {
+        if (this.getColumnCount() == 3) {
+            return;
+        }
+
         MODEL.addColumn("card number");
     }
 

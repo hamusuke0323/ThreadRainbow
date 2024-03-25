@@ -19,14 +19,14 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
     public void handleChangeHost(ChangeHostS2CPacket packet) {
         super.handleChangeHost(packet);
 
-        if (this.client.getCurrentWindow() instanceof MainWindow w) {
-            w.showStartButton(this.clientSpider.getId() == packet.getId());
-        }
+        this.mainWindow.showStartButton(this.clientSpider.getId() == packet.getId());
     }
 
     @Override
     public void handleStartGame(StartGameS2CPacket packet) {
+        int id = this.client.listener.hostId;
         var listener = new ClientPlayPacketListenerImpl(this.client, this.connection);
+        listener.hostId = id;
         listener.mainWindow = this.mainWindow;
         this.mainWindow.rmLobby();
         this.connection.setListener(listener);

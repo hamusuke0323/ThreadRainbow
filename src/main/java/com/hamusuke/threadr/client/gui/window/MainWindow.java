@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 
 public class MainWindow extends Window {
     private static final Logger LOGGER = LogManager.getLogger();
+    private WindowState state = WindowState.NONE;
     private JButton startGame;
     private JPanel lobbyPanel;
     private JPanel cardPanel;
@@ -20,6 +21,8 @@ public class MainWindow extends Window {
     private JLabel cardNum;
     private JButton show;
     private JButton ack;
+    private JLabel waitHost;
+    private JButton selectTopic;
 
     public MainWindow() {
         super("ロビー");
@@ -45,6 +48,7 @@ public class MainWindow extends Window {
             return;
         }
 
+        this.client.spiderTable.removeCardNumCol();
         this.startGame = new JButton("始める");
         this.startGame.setActionCommand("start");
         this.startGame.addActionListener(this);
@@ -102,6 +106,7 @@ public class MainWindow extends Window {
         this.cardNum = null;
         this.show = null;
         this.ack = null;
+        this.cardPanel = null;
         this.revalidate();
     }
 
@@ -116,8 +121,28 @@ public class MainWindow extends Window {
     }
 
     private void ackCard() {
+        this.state = WindowState.WAIT_HOST;
         this.rmCard();
-        this.add(new JLabel("ホストが次に進むのを待っています..."), BorderLayout.CENTER);
+        this.ackCardPost();
+    }
+
+    private void ackCardPost() {
+        if (this.waitHost != null) {
+            this.remove(this.waitHost);
+        }
+        if (this.selectTopic != null) {
+            this.remove(this.selectTopic);
+        }
+
+        if (this.amIHost()) {
+            this.selectTopic = new JButton("お題を選ぶ");
+            this.add(this.selectTopic, BorderLayout.CENTER);
+        } else {
+            this.waitHost = new JLabel("ホストが次に進むのを待っています...");
+            this.add(this.waitHost, BorderLayout.CENTER);
+        }
+
+        this.revalidate();
     }
 
     public void topic() {
@@ -143,6 +168,16 @@ public class MainWindow extends Window {
 
     private void startGame() {
         this.client.getConnection().sendPacket(new StartGameC2SPacket());
+    }
+
+    public void onChangeHost() {
+        switch (this.state) {
+            case WAIT_HOST -> this.ackCardPost();
+        }
+    }
+
+    private boolean amIHost() {
+        return this.client.clientSpider != null && this.client.listener != null && this.client.clientSpider.getId() == this.client.listener.getHostId();
     }
 
     public void showStartButton(boolean flag) {
@@ -171,5 +206,13 @@ public class MainWindow extends Window {
                 this.ackCard();
                 break;
         }
+    }
+
+    private enum WindowState {
+        NONE,
+        WAIT_HOST,
+        SELECTING_TOPIC,
+        PLAYING,
+        RESULT
     }
 }

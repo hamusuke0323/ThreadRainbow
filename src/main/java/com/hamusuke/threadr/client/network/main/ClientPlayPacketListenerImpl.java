@@ -8,12 +8,11 @@ import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
+import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChangeHostS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.swing.*;
 
 public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -22,6 +21,13 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         super(client, connection);
         this.clientSpider = client.clientSpider;
+    }
+
+    @Override
+    public void handleChangeHost(ChangeHostS2CPacket packet) {
+        super.handleChangeHost(packet);
+
+        this.mainWindow.onChangeHost();
     }
 
     @Override
