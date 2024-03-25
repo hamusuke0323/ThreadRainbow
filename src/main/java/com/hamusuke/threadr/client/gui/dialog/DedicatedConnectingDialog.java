@@ -9,8 +9,8 @@ import javax.swing.*;
 
 public class DedicatedConnectingDialog extends JDialog {
     public DedicatedConnectingDialog(Window owner, ThreadRainbowClient client, String host, int port) {
-        super(owner, String.format("Connecting to %s:%d...", host, port), true);
-        JLabel label = new JLabel(String.format("Connecting to %s:%d...", host, port));
+        super(owner, String.format("%s:%dに接続しています...", host, port), true);
+        JLabel label = new JLabel(String.format("%s:%d に接続しています...", host, port));
         this.add(label);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.pack();

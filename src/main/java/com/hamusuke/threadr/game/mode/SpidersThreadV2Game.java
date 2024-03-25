@@ -1,7 +1,9 @@
 package com.hamusuke.threadr.game.mode;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
@@ -13,8 +15,10 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 public class SpidersThreadV2Game {
-    private static final List<Byte> ALL_CARDS = Util.makeAndAccess(Lists.newArrayList(), bytes -> {
-        IntStream.rangeClosed(1, 100).forEach(value -> bytes.add((byte) value));
+    private static final List<Byte> ALL_CARDS = Util.make(() -> {
+        var list = Lists.<Byte>newArrayList();
+        IntStream.rangeClosed(1, 100).forEach(value -> list.add((byte) value));
+        return ImmutableList.copyOf(list);
     });
     protected final Set<Byte> givenNum = Sets.newHashSet();
     protected Status status = Status.NONE;
@@ -37,6 +41,7 @@ public class SpidersThreadV2Game {
     public void start() {
         if (this.status == Status.NONE) {
             this.nextStatus();
+            this.giveOutCards();
         }
     }
 
@@ -48,9 +53,10 @@ public class SpidersThreadV2Game {
         this.nextStatus();
         this.spiders.forEach(spider -> {
             var remaining = ALL_CARDS.stream().filter(integer -> !this.givenNum.contains(integer)).toList();
-            byte i = Util.chooseRandom(remaining, this.server.getRandom());
-            this.givenNum.add(i);
-            spider.sendPacket(new GiveLocalCardS2CPacket(spider, i));
+            byte num = Util.chooseRandom(remaining, this.server.getRandom());
+            this.givenNum.add(num);
+            spider.takeCard(new NumberCard(spider, num));
+            spider.sendPacket(new GiveLocalCardS2CPacket(num));
             spider.sendPacketToOthers(new RemoteCardGivenS2CPacket(spider));
         });
     }
@@ -65,10 +71,6 @@ public class SpidersThreadV2Game {
 
     public List<ServerSpider> getPlayingSpiders() {
         return this.spiders;
-    }
-
-    public boolean isClientSide() {
-        return false;
     }
 
     private enum Status {

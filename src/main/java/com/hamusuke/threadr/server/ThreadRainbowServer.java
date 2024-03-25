@@ -244,7 +244,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
 
     public synchronized void startGame() {
         if (this.game != null) {
-            return;
+            //return;
         }
 
         this.sendPacketToAll(new ChatS2CPacket("もうすぐでゲームが始まります！"));

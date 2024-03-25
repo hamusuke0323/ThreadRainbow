@@ -2,8 +2,7 @@ package com.hamusuke.threadr.client.network.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
-import com.hamusuke.threadr.client.gui.window.Window;
-import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
+import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
@@ -12,11 +11,14 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
 import com.hamusuke.threadr.util.Util;
 
+import javax.swing.*;
+
 public abstract class ClientCommonPacketListenerImpl implements ClientCommonPacketListener {
     protected final Connection connection;
     protected final ThreadRainbowClient client;
-    protected AbstractClientSpider clientSpider;
+    protected LocalSpider clientSpider;
     protected int tickCount;
+    protected int hostId;
 
     protected ClientCommonPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         this.client = client;
@@ -54,7 +56,7 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
             });
         }
 
-        this.client.spiderTable.update();
+        SwingUtilities.invokeLater(this.client.spiderTable::update);
     }
 
     @Override
@@ -78,6 +80,7 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
 
     @Override
     public void handleChangeHost(ChangeHostS2CPacket packet) {
+        this.hostId = packet.getId();
     }
 
     @Override

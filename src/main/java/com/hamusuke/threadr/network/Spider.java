@@ -1,8 +1,5 @@
 package com.hamusuke.threadr.network;
 
-import com.hamusuke.threadr.game.NumberCard;
-
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,8 +8,6 @@ public abstract class Spider {
     protected int id = SPIDER_ID_INCREMENTER.getAndIncrement();
     private int ping;
     protected final String name;
-    @Nullable
-    protected NumberCard holdingCard;
 
     protected Spider(String name) {
         this.name = name;

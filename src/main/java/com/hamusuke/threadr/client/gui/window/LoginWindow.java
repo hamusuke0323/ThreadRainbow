@@ -5,12 +5,14 @@ import com.mojang.brigadier.StringReader;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class LoginWindow extends Window {
+    private static final int MAX_NAME_LENGTH = 16;
     private final String msg;
     private JTextField nameField;
 
@@ -39,7 +41,7 @@ public class LoginWindow extends Window {
         this.nameField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!StringReader.isAllowedInUnquotedString(c) && (c != KeyEvent.VK_BACK_SPACE)) {
+                if (nameField.getText().length() >= MAX_NAME_LENGTH || (!StringReader.isAllowedInUnquotedString(c) && (c != KeyEvent.VK_BACK_SPACE))) {
                     e.consume();
                 }
             }

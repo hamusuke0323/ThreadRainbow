@@ -8,6 +8,7 @@ import com.hamusuke.threadr.client.gui.window.Window;
 import com.hamusuke.threadr.client.network.ClientLoginPacketListenerImpl;
 import com.hamusuke.threadr.client.network.main.ClientCommonPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
+import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
@@ -34,7 +35,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     @Nullable
     public ClientCommonPacketListenerImpl listener;
     @Nullable
-    public AbstractClientSpider clientSpider;
+    public LocalSpider clientSpider;
     @Nullable
     private Window currentWindow;
     private Thread thread;

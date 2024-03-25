@@ -71,7 +71,7 @@ public class SpiderManager {
             this.sendPacketToAll(new ChangeHostS2CPacket(this.host));
         }
 
-        this.sendPacketToAll(new ChatS2CPacket(String.format("%s[%s] left the server", spider.getName(), spider.connection.getConnection().getAddress())));
+        this.sendPacketToAll(new ChatS2CPacket(String.format("%s[%s] がサーバーから退出しました", spider.getName(), spider.connection.getConnection().getAddress())));
     }
 
     public boolean isHost(String name) {

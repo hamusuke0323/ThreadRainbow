@@ -63,14 +63,14 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
             throw new IllegalStateException("Protocol error", e);
         }
 
-        this.statusConsumer.accept("Encrypting...");
+        this.statusConsumer.accept("接続を暗号化しています...");
         this.connection.sendPacket(loginKeyC2SPacket, future -> this.connection.setupEncryption(cipher, cipher2));
     }
 
     @Override
     public void onSuccess(LoginSuccessS2CPacket packet) {
         this.waitingAuthComplete = false;
-        this.statusConsumer.accept("Joining the lobby...");
+        this.statusConsumer.accept("ロビーに参加しています...");
         this.client.clientSpider = new LocalSpider(packet.name());
         this.client.clientSpider.setId(packet.id());
         this.client.spiderTable = new SpiderTable(this.client);

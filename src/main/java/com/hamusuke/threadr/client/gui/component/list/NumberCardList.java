@@ -70,10 +70,12 @@ public class NumberCardList<E> extends JList<E> implements DragGestureListener, 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        g.setFont(g.getFont().deriveFont(80.0F));
+
         if (this.card != null) {
             for (int i = 0; i < this.getModel().getSize(); i++) {
                 g.drawImage(this.card, i * this.getFixedCellWidth(), 0, null);
-                //g.drawString(this.getModel().getElementAt(i).toString(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2, this.getFixedCellHeight() / 2 - 3);
+                g.drawString(this.getModel().getElementAt(i).toString(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2, this.getFixedCellHeight() / 2 - 3);
             }
         }
 
