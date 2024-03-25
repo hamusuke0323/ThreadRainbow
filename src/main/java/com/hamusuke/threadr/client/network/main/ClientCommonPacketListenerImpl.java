@@ -1,0 +1,105 @@
+package com.hamusuke.threadr.client.network.main;
+
+import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
+import com.hamusuke.threadr.client.gui.window.Window;
+import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
+import com.hamusuke.threadr.client.network.spider.RemoteSpider;
+import com.hamusuke.threadr.network.channel.Connection;
+import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
+import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
+import com.hamusuke.threadr.util.Util;
+
+public abstract class ClientCommonPacketListenerImpl implements ClientCommonPacketListener {
+    protected final Connection connection;
+    protected final ThreadRainbowClient client;
+    protected AbstractClientSpider clientSpider;
+    protected int tickCount;
+
+    protected ClientCommonPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
+        this.client = client;
+        this.client.listener = this;
+        this.connection = connection;
+    }
+
+    @Override
+    public void tick() {
+        this.tickCount++;
+        if (this.tickCount % 20 == 0) {
+            this.connection.sendPacket(new PingC2SPacket(Util.getMeasuringTimeMs()));
+        }
+    }
+
+    @Override
+    public void handleChatPacket(ChatS2CPacket packet) {
+        this.client.chat.addMessage(packet.getMsg());
+    }
+
+    @Override
+    public void handlePongPacket(PongS2CPacket packet) {
+        if (!this.client.isSameThread()) {
+            this.client.executeSync(() -> packet.handle(this));
+        }
+
+        this.connection.sendPacket(new RTTC2SPacket((int) (Util.getMeasuringTimeMs() - packet.getClientTime())));
+    }
+
+    @Override
+    public void handleRTTPacket(RTTS2CPacket packet) {
+        synchronized (this.client.clientSpiders) {
+            this.client.clientSpiders.stream().filter(p -> p.getId() == packet.getSpiderId()).forEach(spider -> {
+                spider.setPing(packet.getRtt());
+            });
+        }
+
+        this.client.spiderTable.update();
+    }
+
+    @Override
+    public void handleDisconnectPacket(DisconnectS2CPacket packet) {
+        this.connection.disconnect();
+    }
+
+    @Override
+    public void handleJoinPacket(JoinSpiderS2CPacket packet) {
+        var spider = new RemoteSpider(packet.getName());
+        spider.setId(packet.getId());
+        this.client.addClientSpider(spider);
+    }
+
+    @Override
+    public void handleLeavePacket(LeaveSpiderS2CPacket packet) {
+        synchronized (this.client.clientSpiders) {
+            this.client.clientSpiders.removeIf(p -> p.getId() == packet.getId());
+        }
+    }
+
+    @Override
+    public void handleChangeHost(ChangeHostS2CPacket packet) {
+    }
+
+    @Override
+    public void onDisconnected() {
+        this.client.clientSpiders.clear();
+        this.client.disconnect();
+        var window = this.client.getCurrentWindow();
+        if (window != null) {
+            window.dispose();
+        }
+        this.client.setCurrentWindow(new ConnectingWindow());
+        this.client.clientSpider = null;
+        this.client.spiderTable = null;
+        this.client.chat = null;
+    }
+
+    public ThreadRainbowClient getClient() {
+        return this.client;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return this.connection;
+    }
+}

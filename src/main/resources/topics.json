@@ -1,0 +1,871 @@
+[
+  {
+    "lines": [
+      "旅先ですることの人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "白米に合いそうなもの"
+    ],
+    "minDescription": "合わない",
+    "maxDescription": "合う"
+  },
+  {
+    "lines": [
+      "中学生になって考えよう",
+      "カッコいいもの・こと"
+    ],
+    "minDescription": "カッコわるい",
+    "maxDescription": "カッコいい"
+  },
+  {
+    "lines": [
+      "鳥肌が立つこと"
+    ],
+    "minDescription": "少し立つ",
+    "maxDescription": "超立つ"
+  },
+  {
+    "lines": [
+      "1000円くらいまででできる楽しいこと"
+    ],
+    "minDescription": "そこそこ",
+    "maxDescription": "楽しい"
+  },
+  {
+    "lines": [
+      "桃太郎になって考えよう",
+      "頼りになる家来"
+    ],
+    "minDescription": "頼りにならない",
+    "maxDescription": "頼りになる"
+  },
+  {
+    "lines": [
+      "動物園にいる動物の人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "男女がそれぞれ好きそうなもの"
+    ],
+    "minDescription": "男が好きなもの",
+    "maxDescription": "女が好きなもの"
+  },
+  {
+    "lines": [
+      "祖父母になって考えよう",
+      "孫に言われたら嬉しい言葉"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "ふだん聞く言葉の頻度"
+    ],
+    "minDescription": "あまり聞かない",
+    "maxDescription": "よく聞く"
+  },
+  {
+    "lines": [
+      "破壊力のある言葉（パワーワード）"
+    ],
+    "minDescription": "破壊力ない",
+    "maxDescription": "破壊力ある"
+  },
+  {
+    "lines": [
+      "冷蔵庫になって考えよう",
+      "入れてほしいもの"
+    ],
+    "minDescription": "入れてほしくない",
+    "maxDescription": "入れてほしい"
+  },
+  {
+    "lines": [
+      "行事の人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "宝箱をあけて入ってたら嬉しいもの"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "幼稚園児になって考えよう",
+      "テンションが上がるとき"
+    ],
+    "minDescription": "上がらない",
+    "maxDescription": "上がる"
+  },
+  {
+    "lines": [
+      "上に乗ってみたい動物"
+    ],
+    "minDescription": "乗りたくない",
+    "maxDescription": "乗りたい"
+  },
+  {
+    "lines": [
+      "商店街のくじの景品でランクが高いもの"
+    ],
+    "minDescription": "低い",
+    "maxDescription": "高い"
+  },
+  {
+    "lines": [
+      "SNSを活用するにあたって大切なもの・こと"
+    ],
+    "minDescription": "むしろダメ",
+    "maxDescription": "大切"
+  },
+  {
+    "lines": [
+      "夏に行きたい場所や国の人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "「一生これしか食べられない」なら選びたい食べもの"
+    ],
+    "minDescription": "選びたくない",
+    "maxDescription": "選びたい"
+  },
+  {
+    "lines": [
+      "猫になって考えよう",
+      "心地のいい場所"
+    ],
+    "minDescription": "心地わるい",
+    "maxDescription": "心地いい"
+  },
+  {
+    "lines": [
+      "いい匂いのもの"
+    ],
+    "minDescription": "わるい",
+    "maxDescription": "いい"
+  },
+  {
+    "lines": [
+      "強そうな5文字"
+    ],
+    "minDescription": "弱そう",
+    "maxDescription": "強そう"
+  },
+  {
+    "lines": [
+      "芸人になって考えよう",
+      "ヤバい罰ゲーム"
+    ],
+    "minDescription": "ヤバくない",
+    "maxDescription": "ヤバい"
+  },
+  {
+    "lines": [
+      "コンビニで買える食べ物の人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "公園の石をどかしたとき、あったらビックリするもの"
+    ],
+    "minDescription": "少しビックリ",
+    "maxDescription": "超ビックリ"
+  },
+  {
+    "lines": [
+      "小学生になって考えよう",
+      "嬉しいこと"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "明るいもの"
+    ],
+    "minDescription": "明るくない",
+    "maxDescription": "明るい"
+  },
+  {
+    "lines": [
+      "言われたら嬉しいプロポーズの言葉"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "探検家になって考えよう",
+      "ワクワクする場所"
+    ],
+    "minDescription": "ワクワクしない",
+    "maxDescription": "ワクワクする"
+  },
+  {
+    "lines": [
+      "寿司ネタの人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "動物の特徴でほしいもの"
+    ],
+    "minDescription": "ほしくない",
+    "maxDescription": "ほしい"
+  },
+  {
+    "lines": [
+      "お嬢様になって考えよう",
+      "優秀な執事"
+    ],
+    "minDescription": "ポンコツ",
+    "maxDescription": "優秀"
+  },
+  {
+    "lines": [
+      "人からごちそうされたい食べ物"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "桃太郎の場面（お話のどのあたりか）"
+    ],
+    "minDescription": "むかしむかし",
+    "maxDescription": "めでたしめでたし"
+  },
+  {
+    "lines": [
+      "能力者になって考えよう",
+      "ハデに使えそうな脳力"
+    ],
+    "minDescription": "地味",
+    "maxDescription": "ハデ"
+  },
+  {
+    "lines": [
+      "海の生き物の人気"
+    ],
+    "minDescription": "人気ない",
+    "maxDescription": "人気ある"
+  },
+  {
+    "lines": [
+      "冷蔵庫の中にあったらテンションが上がるもの"
+    ],
+    "minDescription": "上がらない",
+    "maxDescription": "上がる"
+  },
+  {
+    "lines": [
+      "高校生になって考えよう",
+      "授業中、起きたら大変なこと"
+    ],
+    "minDescription": "大変じゃない",
+    "maxDescription": "大変"
+  },
+  {
+    "lines": [
+      "写真を撮りたくなるもの"
+    ],
+    "minDescription": "そうでもない",
+    "maxDescription": "撮りたくなる"
+  },
+  {
+    "lines": [
+      "どうしてもこれだけは許せないということ"
+    ],
+    "minDescription": "許せなくはない",
+    "maxDescription": "許せない"
+  },
+  {
+    "lines": [
+      "幸せを感じること"
+    ],
+    "minDescription": "感じない",
+    "maxDescription": "感じる"
+  },
+  {
+    "lines": [
+      "新婚旅行先の人気"
+    ],
+    "minDescription": "行きたくない",
+    "maxDescription": "行きたい"
+  },
+  {
+    "lines": [
+      "学校の先生に怒られそうなこと"
+    ],
+    "minDescription": "怒られない",
+    "maxDescription": "怒られる"
+  },
+  {
+    "lines": [
+      "犬になって考えよう",
+      "嬉しいこと"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "よく行く場所"
+    ],
+    "minDescription": "あまり行かない",
+    "maxDescription": "よく行く"
+  },
+  {
+    "lines": [
+      "思わず見てしまうメールのタイトル"
+    ],
+    "minDescription": "見ない",
+    "maxDescription": "見てしまう"
+  },
+  {
+    "lines": [
+      "ボディビルダーになって考えよう",
+      "言われたいかけ声"
+    ],
+    "minDescription": "言われたくない",
+    "maxDescription": "言われたい"
+  },
+  {
+    "lines": [
+      "生まれ変わったらなりたい動物"
+    ],
+    "minDescription": "なりたくない",
+    "maxDescription": "なりたい"
+  },
+  {
+    "lines": [
+      "大人っぽい言動"
+    ],
+    "minDescription": "子供っぽい",
+    "maxDescription": "大人っぽい"
+  },
+  {
+    "lines": [
+      "動画配信者にとって必要な能力・資質"
+    ],
+    "minDescription": "あっちゃダメ",
+    "maxDescription": "必要"
+  },
+  {
+    "lines": [
+      "家族にしてもらったら嬉しいこと"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "ショックを受けた好きな人のクセ"
+    ],
+    "minDescription": "少しショック",
+    "maxDescription": "超ショック"
+  },
+  {
+    "lines": [
+      "侍になって考えよう",
+      "尽くしたいタイプの人"
+    ],
+    "minDescription": "尽くしたくない",
+    "maxDescription": "尽くしたい"
+  },
+  {
+    "lines": [
+      "食べ物のやわらかさ"
+    ],
+    "minDescription": "かたい",
+    "maxDescription": "やわらかい"
+  },
+  {
+    "lines": [
+      "突然の一日オフ。最高の過ごし方は？"
+    ],
+    "minDescription": "最悪",
+    "maxDescription": "最高"
+  },
+  {
+    "lines": [
+      "先生になって考えよう",
+      "卒業式に言われて嬉しい言葉"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "幼いころにほしかったもの"
+    ],
+    "minDescription": "そうでもない",
+    "maxDescription": "ほしかった"
+  },
+  {
+    "lines": [
+      "宇宙にいるときにやってみたい行動"
+    ],
+    "minDescription": "やりたくない",
+    "maxDescription": "やってみたい"
+  },
+  {
+    "lines": [
+      "お笑い芸人にとって必要な能力・資質"
+    ],
+    "minDescription": "あっちゃダメ",
+    "maxDescription": "必要"
+  },
+  {
+    "lines": [
+      "寝起きにしたいこと"
+    ],
+    "minDescription": "したくない",
+    "maxDescription": "したい"
+  },
+  {
+    "lines": [
+      "変顔の度合い（実際にやる）"
+    ],
+    "minDescription": "ふつう顔",
+    "maxDescription": "変顔"
+  },
+  {
+    "lines": [
+      "修学旅行生になって考えよう",
+      "行きたい旅行先"
+    ],
+    "minDescription": "行きたくない",
+    "maxDescription": "行きたい"
+  },
+  {
+    "lines": [
+      "部屋の中にある大切なもの"
+    ],
+    "minDescription": "大切ではない",
+    "maxDescription": "大切"
+  },
+  {
+    "lines": [
+      "痛い思い出（物理・精神どちらでも）"
+    ],
+    "minDescription": "痛くない",
+    "maxDescription": "痛い"
+  },
+  {
+    "lines": [
+      "生きる上で大切なもの・こと"
+    ],
+    "minDescription": "むしろダメ",
+    "maxDescription": "大切"
+  },
+  {
+    "lines": [
+      "食べ物の辛さ"
+    ],
+    "minDescription": "辛くない",
+    "maxDescription": "辛い"
+  },
+  {
+    "lines": [
+      "カッコいいと思うエピソード"
+    ],
+    "minDescription": "カッコわるい",
+    "maxDescription": "カッコいい"
+  },
+  {
+    "lines": [
+      "就活中の大学生になって考えよう",
+      "働きたい職場"
+    ],
+    "minDescription": "働きたくない",
+    "maxDescription": "働きたい"
+  },
+  {
+    "lines": [
+      "聞こえてきたら嬉しい音"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "厳しく無口な父に言われたら嬉しい言葉"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "アイドル業にとって必要な能力・資質"
+    ],
+    "minDescription": "あっちゃダメ",
+    "maxDescription": "必要"
+  },
+  {
+    "lines": [
+      "黒いもの"
+    ],
+    "minDescription": "黒くない",
+    "maxDescription": "黒い"
+  },
+  {
+    "lines": [
+      "卒業式で流したら感動する音楽や効果音"
+    ],
+    "minDescription": "ぶち壊し",
+    "maxDescription": "感動する"
+  },
+  {
+    "lines": [
+      "魔法使いになって考えよう",
+      "使ってみたい魔法"
+    ],
+    "minDescription": "使いたくない",
+    "maxDescription": "使ってみたい"
+  },
+  {
+    "lines": [
+      "日常に起こるいいこと"
+    ],
+    "minDescription": "よくない",
+    "maxDescription": "いい"
+  },
+  {
+    "lines": [
+      "片思い中の好きな人に言われたら嬉しい言葉"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "仕事をする上で必要な能力・資質"
+    ],
+    "minDescription": "あっちゃダメ",
+    "maxDescription": "必要"
+  },
+  {
+    "lines": [
+      "眠くなるもの"
+    ],
+    "minDescription": "目が覚める",
+    "maxDescription": "眠くなる"
+  },
+  {
+    "lines": [
+      "見た目が子供に戻ったならしたいこと"
+    ],
+    "minDescription": "したくない",
+    "maxDescription": "したい"
+  },
+  {
+    "lines": [
+      "馬主になって考えよう",
+      "速そうな馬の名前"
+    ],
+    "minDescription": "速くなさそう",
+    "maxDescription": "速そう"
+  },
+  {
+    "lines": [
+      "投げたいもの"
+    ],
+    "minDescription": "投げたくない",
+    "maxDescription": "投げたい"
+  },
+  {
+    "lines": [
+      "勇気ある行動"
+    ],
+    "minDescription": "勇気ない",
+    "maxDescription": "勇気ある"
+  },
+  {
+    "lines": [
+      "芸能事務所の社長になって考えよう",
+      "所属芸能人が起こしたら大変な事件"
+    ],
+    "minDescription": "大変じゃない",
+    "maxDescription": "大変"
+  },
+  {
+    "lines": [
+      "包まれたいもの"
+    ],
+    "minDescription": "包まれたくない",
+    "maxDescription": "包まれたい"
+  },
+  {
+    "lines": [
+      "砂漠で遭難したときにほしいもの"
+    ],
+    "minDescription": "いらない",
+    "maxDescription": "ほしい"
+  },
+  {
+    "lines": [
+      "超能力者になって考えよう",
+      "友人の脳内を読んだらショックだった考え"
+    ],
+    "minDescription": "少しショック",
+    "maxDescription": "超ショック"
+  },
+  {
+    "lines": [
+      "ずっと見ていられるもの"
+    ],
+    "minDescription": "見ていられない",
+    "maxDescription": "見ていられる"
+  },
+  {
+    "lines": [
+      "死ぬまでにしたいこと"
+    ],
+    "minDescription": "しなくてもいい",
+    "maxDescription": "したい"
+  },
+  {
+    "lines": [
+      "ヒーローになって演じよう",
+      "カッコいいポーズ（実際にやる）"
+    ],
+    "minDescription": "カッコわるい",
+    "maxDescription": "カッコいい"
+  },
+  {
+    "lines": [
+      "なつかしさを感じるもの・こと"
+    ],
+    "minDescription": "感じない",
+    "maxDescription": "感じる"
+  },
+  {
+    "lines": [
+      "テストでその点を取ったときの反応"
+    ],
+    "minDescription": "1点",
+    "maxDescription": "100点"
+  },
+  {
+    "lines": [
+      "母になって考えよう",
+      "子供が寝言で言っていたら嬉しいこと"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "便利なスマホアプリ"
+    ],
+    "minDescription": "不要",
+    "maxDescription": "便利"
+  },
+  {
+    "lines": [
+      "叫ぶと必殺技っぽい言葉（創作OK）"
+    ],
+    "minDescription": "ぽくない",
+    "maxDescription": "ぽい"
+  },
+  {
+    "lines": [
+      "芸能人になって考えよう",
+      "「これドッキリじゃね？」と疑うできごと"
+    ],
+    "minDescription": "考えすぎ",
+    "maxDescription": "ドッキリっぽい"
+  },
+  {
+    "lines": [
+      "足の速い動物"
+    ],
+    "minDescription": "遅い",
+    "maxDescription": "速い"
+  },
+  {
+    "lines": [
+      "これは恋か愛か"
+    ],
+    "minDescription": "恋",
+    "maxDescription": "愛"
+  },
+  {
+    "lines": [
+      "人間関係で必要な能力・資質"
+    ],
+    "minDescription": "あっちゃダメ",
+    "maxDescription": "必要"
+  },
+  {
+    "lines": [
+      "おみやげにもらったら嬉しいもの"
+    ],
+    "minDescription": "嬉しくない",
+    "maxDescription": "嬉しい"
+  },
+  {
+    "lines": [
+      "奇跡の体験"
+    ],
+    "minDescription": "少し奇跡",
+    "maxDescription": "超奇跡"
+  },
+  {
+    "lines": [
+      "タイムトラベラーになって考えよう",
+      "過去から持って帰りたいもの"
+    ],
+    "minDescription": "いらない",
+    "maxDescription": "持って帰りたい"
+  },
+  {
+    "lines": [
+      "朝ごはんに食べたいもの"
+    ],
+    "minDescription": "食べたくない",
+    "maxDescription": "食べたい"
+  },
+  {
+    "lines": [
+      "お尻から出てきたらビックリするもの"
+    ],
+    "minDescription": "少しビックリ",
+    "maxDescription": "超ビックリ"
+  },
+  {
+    "lines": [
+      "科学者になって考えよう",
+      "発明したい薬"
+    ],
+    "minDescription": "したくない",
+    "maxDescription": "したい"
+  },
+  {
+    "lines": [
+      "踏んだら痛そうなもの"
+    ],
+    "minDescription": "痛くない",
+    "maxDescription": "痛い"
+  },
+  {
+    "lines": [
+      "SNSでめちゃくちゃいいねされそうな投稿"
+    ],
+    "minDescription": "いいねされなさそう",
+    "maxDescription": "いいねされそう"
+  },
+  {
+    "lines": [
+      "人物やキャラクターのイメージ"
+    ],
+    "minDescription": "クール",
+    "maxDescription": "パッション"
+  },
+  {
+    "lines": [
+      "疲れたときにしたいこと"
+    ],
+    "minDescription": "したくない",
+    "maxDescription": "したい"
+  },
+  {
+    "lines": [
+      "あったらおいしそうなアイスクリームの味"
+    ],
+    "minDescription": "おいしくなさそう",
+    "maxDescription": "おいしそう"
+  },
+  {
+    "lines": [
+      "赤ちゃんになって考えよう",
+      "最高の瞬間"
+    ],
+    "minDescription": "最悪",
+    "maxDescription": "最高"
+  },
+  {
+    "lines": [
+      "家にある便利なもの"
+    ],
+    "minDescription": "便利じゃない",
+    "maxDescription": "便利"
+  },
+  {
+    "lines": [
+      "5歳児が言ったらビックリする言葉"
+    ],
+    "minDescription": "少しビックリ",
+    "maxDescription": "超ビックリ"
+  },
+  {
+    "lines": [
+      "魔王になって考えよう",
+      "こんな勇者はイヤだ"
+    ],
+    "minDescription": "余裕",
+    "maxDescription": "イヤだ"
+  },
+  {
+    "lines": [
+      "大学生が反応する言葉"
+    ],
+    "minDescription": "反応しない",
+    "maxDescription": "反応する"
+  },
+  {
+    "lines": [
+      "機嫌がいいときにしそうな行動"
+    ],
+    "minDescription": "しなさそう",
+    "maxDescription": "しそう"
+  },
+  {
+    "lines": [
+      "リーダーにとって必要な能力・資質"
+    ],
+    "minDescription": "あっちゃダメ",
+    "maxDescription": "必要"
+  },
+  {
+    "lines": [
+      "友達になりたい人の特徴"
+    ],
+    "minDescription": "なりたくない",
+    "maxDescription": "なりたい"
+  },
+  {
+    "lines": [
+      "人生の中で、やる回数が多いこと"
+    ],
+    "minDescription": "少ない",
+    "maxDescription": "多い"
+  },
+  {
+    "lines": [
+      "愛されていると思うこと"
+    ],
+    "minDescription": "愛されていない",
+    "maxDescription": "愛されている"
+  }
+]
