@@ -2,7 +2,6 @@ package com.hamusuke.threadr.network.protocol;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.PacketListener;
 import com.hamusuke.threadr.network.listener.client.ClientLoginPacketListener;
@@ -26,6 +25,8 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPack
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
 import com.hamusuke.threadr.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -70,6 +71,8 @@ public enum Protocol {
                     .add(PongS2CPacket.class, PongS2CPacket::new)
                     .add(RTTS2CPacket.class, RTTS2CPacket::new)
                     .add(ChangeHostS2CPacket.class, ChangeHostS2CPacket::new)
+                    .add(GiveLocalCardS2CPacket.class, GiveLocalCardS2CPacket::new)
+                    .add(RemoteCardGivenS2CPacket.class, RemoteCardGivenS2CPacket::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)

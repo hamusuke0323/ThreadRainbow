@@ -1,27 +1,22 @@
 package com.hamusuke.threadr.game.mode;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.hamusuke.threadr.game.NumberCard;
-import com.hamusuke.threadr.network.Spider;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SpidersThreadV2Game {
-    private static final List<Integer> ALL_CARDS = IntStream.rangeClosed(1, 100).boxed().toList();
-    protected final Set<Integer> givenNum = Sets.newHashSet();
+    private static final List<Byte> ALL_CARDS = Util.makeAndAccess(Lists.newArrayList(), bytes -> {
+        IntStream.rangeClosed(1, 100).forEach(value -> bytes.add((byte) value));
+    });
+    protected final Set<Byte> givenNum = Sets.newHashSet();
     protected Status status = Status.NONE;
     protected final List<ServerSpider> spiders;
     protected final ThreadRainbowServer server;
@@ -53,9 +48,10 @@ public class SpidersThreadV2Game {
         this.nextStatus();
         this.spiders.forEach(spider -> {
             var remaining = ALL_CARDS.stream().filter(integer -> !this.givenNum.contains(integer)).toList();
-            int i = Util.chooseRandom(remaining, this.server.getRandom());
+            byte i = Util.chooseRandom(remaining, this.server.getRandom());
             this.givenNum.add(i);
-
+            spider.sendPacket(new GiveLocalCardS2CPacket(spider, i));
+            spider.sendPacketToOthers(new RemoteCardGivenS2CPacket(spider));
         });
     }
 
