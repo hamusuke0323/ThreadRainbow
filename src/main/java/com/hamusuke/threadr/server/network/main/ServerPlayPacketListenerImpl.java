@@ -30,6 +30,8 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
         switch (packet.command()) {
             case START_SELECTING_TOPIC -> this.server.getGame().startSelectingTopic();
             case RESELECT_TOPIC -> this.server.getGame().reselectTopic();
+            case DECIDE_TOPIC -> this.server.getGame().decideTopic();
+            case FINISH -> this.server.getGame().finish();
             default -> this.spider.sendError("Illegal client command: " + packet.command());
         }
     }

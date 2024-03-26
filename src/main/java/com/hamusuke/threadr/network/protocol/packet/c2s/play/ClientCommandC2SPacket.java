@@ -24,6 +24,7 @@ public record ClientCommandC2SPacket(Command command) implements Packet<ServerPl
     public enum Command {
         START_SELECTING_TOPIC,
         RESELECT_TOPIC,
-        DECIDE_TOPIC
+        DECIDE_TOPIC,
+        FINISH
     }
 }

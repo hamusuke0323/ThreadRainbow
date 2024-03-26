@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.server.network;
 
 import com.hamusuke.threadr.command.CommandSource;
-import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.card.ServerCard;
 import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
@@ -16,7 +16,7 @@ public class ServerSpider extends Spider implements CommandSource {
     public final ThreadRainbowServer server;
     public ServerCommonPacketListenerImpl connection;
     private boolean isAuthorized;
-    private NumberCard holdingCard;
+    private ServerCard holdingCard;
 
     public ServerSpider(String name, ThreadRainbowServer server) {
         super(name);
@@ -47,11 +47,11 @@ public class ServerSpider extends Spider implements CommandSource {
         this.server.getSpiderManager().sendPacketToOthers(this, packet, callback);
     }
 
-    public void takeCard(NumberCard card) {
+    public void takeCard(ServerCard card) {
         this.holdingCard = card;
     }
 
-    public NumberCard getHoldingCard() {
+    public ServerCard getHoldingCard() {
         return this.holdingCard;
     }
 

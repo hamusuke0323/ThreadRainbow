@@ -17,7 +17,7 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
 
     protected Window(String title) {
         this.setTitle(title);
-        JMenuBar bar = this.createMenuBar();
+        var bar = this.createMenuBar();
         if (bar != null) {
             this.add(bar, BorderLayout.NORTH);
         }

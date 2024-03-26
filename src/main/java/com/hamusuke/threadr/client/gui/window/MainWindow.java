@@ -1,7 +1,14 @@
 package com.hamusuke.threadr.client.gui.window;
 
+import com.google.common.collect.Lists;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.ImageLabel;
+import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
+import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.client.network.spider.RemoteSpider;
+import com.hamusuke.threadr.game.card.LocalCard;
+import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
@@ -17,6 +24,7 @@ import java.util.List;
 
 public class MainWindow extends Window {
     private static final Logger LOGGER = LogManager.getLogger();
+    private JPanel south;
     private WindowState state = WindowState.NONE;
     private JButton startGame;
     private JPanel lobbyPanel;
@@ -30,6 +38,10 @@ public class MainWindow extends Window {
     private Topic topic;
     private JPanel topicPanel;
     private JButton decideTopic;
+    private NumberCardList list;
+    private JPanel listPanel;
+    private JButton finish;
+    private JPanel gamePanel;
 
     public MainWindow() {
         super("ロビー");
@@ -40,14 +52,38 @@ public class MainWindow extends Window {
         super.init();
 
         this.setTitle("ロビー - " + this.client.getAddresses());
-        var layout = new GridBagLayout();
-        var panel = new JPanel(layout);
-        addButton(panel, this.client.chat.getTextArea(), layout, 0, 0, 1, 1, 1.0D);
-        addButton(panel, this.client.chat.getField(), layout, 0, 1, 1, 1, 0.125D);
-        this.add(panel, BorderLayout.SOUTH);
-        this.add(new JScrollPane(this.client.spiderTable), BorderLayout.EAST);
+        this.createSouth();
         this.setSize(1280, 720);
         this.setLocationRelativeTo(null);
+    }
+
+    private void createSouth() {
+        if (this.south != null) {
+            this.south.setEnabled(false);
+            this.south.setVisible(false);
+            this.remove(this.south);
+        }
+
+        var layout = new GridBagLayout();
+        this.south = new JPanel(layout);
+
+        var chatBag = new GridBagLayout();
+        var chatPanel = new JPanel(chatBag);
+        addButton(chatPanel, this.client.chat.getTextArea(), chatBag, 0, 0, 1, 1, 1.0D);
+        addButton(chatPanel, this.client.chat.getField(), chatBag, 0, 1, 1, 1, 0.125D);
+        var table = new JScrollPane(this.client.spiderTable);
+
+        if (this.topic != null) {
+            addButton(this.south, this.topic.toPIPPanel(), layout, 0, 0, 1, 1, 1.0D);
+            addButton(this.south, chatPanel, layout, 1, 0, 1, 1, 1.0D);
+            addButton(this.south, table, layout, 2, 0, 1, 1, 0.5D, 1.0D);
+        } else {
+            addButton(this.south, chatPanel, layout, 0, 0, 2, 1, 1.0D);
+            addButton(this.south, table, layout, 2, 0, 1, 1, 0.5D, 1.0D);
+        }
+
+        this.add(this.south, BorderLayout.SOUTH);
+        this.revalidate();
     }
 
     public void lobby() {
@@ -180,13 +216,7 @@ public class MainWindow extends Window {
     }
 
     private void addCompForTopic() {
-        if (this.selectTopic != null) {
-            this.remove(this.selectTopic);
-        }
-        if (this.topicPanel != null) {
-            this.topicPanel.setVisible(false);
-            this.remove(this.topicPanel);
-        }
+        this.rmTopic();
 
         if (this.amIHost()) {
             this.selectTopic = new JButton("もう一度選ぶ");
@@ -214,7 +244,72 @@ public class MainWindow extends Window {
     }
 
     public void rmTopic() {
+        if (this.selectTopic != null) {
+            this.selectTopic.setVisible(false);
+            this.remove(this.selectTopic);
+        }
+        if (this.decideTopic != null) {
+            this.decideTopic.setVisible(false);
+            this.remove(this.decideTopic);
+        }
+        if (this.topicPanel != null) {
+            this.topicPanel.setVisible(false);
+            this.remove(this.topicPanel);
+        }
 
+        this.revalidate();
+    }
+
+    public void lineupCard() {
+        this.rmTopic();
+        this.state = WindowState.PLAYING;
+        this.setTitle("ゲーム - 「たとえ」て小さい順に並べる " + this.client.getAddresses());
+        this.createSouth();
+        this.addCompForPlay();
+        this.revalidate();
+    }
+
+    private void addCompForPlay() {
+        if (this.finish != null) {
+            this.finish.setVisible(false);
+        }
+        if (this.gamePanel != null) {
+            this.gamePanel.setVisible(false);
+            this.remove(this.gamePanel);
+        }
+
+        var image = new ImageLabel("/zero.jpg");
+        image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
+        if (this.list == null) {
+            this.list = new NumberCardList();
+            var model = new DefaultListModel<NumberCard>();
+            model.addElement(new LocalCard(new LocalSpider("あああ"), (byte) 8));
+            model.addAll(Lists.newArrayList(1, 5, 10, 15, 22, 24).stream().map(integer -> new RemoteCard(new RemoteSpider("nanashi" + integer))).toList());
+            this.list.setModel(model);
+        }
+
+        var p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(image);
+        p.add(new JScrollPane(this.list));
+        var l = new GridBagLayout();
+        this.gamePanel = new JPanel(l);
+        if (this.amIHost()) {
+            this.finish = new JButton("完成！");
+            this.finish.setActionCommand("finish");
+            this.finish.addActionListener(this);
+            addButton(this.gamePanel, p, l, 0, 0, 1, 1, 1.0D);
+            addButton(this.gamePanel, this.finish, l, 0, 1, 1, 1, 0.125D);
+        } else {
+            addButton(this.gamePanel, p, l, 0, 0, 1, 1, 1.0D);
+        }
+
+        this.add(this.gamePanel, BorderLayout.CENTER);
+        this.revalidate();
+    }
+
+    private void finish() {
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.FINISH));
     }
 
     @Nullable
@@ -238,6 +333,7 @@ public class MainWindow extends Window {
         switch (this.state) {
             case WAITING_HOST -> this.ackCardPost();
             case SELECTING_TOPIC -> this.addCompForTopic();
+            case PLAYING -> this.addCompForPlay();
         }
     }
 
@@ -278,6 +374,9 @@ public class MainWindow extends Window {
                 break;
             case "decide":
                 this.decideTopic();
+                break;
+            case "finish":
+                this.finish();
                 break;
         }
     }

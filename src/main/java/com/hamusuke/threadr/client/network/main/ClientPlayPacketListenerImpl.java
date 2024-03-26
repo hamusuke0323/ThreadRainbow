@@ -4,15 +4,12 @@ import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
-import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChangeHostS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.SelectTopicS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.StartTopicSelectionS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,7 +31,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleGiveCard(GiveLocalCardS2CPacket packet) {
-        this.clientSpider.takeCard(new NumberCard(this.clientSpider, packet.num()));
+        this.clientSpider.takeCard(new LocalCard(this.clientSpider, packet.num()));
         this.mainWindow.card();
     }
 
@@ -59,5 +56,10 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     @Override
     public void handleSelectTopic(SelectTopicS2CPacket packet) {
         this.mainWindow.topic(packet.topic());
+    }
+
+    @Override
+    public void handleStartMainGame(StartMainGameS2CPacket packet) {
+        this.mainWindow.lineupCard();
     }
 }

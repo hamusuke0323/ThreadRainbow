@@ -3,13 +3,13 @@ package com.hamusuke.threadr.game.topic;
 import com.google.common.collect.ImmutableList;
 import com.hamusuke.threadr.client.gui.window.Window;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
-import org.apache.logging.log4j.LogManager;
 
-import javax.annotation.Nullable;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public record Topic(List<String> lines, String minDescription, String maxDescription) {
     public static Topic readFrom(IntelligentByteBuf buf) {
@@ -20,6 +20,32 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
         buf.writeList(this.lines, (s, buf1) -> buf1.writeString(s));
         buf.writeString(this.minDescription);
         buf.writeString(this.maxDescription);
+    }
+
+    public JPanel toPIPPanel() {
+        var grid = new GridBagLayout();
+        var p = new JPanel(grid);
+        var l3 = new JLabel("1 %s %s 100".formatted(this.minDescription, this.maxDescription));
+        l3.setHorizontalAlignment(SwingConstants.CENTER);
+        l3.setFont(l3.getFont().deriveFont(l3.getFont().getSize2D() * 0.85F));
+
+        if (this.lines.size() == 2) {
+            var l = new JLabel(this.lines.get(0));
+            l.setHorizontalAlignment(SwingConstants.CENTER);
+            var l2 = new JLabel(this.lines.get(1));
+            l2.setHorizontalAlignment(SwingConstants.CENTER);
+            Window.addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
+            Window.addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
+            Window.addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
+            return p;
+        }
+
+        var l2 = new JLabel(this.lines.get(0));
+        l2.setHorizontalAlignment(SwingConstants.CENTER);
+        Window.addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
+        Window.addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
+        p.setBorder(new LineBorder(new Color(1, 222, 195), 3, true));
+        return p;
     }
 
     public JPanel toPanel() {
@@ -76,5 +102,18 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
         }
 
         return builder.append("], minDescription: \"").append(this.minDescription).append('"').append(", maxDescription: \"").append(this.maxDescription).append('"').toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Topic topic = (Topic) o;
+        return Objects.equals(lines, topic.lines) && Objects.equals(minDescription, topic.minDescription) && Objects.equals(maxDescription, topic.maxDescription);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lines, minDescription, maxDescription);
     }
 }

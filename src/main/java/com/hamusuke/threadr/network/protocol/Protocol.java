@@ -26,10 +26,7 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPac
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.SelectTopicS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.StartTopicSelectionS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
 import com.hamusuke.threadr.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -78,6 +75,7 @@ public enum Protocol {
                     .add(RemoteCardGivenS2CPacket.class, RemoteCardGivenS2CPacket::new)
                     .add(StartTopicSelectionS2CPacket.class, StartTopicSelectionS2CPacket::new)
                     .add(SelectTopicS2CPacket.class, SelectTopicS2CPacket::new)
+                    .add(StartMainGameS2CPacket.class, StartMainGameS2CPacket::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)

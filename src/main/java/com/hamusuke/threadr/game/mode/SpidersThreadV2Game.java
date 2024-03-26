@@ -3,13 +3,10 @@ package com.hamusuke.threadr.game.mode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.card.ServerCard;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.SelectTopicS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.StartTopicSelectionS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.util.Util;
@@ -61,7 +58,7 @@ public class SpidersThreadV2Game {
             var remaining = ALL_CARDS.stream().filter(integer -> !this.givenNum.contains(integer)).toList();
             byte num = Util.chooseRandom(remaining, this.random);
             this.givenNum.add(num);
-            spider.takeCard(new NumberCard(spider, num));
+            spider.takeCard(new ServerCard(spider, num));
             spider.sendPacket(new GiveLocalCardS2CPacket(num));
             spider.sendPacketToOthers(new RemoteCardGivenS2CPacket(spider));
         });
@@ -90,6 +87,27 @@ public class SpidersThreadV2Game {
     protected void chooseRandomTopic() {
         var topics = this.server.getTopicLoader().getTopics();
         this.topic = Util.chooseRandom(topics, this.random);
+    }
+
+    public void decideTopic() {
+        if (this.status != Status.SELECTING_TOPIC) {
+            return;
+        }
+
+        this.nextStatus();
+        this.spiders.forEach(spider -> {
+            spider.sendPacket(new ChatS2CPacket("お題が決まりました"));
+            spider.sendPacket(new ChatS2CPacket("お題に沿って「たとえ」て小さい順に並べましょう"));
+            spider.sendPacket(new StartMainGameS2CPacket());
+        });
+    }
+
+    public void finish() {
+        if (this.status != Status.PLAYING) {
+            return;
+        }
+
+        this.nextStatus();
     }
 
     protected void nextStatus() {

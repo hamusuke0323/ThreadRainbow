@@ -1,14 +1,20 @@
 package com.hamusuke.threadr.client.gui.window;
 
-import com.hamusuke.threadr.game.topic.TopicLoader;
-import com.hamusuke.threadr.util.Util;
+import com.google.common.collect.Lists;
+import com.hamusuke.threadr.Constants;
+import com.hamusuke.threadr.client.gui.component.ImageLabel;
+import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
+import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.client.network.spider.RemoteSpider;
+import com.hamusuke.threadr.game.card.LocalCard;
+import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.card.RemoteCard;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.util.Random;
 
 public class ListWindow extends Window {
     public ListWindow() {
@@ -42,30 +48,22 @@ public class ListWindow extends Window {
     public void init() {
         super.init();
 
-        /*
         var image = new ImageLabel("/zero.jpg");
         image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
 
-        var list = new NumberCardList<Integer>();
-        var model = new DefaultListModel<Integer>();
-        model.addAll(Lists.newArrayList(1, 5, 8, 10, 15, 22, 24));
+        var list = new NumberCardList();
+        var model = new DefaultListModel<NumberCard>();
+        model.addElement(new LocalCard(new LocalSpider("あああ"), (byte) 8));
+        model.addAll(Lists.newArrayList(1, 5, 10, 15, 22, 24).stream().map(integer -> new RemoteCard(new RemoteSpider("nanashi" + integer))).toList());
         list.setModel(model);
 
-        var p = new JPanel(new BorderLayout());
+        var p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(image);
         p.add(new JScrollPane(list));
-        p.setPreferredSize(new Dimension(list.getFixedCellWidth() * MathHelper.clamp(model.getSize(), 0, 7) + 10, list.getFixedCellHeight() + 10));
+        //p.setPreferredSize(new Dimension(list.getFixedCellWidth() * MathHelper.clamp(model.getSize(), 0, 7) + 10, list.getFixedCellHeight() + 10));
 
-        this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.X_AXIS));
-        this.getContentPane().add(image);
-        this.getContentPane().add(p);
-         */
-        var loader = new TopicLoader();
-        loader.loadTopics();
-
-        var topic = Util.chooseRandom(loader.getTopics(), new Random());
-
-        this.getContentPane().add(topic.toPanel(), BorderLayout.CENTER);
-
+        this.add(p);
         this.pack();
         this.setLocationRelativeTo(null);
     }

@@ -8,7 +8,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class SpiderTable extends JTable {
-    private static final DefaultTableModel MODEL = new DefaultTableModel(new String[]{"spiders", "ping"}, 0);
+    private static final DefaultTableModel MODEL = new DefaultTableModel(new String[]{"spiders (ping[ms])"}, 0);
     protected final ThreadRainbowClient client;
 
     public SpiderTable(ThreadRainbowClient client) {
@@ -17,7 +17,6 @@ public class SpiderTable extends JTable {
         this.setDragEnabled(false);
         this.setColumnSelectionAllowed(false);
         this.setCellSelectionEnabled(false);
-        //this.getColumnModel().getColumn(0).setCellRenderer(new SpiderInfoRenderer());
     }
 
     @Override
@@ -29,7 +28,7 @@ public class SpiderTable extends JTable {
         this.clear();
         synchronized (this.client.clientSpiders) {
             this.client.clientSpiders.forEach(spider -> {
-                if (MODEL.getColumnCount() == 3) {
+                if (MODEL.getColumnCount() == 2) {
                     var num = "???";
                     if (spider instanceof LocalSpider local) {
                         num = Byte.toString(local.getLocalCard().num());
@@ -37,24 +36,24 @@ public class SpiderTable extends JTable {
                         num = Byte.toString(remote.getRemoteCard().getNumber());
                     }
 
-                    MODEL.addRow(new Object[]{spider.getName(), spider.getPing() + "ms", num});
+                    MODEL.addRow(new Object[]{"%s (%sms)".formatted(spider.getName(), spider.getPing()), num});
                 } else {
-                    MODEL.addRow(new Object[]{spider.getName(), spider.getPing() + "ms"});
+                    MODEL.addRow(new Object[]{"%s (%sms)".formatted(spider.getName(), spider.getPing())});
                 }
             });
         }
     }
 
     public void addCardNumCol() {
-        if (this.getColumnCount() == 3) {
+        if (this.getColumnCount() == 2) {
             return;
         }
 
-        MODEL.addColumn("card number");
+        MODEL.addColumn("cards");
     }
 
     public void removeCardNumCol() {
-        MODEL.setColumnCount(2);
+        MODEL.setColumnCount(1);
     }
 
     public void clear() {
