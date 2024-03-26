@@ -1,16 +1,14 @@
 package com.hamusuke.threadr.client.gui.window;
 
-import com.google.common.collect.Lists;
-import com.hamusuke.threadr.Constants;
-import com.hamusuke.threadr.client.gui.component.ImageLabel;
-import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
-import com.hamusuke.threadr.util.MathHelper;
+import com.hamusuke.threadr.game.topic.TopicLoader;
+import com.hamusuke.threadr.util.Util;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
+import java.util.Random;
 
 public class ListWindow extends Window {
     public ListWindow() {
@@ -22,8 +20,6 @@ public class ListWindow extends Window {
         if (is != null) {
             var font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20.0F).deriveFont(AffineTransform.getTranslateInstance(0.0D, 4.5D));
             EventQueue.invokeLater(() -> setUIFont(new FontUIResource(font)));
-        } else {
-            EventQueue.invokeLater(() -> setUIFont(new FontUIResource("Serif", Font.BOLD, 20)));
         }
 
         var window = new ListWindow();
@@ -46,6 +42,7 @@ public class ListWindow extends Window {
     public void init() {
         super.init();
 
+        /*
         var image = new ImageLabel("/zero.jpg");
         image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
 
@@ -61,6 +58,14 @@ public class ListWindow extends Window {
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.X_AXIS));
         this.getContentPane().add(image);
         this.getContentPane().add(p);
+         */
+        var loader = new TopicLoader();
+        loader.loadTopics();
+
+        var topic = Util.chooseRandom(loader.getTopics(), new Random());
+
+        this.getContentPane().add(topic.toPanel(), BorderLayout.CENTER);
+
         this.pack();
         this.setLocationRelativeTo(null);
     }

@@ -53,11 +53,11 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartTopicSelection(StartTopicSelectionS2CPacket packet) {
-
+        this.mainWindow.topic(packet.firstTopic());
     }
 
     @Override
     public void handleSelectTopic(SelectTopicS2CPacket packet) {
-
+        this.mainWindow.topic(packet.topic());
     }
 }

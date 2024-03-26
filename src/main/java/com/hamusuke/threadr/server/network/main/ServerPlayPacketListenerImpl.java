@@ -22,10 +22,14 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
             return;
         }
 
+        if (!this.server.isHost(this.spider)) {
+            this.spider.sendError("ホストのみ操作できます");
+            return;
+        }
+
         switch (packet.command()) {
-            case START_SELECTING_TOPIC -> {
-                this.server.getGame().startSelectingTopic();
-            }
+            case START_SELECTING_TOPIC -> this.server.getGame().startSelectingTopic();
+            case RESELECT_TOPIC -> this.server.getGame().reselectTopic();
             default -> this.spider.sendError("Illegal client command: " + packet.command());
         }
     }

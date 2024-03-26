@@ -2,6 +2,7 @@ package com.hamusuke.threadr.client.gui.window;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.ImageLabel;
+import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket.Command;
@@ -25,6 +26,8 @@ public class MainWindow extends Window {
     private JButton ack;
     private JLabel waitHost;
     private JButton selectTopic;
+    private Topic topic;
+    private JPanel topicPanel;
 
     public MainWindow() {
         super("ロビー");
@@ -139,6 +142,7 @@ public class MainWindow extends Window {
         if (this.amIHost()) {
             this.selectTopic = new JButton("お題を選ぶ");
             this.selectTopic.setActionCommand("select");
+            this.selectTopic.addActionListener(this);
             this.add(this.selectTopic, BorderLayout.CENTER);
         } else {
             this.waitHost = new JLabel("ホストが次に進むのを待っています...");
@@ -152,8 +156,50 @@ public class MainWindow extends Window {
         this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.START_SELECTING_TOPIC));
     }
 
-    public void topic() {
-        this.setTitle("ゲーム - お題決定 " + this.client.getAddresses());
+    public void topic(Topic topic) {
+        if (this.state == WindowState.WAITING_HOST) {
+            this.setTitle("ゲーム - お題決定 " + this.client.getAddresses());
+
+            if (this.waitHost != null) {
+                this.waitHost.setVisible(false);
+                this.remove(this.waitHost);
+            }
+
+            this.state = WindowState.SELECTING_TOPIC;
+        }
+
+        this.topic = topic;
+        this.addCompForTopic();
+    }
+
+    private void addCompForTopic() {
+        if (this.selectTopic != null) {
+            this.remove(this.selectTopic);
+        }
+        if (this.topicPanel != null) {
+            this.topicPanel.setVisible(false);
+            this.remove(this.topicPanel);
+        }
+
+        if (this.amIHost()) {
+            this.selectTopic = new JButton("もう一度選ぶ");
+            this.selectTopic.setActionCommand("reselect");
+            this.selectTopic.addActionListener(this);
+            this.topicPanel = new JPanel(new FlowLayout());
+            this.topicPanel.add(this.topic.toPanel());
+            this.topicPanel.add(this.selectTopic);
+            this.add(this.selectTopic, BorderLayout.CENTER);
+        } else {
+            this.topicPanel = new JPanel(new FlowLayout());
+            this.topicPanel.add(this.topic.toPanel());
+            this.add(this.topicPanel, BorderLayout.CENTER);
+        }
+
+        this.revalidate();
+    }
+
+    private void reselect() {
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.RESELECT_TOPIC));
     }
 
     public void rmTopic() {
@@ -214,6 +260,9 @@ public class MainWindow extends Window {
                 break;
             case "topic":
                 this.startSelectingTopic();
+                break;
+            case "reselect":
+                this.reselect();
                 break;
         }
     }

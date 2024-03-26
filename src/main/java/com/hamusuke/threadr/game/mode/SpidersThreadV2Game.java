@@ -79,7 +79,7 @@ public class SpidersThreadV2Game {
         this.spiders.forEach(spider -> spider.sendPacket(new StartTopicSelectionS2CPacket(this.topic)));
     }
 
-    public void selectTopicAgain() {
+    public void reselectTopic() {
         if (this.status != Status.SELECTING_TOPIC) {
             return;
         }

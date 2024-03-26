@@ -30,7 +30,7 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
         return null;
     }
 
-    protected static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wx, double wy) {
+    public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wx, double wy) {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = x;
@@ -44,12 +44,13 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
         owner.add(component);
     }
 
-    protected static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wh) {
+    public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wh) {
         addButton(owner, component, layout, x, y, w, h, 1.0D, wh);
     }
 
     public void init() {
         this.client = ThreadRainbowClient.getInstance();
+        this.setBackground(Color.WHITE);
     }
 
     public void tick() {
