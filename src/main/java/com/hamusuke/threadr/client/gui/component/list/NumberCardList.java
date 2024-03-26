@@ -4,7 +4,6 @@ import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.NumberCard;
-import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +34,7 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
     public NumberCardList(ThreadRainbowClient client) {
         super();
         this.client = client;
+        this.setCellRenderer(null);
         new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new ItemDropTargetListener(), true);
         DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
 
@@ -58,37 +58,34 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         this.card = card;
     }
 
-    @Override
-    public void updateUI() {
-        this.setCellRenderer(null);
-        super.updateUI();
-        var renderer = getCellRenderer();
-        this.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
-            var c = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (isSelected) {
-                c.setForeground(list.getSelectionForeground());
-                c.setBackground(list.getSelectionBackground());
-            } else {
-                c.setForeground(list.getForeground());
-                c.setBackground(index % 2 == 0 ? EVEN_BGC : list.getBackground());
-            }
-            return c;
-        });
+    private void drawCardImage(Graphics g, int x) {
+        if (this.card != null) {
+            g.drawImage(this.card, x, 0, null);
+        }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (this.card != null) {
-            for (int i = 0; i < this.getModel().getSize(); i++) {
-                g.drawImage(this.card, i * this.getFixedCellWidth(), 0, null);
-                var card = this.getModel().getElementAt(i);
-                if (card instanceof LocalCard localCard) {
-                    g.drawString("あなたのカード: " + localCard.getNumber(), i * this.getFixedCellWidth(), 20);
-                } else if (card instanceof RemoteCard remoteCard) {
-                    g.drawString(remoteCard.getOwner().getName(), i * this.getFixedCellWidth(), 20);
+        for (int i = 0; i < this.getModel().getSize(); i++) {
+            var card = this.getModel().getElementAt(i);
+            if (card instanceof LocalCard) {
+                if (card.isUncovered()) {
+                    g.drawString("あなたのカード", i * this.getFixedCellWidth(), 20);
+                    g.drawString("" + card.getNumber(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 4, this.getFixedCellHeight() / 2 - 4);
+                } else {
+                    this.drawCardImage(g, i * this.getFixedCellWidth());
+                    g.drawString("あなたのカード: " + card.getNumber(), i * this.getFixedCellWidth(), 20);
                 }
+            } else {
+                if (card.isUncovered()) {
+                    g.drawString("" + card.getNumber(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 4, this.getFixedCellHeight() / 2 - 4);
+                } else {
+                    this.drawCardImage(g, i * this.getFixedCellWidth());
+                }
+
+                g.drawString(card.getOwner().getName(), i * this.getFixedCellWidth(), 20);
             }
         }
 

@@ -10,8 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import static com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket.MAX_NAME_LENGTH;
+
 public class LoginWindow extends Window {
-    private static final int MAX_NAME_LENGTH = 16;
     private final String msg;
     private JTextField nameField;
 

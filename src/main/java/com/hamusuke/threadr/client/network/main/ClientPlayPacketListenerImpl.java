@@ -84,6 +84,16 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
         this.mainWindow.onMainGameFinished();
     }
 
+    @Override
+    public void handleUncoverCard(UncoverCardS2CPacket packet) {
+        this.mainWindow.onUncovered(packet.id(), packet.num(), packet.last());
+    }
+
+    @Override
+    public void handleRestart(RestartGameS2CPacket packet) {
+        this.mainWindow.reset();
+    }
+
     @Nullable
     public NumberCard getCardById(int id) {
         return this.cardMap.get(id);

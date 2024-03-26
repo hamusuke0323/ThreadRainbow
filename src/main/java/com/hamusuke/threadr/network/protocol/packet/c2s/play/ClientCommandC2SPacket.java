@@ -25,6 +25,8 @@ public record ClientCommandC2SPacket(Command command) implements Packet<ServerPl
         START_SELECTING_TOPIC,
         RESELECT_TOPIC,
         DECIDE_TOPIC,
-        FINISH
+        FINISH,
+        UNCOVER,
+        RESTART
     }
 }

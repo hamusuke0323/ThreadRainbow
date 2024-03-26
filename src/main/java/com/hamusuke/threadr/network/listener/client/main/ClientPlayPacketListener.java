@@ -16,4 +16,8 @@ public interface ClientPlayPacketListener extends ClientCommonPacketListener {
     void handleCardMoved(CardMovedS2CPacket packet);
 
     void handleMainGameFinish(MainGameFinishedS2CPacket packet);
+
+    void handleUncoverCard(UncoverCardS2CPacket packet);
+
+    void handleRestart(RestartGameS2CPacket packet);
 }

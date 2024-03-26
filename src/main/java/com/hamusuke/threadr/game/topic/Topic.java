@@ -25,6 +25,7 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
     public JPanel toPIPPanel() {
         var grid = new GridBagLayout();
         var p = new JPanel(grid);
+        p.setBorder(new LineBorder(new Color(1, 222, 195), 3, true));
         var l3 = new JLabel("1 %s %s 100".formatted(this.minDescription, this.maxDescription));
         l3.setHorizontalAlignment(SwingConstants.CENTER);
         l3.setFont(l3.getFont().deriveFont(l3.getFont().getSize2D() * 0.85F));
@@ -44,7 +45,6 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
         l2.setHorizontalAlignment(SwingConstants.CENTER);
         Window.addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
         Window.addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
-        p.setBorder(new LineBorder(new Color(1, 222, 195), 3, true));
         return p;
     }
 

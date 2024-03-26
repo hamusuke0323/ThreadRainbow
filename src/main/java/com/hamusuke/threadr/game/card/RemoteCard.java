@@ -6,6 +6,7 @@ import com.hamusuke.threadr.network.Spider;
 public class RemoteCard implements NumberCard {
     private final RemoteSpider owner;
     private byte number = -1;
+    private boolean uncovered;
 
     public RemoteCard(RemoteSpider owner) {
         this.owner = owner;
@@ -28,5 +29,14 @@ public class RemoteCard implements NumberCard {
     @Override
     public boolean canBeSeen() {
         return this.number > 0;
+    }
+
+    @Override
+    public boolean isUncovered() {
+        return this.uncovered;
+    }
+
+    public void uncover() {
+        this.uncovered = true;
     }
 }

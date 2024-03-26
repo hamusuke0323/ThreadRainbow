@@ -31,7 +31,7 @@ public class SpiderTable extends JTable {
                 if (MODEL.getColumnCount() == 2) {
                     var num = "???";
                     if (spider instanceof LocalSpider local) {
-                        num = Byte.toString(local.getLocalCard().num());
+                        num = Byte.toString(local.getLocalCard().getNumber());
                     } else if (spider instanceof RemoteSpider remote && remote.getRemoteCard() != null && remote.getRemoteCard().canBeSeen()) {
                         num = Byte.toString(remote.getRemoteCard().getNumber());
                     }

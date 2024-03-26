@@ -4,6 +4,8 @@ import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.ImageLabel;
 import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
 import com.hamusuke.threadr.client.network.main.ClientPlayPacketListenerImpl;
+import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
@@ -35,9 +37,10 @@ public class MainWindow extends Window {
     private JPanel topicPanel;
     private JButton decideTopic;
     private NumberCardList list;
-    private JPanel listPanel;
     private JButton finish;
     private JPanel gamePanel;
+    private JButton uncover;
+    private JButton restart;
 
     public MainWindow() {
         super("ロビー");
@@ -116,7 +119,7 @@ public class MainWindow extends Window {
         this.setTitle("ゲーム - 配られたカードの数字を確認 " + this.client.getAddresses());
         this.card = new ImageLabel("/card.jpg");
         this.card.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
-        this.cardNum = new JLabel(this.client.clientSpider.getLocalCard().num() + "", SwingConstants.CENTER);
+        this.cardNum = new JLabel(this.client.clientSpider.getLocalCard().getNumber() + "", SwingConstants.CENTER);
         this.cardNum.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
         this.cardNum.setVisible(false);
         this.show = new JButton("数字を見る");
@@ -320,7 +323,146 @@ public class MainWindow extends Window {
     }
 
     public void onMainGameFinished() {
+        if (this.state != WindowState.PLAYING) {
+            return;
+        }
+
+        this.state = WindowState.RESULT;
+        this.setTitle("ゲーム - 結果発表 " + this.client.getAddresses());
         this.list.lock();
+        this.addCompForResult();
+    }
+
+    private void addCompForResult() {
+        if (this.finish != null) {
+            this.finish.setVisible(false);
+        }
+        if (this.gamePanel != null) {
+            this.gamePanel.setVisible(false);
+            this.remove(this.gamePanel);
+        }
+        if (this.uncover != null) {
+            this.uncover.setVisible(false);
+        }
+
+        var image = new ImageLabel("/zero.jpg");
+        image.setMaximumSize(new Dimension(Constants.CARD_WIDTH, Integer.MAX_VALUE));
+        image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
+        var p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(image);
+        p.add(new JScrollPane(this.list));
+        var l = new GridBagLayout();
+        this.gamePanel = new JPanel(l);
+        if (this.amIHost()) {
+            this.uncover = new JButton("カードをめくる");
+            this.uncover.setActionCommand("uncover");
+            this.uncover.addActionListener(this);
+            addButton(this.gamePanel, p, l, 0, 0, 1, 1, 1.0D);
+            addButton(this.gamePanel, this.uncover, l, 0, 1, 1, 1, 0.125D);
+        } else {
+            addButton(this.gamePanel, p, l, 0, 0, 1, 1, 1.0D);
+        }
+
+        this.add(this.gamePanel, BorderLayout.CENTER);
+        this.revalidate();
+    }
+
+    private void uncover() {
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.UNCOVER));
+    }
+
+    public void onUncovered(int id, byte number, boolean last) {
+        synchronized (this.client.clientSpiders) {
+            this.client.clientSpiders.stream().filter(s -> s.getId() == id).findFirst().ifPresent(s -> {
+                if (s instanceof RemoteSpider r) {
+                    r.getRemoteCard().setNumber(number);
+                    r.getRemoteCard().uncover();
+                } else if (s instanceof LocalSpider l) {
+                    l.getLocalCard().uncover();
+                }
+            });
+        }
+
+        this.repaint();
+
+        if (!last) {
+            return;
+        }
+
+        this.state = WindowState.END;
+        if (this.uncover != null) {
+            this.uncover.setVisible(false);
+        }
+        this.setTitle("ゲーム - 終了 " + this.client.getAddresses());
+        this.addCompForEnd();
+    }
+
+    private void addCompForEnd() {
+        if (this.gamePanel != null) {
+            this.gamePanel.setVisible(false);
+            this.remove(this.gamePanel);
+        }
+        if (this.restart != null) {
+            this.restart.setVisible(false);
+        }
+
+        var image = new ImageLabel("/zero.jpg");
+        image.setMaximumSize(new Dimension(Constants.CARD_WIDTH, Integer.MAX_VALUE));
+        image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
+        var p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(image);
+        p.add(new JScrollPane(this.list));
+        var l = new GridBagLayout();
+        this.gamePanel = new JPanel(l);
+        if (this.amIHost()) {
+            this.restart = new JButton("もう一度遊ぶ");
+            this.restart.setActionCommand("restart");
+            this.restart.addActionListener(this);
+            addButton(this.gamePanel, p, l, 0, 0, 1, 1, 1.0D);
+            addButton(this.gamePanel, this.restart, l, 0, 1, 1, 1, 0.125D);
+        } else {
+            addButton(this.gamePanel, p, l, 0, 0, 1, 1, 1.0D);
+        }
+
+        this.add(this.gamePanel, BorderLayout.CENTER);
+        this.revalidate();
+    }
+
+    private void restart() {
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.RESTART));
+    }
+
+    public void reset() {
+        this.state = WindowState.NONE;
+        this.startGame = null;
+        this.lobbyPanel = null;
+        this.cardPanel = null;
+        this.card = null;
+        this.cardNum = null;
+        this.show = null;
+        this.ack = null;
+        this.waitHost = null;
+        this.selectTopic = null;
+        this.topic = null;
+        this.topicPanel = null;
+        this.decideTopic = null;
+        this.list = null;
+        this.finish = null;
+        if (this.gamePanel != null) {
+            this.gamePanel.setVisible(false);
+            this.remove(this.gamePanel);
+        }
+        this.gamePanel = null;
+        this.uncover = null;
+        if (this.restart != null) {
+            this.restart.setVisible(false);
+            this.remove(this.restart);
+        }
+        this.restart = null;
+        this.revalidate();
+        this.createSouth();
     }
 
     @Nullable
@@ -345,6 +487,8 @@ public class MainWindow extends Window {
             case WAITING_HOST -> this.ackCardPost();
             case SELECTING_TOPIC -> this.addCompForTopic();
             case PLAYING -> this.addCompForPlay();
+            case RESULT -> this.addCompForResult();
+            case END -> this.addCompForEnd();
         }
     }
 
@@ -389,6 +533,12 @@ public class MainWindow extends Window {
             case "finish":
                 this.finish();
                 break;
+            case "uncover":
+                this.uncover();
+                break;
+            case "restart":
+                this.restart();
+                break;
         }
     }
 
@@ -397,6 +547,7 @@ public class MainWindow extends Window {
         WAITING_HOST,
         SELECTING_TOPIC,
         PLAYING,
-        RESULT
+        RESULT,
+        END
     }
 }

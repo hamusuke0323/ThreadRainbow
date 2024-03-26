@@ -8,6 +8,7 @@ import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.RestartGameS2CPacket;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.network.main.ServerPlayPacketListenerImpl;
 import com.hamusuke.threadr.util.Util;
@@ -234,15 +235,24 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     }
 
     public synchronized void startGame() {
-        if (this.game != null) {
-            //return;
-        }
-
-        this.sendPacketToAll(new ChatS2CPacket("もうすぐでゲームが始まります！"));
         this.game = new SpidersThreadV2Game(this, this.spiderManager.getSpiders());
         this.game.getPlayingSpiders().forEach(spider -> {
+            spider.sendPacket(new ChatS2CPacket("もうすぐでゲームが始まります！"));
             new ServerPlayPacketListenerImpl(this, spider.connection.getConnection(), spider);
             spider.sendPacket(new StartGameS2CPacket());
+        });
+        this.game.start();
+    }
+
+    public synchronized void restartGame() {
+        if (this.game == null) {
+            return;
+        }
+
+        this.game = new SpidersThreadV2Game(this, this.game.getPlayingSpiders());
+        this.game.getPlayingSpiders().forEach(spider -> {
+            spider.sendPacket(new ChatS2CPacket("もうすぐでゲームが始まります！"));
+            spider.sendPacket(new RestartGameS2CPacket());
         });
         this.game.start();
     }

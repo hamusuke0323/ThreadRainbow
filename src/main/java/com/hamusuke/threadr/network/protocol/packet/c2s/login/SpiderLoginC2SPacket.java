@@ -7,13 +7,15 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import java.io.IOException;
 
 public record SpiderLoginC2SPacket(String name) implements Packet<ServerLoginPacketListener> {
+    public static final int MAX_NAME_LENGTH = 16;
+
     public SpiderLoginC2SPacket(IntelligentByteBuf byteBuf) {
-        this(byteBuf.readString());
+        this(byteBuf.readString(MAX_NAME_LENGTH));
     }
 
     @Override
     public void write(IntelligentByteBuf byteBuf) throws IOException {
-        byteBuf.writeString(this.name);
+        byteBuf.writeString(this.name, MAX_NAME_LENGTH);
     }
 
     @Override

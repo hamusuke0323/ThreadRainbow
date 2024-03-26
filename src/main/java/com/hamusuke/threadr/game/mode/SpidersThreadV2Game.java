@@ -10,6 +10,8 @@ import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.util.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 public class SpidersThreadV2Game {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final List<Byte> ALL_CARDS = Util.make(() -> {
         var list = Lists.<Byte>newArrayList();
         IntStream.rangeClosed(1, 100).forEach(value -> list.add((byte) value));
@@ -30,6 +33,8 @@ public class SpidersThreadV2Game {
     protected final ThreadRainbowServer server;
     protected Topic topic;
     protected final List<Integer> cards = Collections.synchronizedList(Lists.newArrayList());
+    protected int uncoveredIndex;
+    protected boolean failed;
 
     public SpidersThreadV2Game(ThreadRainbowServer server, List<ServerSpider> spidersToPlay) {
         this.server = server;
@@ -126,8 +131,78 @@ public class SpidersThreadV2Game {
         this.spiders.forEach(spider -> spider.sendPacket(new MainGameFinishedS2CPacket()));
     }
 
+    public void uncover() {
+        if (this.status == Status.FINISH) {
+            this.nextStatus();
+        }
+
+        if (this.status != Status.RESULT) {
+            return;
+        }
+
+        if (this.uncoveredIndex >= this.cards.size()) {
+            LOGGER.warn("Uncovering unknown card: {}", this.uncoveredIndex);
+            return;
+        }
+
+        int cur = this.uncoveredIndex;
+        int ownerId = this.cards.get(this.uncoveredIndex++);
+        int prevId = cur > 0 ? this.cards.get(cur - 1) : -1;
+        ServerSpider owner = null;
+        ServerSpider prev = null;
+        for (ServerSpider spider : this.spiders) {
+            if (spider.getId() == ownerId) {
+                owner = spider;
+            } else if (spider.getId() == prevId) {
+                prev = spider;
+            }
+        }
+
+        if (cur > 0) {
+            if (owner != null && prev != null && owner.getHoldingCard().getNumber() < prev.getHoldingCard().getNumber()) {
+                this.fail();
+            }
+        }
+
+        boolean last = this.cards.size() <= this.uncoveredIndex;
+        if (owner != null) {
+            for (ServerSpider spider : this.spiders) {
+                spider.sendPacket(new UncoverCardS2CPacket(owner.getId(), owner.getHoldingCard().getNumber(), last));
+            }
+        }
+        if (last && !this.failed) {
+            this.succeed();
+        }
+    }
+
+    protected void fail() {
+        if (this.failed) {
+            return;
+        }
+
+        this.failed = true;
+        this.spiders.forEach(spider -> spider.sendPacket(new ChatS2CPacket("失敗です！もう一度挑戦してみましょう")));
+    }
+
+    protected void succeed() {
+        if (this.failed) {
+            return;
+        }
+
+        this.spiders.forEach(spider -> spider.sendPacket(new ChatS2CPacket("成功です！")));
+    }
+
+    public void restart() {
+        if (this.status != Status.RESULT) {
+            return;
+        }
+
+        this.nextStatus();
+        this.server.restartGame();
+    }
+
     protected void nextStatus() {
-        if (this.status == Status.RESULT) {
+        if (this.status == Status.END) {
             return;
         }
 
@@ -142,14 +217,15 @@ public class SpidersThreadV2Game {
         this.getPlayingSpiders().stream().filter(spider1 -> spider1 != spider).forEach(spider1 -> spider1.sendPacket(new ChatS2CPacket(spider.getName() + " がゲームをやめました")));
     }
 
-    private enum Status {
+    protected enum Status {
         NONE,
         GIVING_OUT_CARDS,
         CHECKING_NUMBER,
         SELECTING_TOPIC,
         PLAYING,
         FINISH,
-        RESULT;
+        RESULT,
+        END;
 
         private Status next() {
             int i = this.ordinal() + 1;

@@ -10,4 +10,8 @@ public interface NumberCard {
     default boolean canBeSeen() {
         return false;
     }
+
+    default boolean isUncovered() {
+        return false;
+    }
 }
