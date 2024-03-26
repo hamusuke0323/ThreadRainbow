@@ -1,9 +1,11 @@
 package com.hamusuke.threadr.client.gui.component.list;
 
 import com.hamusuke.threadr.Constants;
+import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.game.card.RemoteCard;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,9 +29,12 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
     protected int draggedIndex = -1;
     protected int targetIndex = -1;
     protected final BufferedImage card;
+    protected final ThreadRainbowClient client;
+    private boolean locked;
 
-    public NumberCardList() {
+    public NumberCardList(ThreadRainbowClient client) {
         super();
+        this.client = client;
         new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new ItemDropTargetListener(), true);
         DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
 
@@ -55,10 +60,10 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
 
     @Override
     public void updateUI() {
-        setCellRenderer(null);
+        this.setCellRenderer(null);
         super.updateUI();
         var renderer = getCellRenderer();
-        setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+        this.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             var c = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (isSelected) {
                 c.setForeground(list.getSelectionForeground());
@@ -80,17 +85,17 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
                 g.drawImage(this.card, i * this.getFixedCellWidth(), 0, null);
                 var card = this.getModel().getElementAt(i);
                 if (card instanceof LocalCard localCard) {
-                    g.drawString("あなたのカード: " + localCard.getNumber(), i * this.getFixedCellWidth(), this.getFixedCellHeight() / 2 - 3);
+                    g.drawString("あなたのカード: " + localCard.getNumber(), i * this.getFixedCellWidth(), 20);
                 } else if (card instanceof RemoteCard remoteCard) {
-                    g.drawString(remoteCard.getOwner().getName(), i * this.getFixedCellWidth(), this.getFixedCellHeight() / 2 - 3);
+                    g.drawString(remoteCard.getOwner().getName(), i * this.getFixedCellWidth(), 20);
                 }
             }
         }
 
-        if (targetIndex >= 0) {
+        if (this.targetIndex >= 0) {
             var g2 = (Graphics2D) g.create();
             g2.setPaint(LINE_COLOR);
-            g2.fill(targetLine);
+            g2.fill(this.targetLine);
             g2.dispose();
         }
     }
@@ -99,28 +104,50 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         var rect = getCellBounds(0, 0);
         int width = rect.width;
         int lineHeight = rect.height;
-        int modelSize = getModel().getSize();
-        targetIndex = -1;
-        targetLine.setSize(2, lineHeight);
+        int modelSize = this.getModel().getSize();
+        this.targetIndex = -1;
+        this.targetLine.setSize(2, lineHeight);
         for (int i = 0; i < modelSize; i++) {
             rect.setLocation(width * i - width / 2, 0);
             if (rect.contains(p)) {
-                targetIndex = i;
-                targetLine.setLocation(i * width, 0);
+                this.targetIndex = i;
+                this.targetLine.setLocation(i * width, 0);
                 break;
             }
         }
-        if (targetIndex < 0) {
-            targetIndex = modelSize;
-            targetLine.setLocation(targetIndex * width, 0);
+        if (this.targetIndex < 0) {
+            this.targetIndex = modelSize;
+            this.targetLine.setLocation(this.targetIndex * width, 0);
+        }
+    }
+
+    public void lock() {
+        this.locked = true;
+    }
+
+    private void onMoved(int from, int to) {
+        this.client.getConnection().sendPacket(new MoveCardC2SPacket(from, to));
+    }
+
+    public void moveCard(int from, int to) {
+        var model = (DefaultListModel<NumberCard>) this.getModel();
+        var str = model.get(from);
+        if (to < from) {
+            model.remove(from);
+            model.add(to, str);
+            setSelectedIndex(to);
+        } else {
+            model.add(to + 1, str);
+            model.remove(from);
+            setSelectedIndex(to);
         }
     }
 
     @Override
     public void dragGestureRecognized(DragGestureEvent e) {
-        boolean oneOrMore = getSelectedIndices().length > 1;
-        draggedIndex = locationToIndex(e.getDragOrigin());
-        if (oneOrMore || draggedIndex < 0) {
+        boolean oneOrMore = this.getSelectedIndices().length > 1;
+        this.draggedIndex = this.locationToIndex(e.getDragOrigin());
+        if (oneOrMore || this.draggedIndex < 0) {
             return;
         }
         try {
@@ -176,7 +203,7 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
 
         @Override
         public void dragEnter(DropTargetDragEvent e) {
-            if (isDragAcceptable(e)) {
+            if (this.isDragAcceptable(e)) {
                 e.acceptDrag(e.getDropAction());
             } else {
                 e.rejectDrag();
@@ -185,7 +212,7 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
 
         @Override
         public void dragOver(DropTargetDragEvent e) {
-            if (isDragAcceptable(e)) {
+            if (this.isDragAcceptable(e)) {
                 e.acceptDrag(e.getDropAction());
             } else {
                 e.rejectDrag();
@@ -201,23 +228,13 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
 
         @Override
         public void drop(DropTargetDropEvent e) {
-            var model = (DefaultListModel<NumberCard>) getModel();
-            if (isDropAcceptable(e) && targetIndex >= 0 && draggedIndex != targetIndex - 1) {
-                var str = model.get(draggedIndex);
+            if (this.isDropAcceptable(e) && targetIndex >= 0 && draggedIndex != targetIndex - 1) {
                 if (targetIndex == draggedIndex) {
                     setSelectedIndex(targetIndex);
                 } else if (targetIndex < draggedIndex) {
-                    LOGGER.info("左に動かした");
-                    LOGGER.info("{}から{}へ", draggedIndex, targetIndex);
-                    model.remove(draggedIndex);
-                    model.add(targetIndex, str);
-                    setSelectedIndex(targetIndex);
+                    onMoved(draggedIndex, targetIndex);
                 } else {
-                    LOGGER.info("右に動かした");
-                    LOGGER.info("{}から{}へ", draggedIndex, targetIndex - 1);
-                    model.add(targetIndex, str);
-                    model.remove(draggedIndex);
-                    setSelectedIndex(targetIndex - 1);
+                    onMoved(draggedIndex, targetIndex - 1);
                 }
                 e.dropComplete(true);
             } else {
@@ -229,11 +246,11 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         }
 
         private boolean isDragAcceptable(DropTargetDragEvent e) {
-            return isDataFlavorSupported(e.getCurrentDataFlavors()[0]);
+            return !locked && isDataFlavorSupported(e.getCurrentDataFlavors()[0]);
         }
 
         private boolean isDropAcceptable(DropTargetDropEvent e) {
-            return isDataFlavorSupported(e.getTransferable().getTransferDataFlavors()[0]);
+            return !locked && isDataFlavorSupported(e.getTransferable().getTransferDataFlavors()[0]);
         }
     }
 }

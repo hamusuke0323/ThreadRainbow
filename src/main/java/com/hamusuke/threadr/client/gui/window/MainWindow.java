@@ -1,14 +1,10 @@
 package com.hamusuke.threadr.client.gui.window;
 
-import com.google.common.collect.Lists;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.ImageLabel;
 import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
-import com.hamusuke.threadr.client.network.spider.LocalSpider;
-import com.hamusuke.threadr.client.network.spider.RemoteSpider;
-import com.hamusuke.threadr.game.card.LocalCard;
+import com.hamusuke.threadr.client.network.main.ClientPlayPacketListenerImpl;
 import com.hamusuke.threadr.game.card.NumberCard;
-import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
@@ -260,11 +256,25 @@ public class MainWindow extends Window {
         this.revalidate();
     }
 
-    public void lineupCard() {
+    public void lineupCard(List<Integer> cards) {
         this.rmTopic();
         this.state = WindowState.PLAYING;
         this.setTitle("ゲーム - 「たとえ」て小さい順に並べる " + this.client.getAddresses());
         this.createSouth();
+
+        this.list = new NumberCardList(this.client);
+        var model = new DefaultListModel<NumberCard>();
+        cards.forEach(i -> {
+            var card = ((ClientPlayPacketListenerImpl) this.client.listener).getCardById(i);
+            if (card == null) {
+                LOGGER.warn("null card returned! should never happen.");
+                return;
+            }
+
+            model.addElement(card);
+        });
+        this.list.setModel(model);
+
         this.addCompForPlay();
         this.revalidate();
     }
@@ -279,15 +289,8 @@ public class MainWindow extends Window {
         }
 
         var image = new ImageLabel("/zero.jpg");
+        image.setMaximumSize(new Dimension(Constants.CARD_WIDTH, Integer.MAX_VALUE));
         image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
-        if (this.list == null) {
-            this.list = new NumberCardList();
-            var model = new DefaultListModel<NumberCard>();
-            model.addElement(new LocalCard(new LocalSpider("あああ"), (byte) 8));
-            model.addAll(Lists.newArrayList(1, 5, 10, 15, 22, 24).stream().map(integer -> new RemoteCard(new RemoteSpider("nanashi" + integer))).toList());
-            this.list.setModel(model);
-        }
-
         var p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(image);
@@ -308,8 +311,16 @@ public class MainWindow extends Window {
         this.revalidate();
     }
 
+    public void onCardMoved(int from, int to) {
+        this.list.moveCard(from, to);
+    }
+
     private void finish() {
         this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.FINISH));
+    }
+
+    public void onMainGameFinished() {
+        this.list.lock();
     }
 
     @Nullable

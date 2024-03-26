@@ -3,6 +3,7 @@ package com.hamusuke.threadr.server.network.main;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +35,16 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
             case FINISH -> this.server.getGame().finish();
             default -> this.spider.sendError("Illegal client command: " + packet.command());
         }
+    }
+
+    @Override
+    public void handleMoveCard(MoveCardC2SPacket packet) {
+        if (this.server.getGame() == null) {
+            LOGGER.warn("Illegal command packet came from client");
+            return;
+        }
+
+        this.server.getGame().moveCard(packet.from(), packet.to());
     }
 
     @Override

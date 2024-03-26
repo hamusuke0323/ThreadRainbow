@@ -11,6 +11,7 @@ import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.util.Util;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class SpidersThreadV2Game {
     protected final List<ServerSpider> spiders;
     protected final ThreadRainbowServer server;
     protected Topic topic;
+    protected final List<Integer> cards = Collections.synchronizedList(Lists.newArrayList());
 
     public SpidersThreadV2Game(ThreadRainbowServer server, List<ServerSpider> spidersToPlay) {
         this.server = server;
@@ -38,8 +40,6 @@ public class SpidersThreadV2Game {
         if (this.status == Status.NONE) {
             return;
         }
-
-
     }
 
     public void start() {
@@ -60,8 +60,8 @@ public class SpidersThreadV2Game {
             this.givenNum.add(num);
             spider.takeCard(new ServerCard(spider, num));
             spider.sendPacket(new GiveLocalCardS2CPacket(num));
-            spider.sendPacketToOthers(new RemoteCardGivenS2CPacket(spider));
         });
+        this.spiders.forEach(spider -> spider.sendPacketToOthers(new RemoteCardGivenS2CPacket(spider)));
         this.nextStatus();
     }
 
@@ -95,11 +95,26 @@ public class SpidersThreadV2Game {
         }
 
         this.nextStatus();
+        this.preLineup();
         this.spiders.forEach(spider -> {
             spider.sendPacket(new ChatS2CPacket("お題が決まりました"));
             spider.sendPacket(new ChatS2CPacket("お題に沿って「たとえ」て小さい順に並べましょう"));
-            spider.sendPacket(new StartMainGameS2CPacket());
+            spider.sendPacket(new StartMainGameS2CPacket(this.cards));
         });
+    }
+
+    protected void preLineup() {
+        this.cards.clear();
+        this.spiders.forEach(spider -> this.cards.add(spider.getId()));
+    }
+
+    public synchronized void moveCard(int from, int to) {
+        if (this.status != Status.PLAYING) {
+            return;
+        }
+
+        Collections.swap(this.cards, from, to);
+        this.spiders.forEach(spider -> spider.sendPacket(new CardMovedS2CPacket(from, to)));
     }
 
     public void finish() {
@@ -108,6 +123,7 @@ public class SpidersThreadV2Game {
         }
 
         this.nextStatus();
+        this.spiders.forEach(spider -> spider.sendPacket(new MainGameFinishedS2CPacket()));
     }
 
     protected void nextStatus() {

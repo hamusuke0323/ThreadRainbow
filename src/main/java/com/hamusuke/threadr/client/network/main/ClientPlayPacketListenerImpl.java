@@ -1,10 +1,12 @@
 package com.hamusuke.threadr.client.network.main;
 
+import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.LocalCard;
+import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
@@ -13,9 +15,13 @@ import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
+import java.util.Map;
+
 public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
     public MainWindow mainWindow;
+    private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
 
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         super(client, connection);
@@ -31,7 +37,10 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleGiveCard(GiveLocalCardS2CPacket packet) {
-        this.clientSpider.takeCard(new LocalCard(this.clientSpider, packet.num()));
+        var card = new LocalCard(this.clientSpider, packet.num());
+        this.clientSpider.takeCard(card);
+        this.cardMap.clear();
+        this.cardMap.put(this.clientSpider.getId(), card);
         this.mainWindow.card();
     }
 
@@ -42,7 +51,9 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
                 if (s instanceof LocalSpider) {
                     LOGGER.warn("Remote card came on me, should never happen!");
                 } else if (s instanceof RemoteSpider spider) {
-                    spider.haveRemoteCard(new RemoteCard(spider));
+                    var card = new RemoteCard(spider);
+                    spider.haveRemoteCard(card);
+                    this.cardMap.put(spider.getId(), card);
                 }
             });
         }
@@ -60,6 +71,21 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartMainGame(StartMainGameS2CPacket packet) {
-        this.mainWindow.lineupCard();
+        this.mainWindow.lineupCard(packet.cards());
+    }
+
+    @Override
+    public void handleCardMoved(CardMovedS2CPacket packet) {
+        this.mainWindow.onCardMoved(packet.from(), packet.to());
+    }
+
+    @Override
+    public void handleMainGameFinish(MainGameFinishedS2CPacket packet) {
+        this.mainWindow.onMainGameFinished();
+    }
+
+    @Nullable
+    public NumberCard getCardById(int id) {
+        return this.cardMap.get(id);
     }
 }

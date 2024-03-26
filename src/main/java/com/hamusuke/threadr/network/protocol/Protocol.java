@@ -23,6 +23,7 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacke
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
@@ -76,6 +77,8 @@ public enum Protocol {
                     .add(StartTopicSelectionS2CPacket.class, StartTopicSelectionS2CPacket::new)
                     .add(SelectTopicS2CPacket.class, SelectTopicS2CPacket::new)
                     .add(StartMainGameS2CPacket.class, StartMainGameS2CPacket::new)
+                    .add(CardMovedS2CPacket.class, CardMovedS2CPacket::new)
+                    .add(MainGameFinishedS2CPacket.class, MainGameFinishedS2CPacket::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)
@@ -83,6 +86,7 @@ public enum Protocol {
                     .add(RTTC2SPacket.class, RTTC2SPacket::new)
                     .add(ChatC2SPacket.class, ChatC2SPacket::new)
                     .add(ClientCommandC2SPacket.class, ClientCommandC2SPacket::new)
+                    .add(MoveCardC2SPacket.class, MoveCardC2SPacket::new)
             )
     ),
     LOGIN(2, protocol()
