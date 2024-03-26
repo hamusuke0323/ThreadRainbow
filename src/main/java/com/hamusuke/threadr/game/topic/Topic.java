@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 
 public record Topic(List<String> lines, String minDescription, String maxDescription) {
@@ -21,7 +22,11 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
         buf.writeString(this.maxDescription);
     }
 
-    public JPanel toPanel(@Nullable Component additionalComponent) {
+    public JPanel toPanel() {
+        return this.toPanel(Collections.emptyList());
+    }
+
+    public JPanel toPanel(List<Component> additionalComponents) {
         var grid = new GridBagLayout();
         var p = new JPanel(grid);
         var l3 = new JLabel("1 %s %s 100".formatted(this.minDescription, this.maxDescription));
@@ -38,8 +43,8 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
             Window.addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
             Window.addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
             Window.addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
-            if (additionalComponent != null) {
-                Window.addButton(p, additionalComponent, grid, 0, 3, 1, 1, 0.125D);
+            for (int i = 0; i < additionalComponents.size(); i++) {
+                Window.addButton(p, additionalComponents.get(i), grid, 0, 3 + i, 1, 1, 0.125D);
             }
 
             return p;
@@ -51,8 +56,8 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
 
         Window.addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
         Window.addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
-        if (additionalComponent != null) {
-            Window.addButton(p, additionalComponent, grid, 0, 2, 1, 1, 0.125D);
+        for (int i = 0; i < additionalComponents.size(); i++) {
+            Window.addButton(p, additionalComponents.get(i), grid, 0, 2 + i, 1, 1, 0.125D);
         }
 
         return p;

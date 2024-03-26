@@ -64,7 +64,7 @@ public class ListWindow extends Window {
 
         var topic = Util.chooseRandom(loader.getTopics(), new Random());
 
-        this.getContentPane().add(topic.toPanel(null), BorderLayout.CENTER);
+        this.getContentPane().add(topic.toPanel(), BorderLayout.CENTER);
 
         this.pack();
         this.setLocationRelativeTo(null);

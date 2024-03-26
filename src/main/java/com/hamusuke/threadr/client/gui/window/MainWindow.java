@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class MainWindow extends Window {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -28,6 +29,7 @@ public class MainWindow extends Window {
     private JButton selectTopic;
     private Topic topic;
     private JPanel topicPanel;
+    private JButton decideTopic;
 
     public MainWindow() {
         super("ロビー");
@@ -190,10 +192,13 @@ public class MainWindow extends Window {
             this.selectTopic = new JButton("もう一度選ぶ");
             this.selectTopic.setActionCommand("reselect");
             this.selectTopic.addActionListener(this);
-            this.topicPanel = this.topic.toPanel(this.selectTopic);
+            this.decideTopic = new JButton("決定");
+            this.decideTopic.setActionCommand("decide");
+            this.decideTopic.addActionListener(this);
+            this.topicPanel = this.topic.toPanel(List.of(this.selectTopic, this.decideTopic));
             this.add(this.topicPanel, BorderLayout.CENTER);
         } else {
-            this.topicPanel = this.topic.toPanel(null);
+            this.topicPanel = this.topic.toPanel();
             this.add(this.topicPanel, BorderLayout.CENTER);
         }
 
@@ -202,6 +207,10 @@ public class MainWindow extends Window {
 
     private void reselect() {
         this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.RESELECT_TOPIC));
+    }
+
+    private void decideTopic() {
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.DECIDE_TOPIC));
     }
 
     public void rmTopic() {
@@ -266,6 +275,9 @@ public class MainWindow extends Window {
                 break;
             case "reselect":
                 this.reselect();
+                break;
+            case "decide":
+                this.decideTopic();
                 break;
         }
     }
