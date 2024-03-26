@@ -157,8 +157,13 @@ public class MainWindow extends Window {
     }
 
     public void topic(Topic topic) {
-        if (this.state == WindowState.WAITING_HOST) {
+        if (this.state != WindowState.SELECTING_TOPIC) {
             this.setTitle("ゲーム - お題決定 " + this.client.getAddresses());
+
+            if (this.state != WindowState.WAITING_HOST) {
+                this.showCard();
+                this.ackCard();
+            }
 
             if (this.waitHost != null) {
                 this.waitHost.setVisible(false);
@@ -185,13 +190,10 @@ public class MainWindow extends Window {
             this.selectTopic = new JButton("もう一度選ぶ");
             this.selectTopic.setActionCommand("reselect");
             this.selectTopic.addActionListener(this);
-            this.topicPanel = new JPanel(new FlowLayout());
-            this.topicPanel.add(this.topic.toPanel());
-            this.topicPanel.add(this.selectTopic);
-            this.add(this.selectTopic, BorderLayout.CENTER);
+            this.topicPanel = this.topic.toPanel(this.selectTopic);
+            this.add(this.topicPanel, BorderLayout.CENTER);
         } else {
-            this.topicPanel = new JPanel(new FlowLayout());
-            this.topicPanel.add(this.topic.toPanel());
+            this.topicPanel = this.topic.toPanel(null);
             this.add(this.topicPanel, BorderLayout.CENTER);
         }
 
@@ -226,6 +228,7 @@ public class MainWindow extends Window {
     public void onChangeHost() {
         switch (this.state) {
             case WAITING_HOST -> this.ackCardPost();
+            case SELECTING_TOPIC -> this.addCompForTopic();
         }
     }
 
@@ -258,7 +261,7 @@ public class MainWindow extends Window {
             case "ack":
                 this.ackCard();
                 break;
-            case "topic":
+            case "select":
                 this.startSelectingTopic();
                 break;
             case "reselect":

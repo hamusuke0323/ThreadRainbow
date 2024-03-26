@@ -3,15 +3,14 @@ package com.hamusuke.threadr.game.topic;
 import com.google.common.collect.ImmutableList;
 import com.hamusuke.threadr.client.gui.window.Window;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
+import org.apache.logging.log4j.LogManager;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public record Topic(List<String> lines, String minDescription, String maxDescription) {
-    private static final String PREFIXED_LABEL_HTML = "<html><div align=\"center\"><font size=4>%s</font><br/><font size=6>%s</font></div><div align=\"left\" style=\"float: left;\"><font size=2 color=\"#FDE646\">1 %s</font></div><div align=\"right\"><font size=2 color=\"#FDE646\">%s 100</font></div></html>";
-    private static final String NORMAL_LABEL_HTML = "<html><div align=\"center\"><font size=6>%s</font></div><div align=\"left\" style=\"float: left;\"><font size=2 color=\"#FDE646\">1 %s</font></div>%s 100</html>";
-
     public static Topic readFrom(IntelligentByteBuf buf) {
         return new Topic(buf.readList(IntelligentByteBuf::readString, ImmutableList::copyOf), buf.readString(), buf.readString());
     }
@@ -22,7 +21,7 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
         buf.writeString(this.maxDescription);
     }
 
-    public JPanel toPanel() {
+    public JPanel toPanel(@Nullable Component additionalComponent) {
         var grid = new GridBagLayout();
         var p = new JPanel(grid);
         var l3 = new JLabel("1 %s %s 100".formatted(this.minDescription, this.maxDescription));
@@ -39,6 +38,9 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
             Window.addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
             Window.addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
             Window.addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
+            if (additionalComponent != null) {
+                Window.addButton(p, additionalComponent, grid, 0, 3, 1, 1, 0.125D);
+            }
 
             return p;
         }
@@ -49,6 +51,9 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
 
         Window.addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
         Window.addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
+        if (additionalComponent != null) {
+            Window.addButton(p, additionalComponent, grid, 0, 2, 1, 1, 0.125D);
+        }
 
         return p;
     }

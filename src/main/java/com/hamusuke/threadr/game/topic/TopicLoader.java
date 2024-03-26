@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.hamusuke.threadr.util.throwables.NoAvailableTopicException;
 
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class TopicLoader {
@@ -21,7 +22,7 @@ public class TopicLoader {
                 throw new NoAvailableTopicException("probably " + FILE + " does not exist?");
             }
 
-            GSON.fromJson(new InputStreamReader(is), JsonArray.class).forEach(e -> this.topics.add(GSON.fromJson(e, Topic.class)));
+            GSON.fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), JsonArray.class).forEach(e -> this.topics.add(GSON.fromJson(e, Topic.class)));
         } catch (Exception e) {
             throw new NoAvailableTopicException("Error occurred while loading topics", e);
         }

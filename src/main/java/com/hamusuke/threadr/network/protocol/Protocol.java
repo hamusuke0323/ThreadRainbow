@@ -22,11 +22,14 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.GiveLocalCardS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.RemoteCardGivenS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.SelectTopicS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.StartTopicSelectionS2CPacket;
 import com.hamusuke.threadr.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -73,12 +76,15 @@ public enum Protocol {
                     .add(ChangeHostS2CPacket.class, ChangeHostS2CPacket::new)
                     .add(GiveLocalCardS2CPacket.class, GiveLocalCardS2CPacket::new)
                     .add(RemoteCardGivenS2CPacket.class, RemoteCardGivenS2CPacket::new)
+                    .add(StartTopicSelectionS2CPacket.class, StartTopicSelectionS2CPacket::new)
+                    .add(SelectTopicS2CPacket.class, SelectTopicS2CPacket::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)
                     .add(PingC2SPacket.class, PingC2SPacket::new)
                     .add(RTTC2SPacket.class, RTTC2SPacket::new)
                     .add(ChatC2SPacket.class, ChatC2SPacket::new)
+                    .add(ClientCommandC2SPacket.class, ClientCommandC2SPacket::new)
             )
     ),
     LOGIN(2, protocol()

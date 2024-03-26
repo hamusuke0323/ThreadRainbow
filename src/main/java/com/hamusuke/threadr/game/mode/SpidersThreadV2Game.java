@@ -57,7 +57,6 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.nextStatus();
         this.spiders.forEach(spider -> {
             var remaining = ALL_CARDS.stream().filter(integer -> !this.givenNum.contains(integer)).toList();
             byte num = Util.chooseRandom(remaining, this.random);
