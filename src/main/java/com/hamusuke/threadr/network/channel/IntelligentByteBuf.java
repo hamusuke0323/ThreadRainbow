@@ -41,6 +41,14 @@ public class IntelligentByteBuf extends ByteBuf {
         return 5;
     }
 
+    public void writeEnum(Enum<?> e) {
+        this.writeVariableInt(e.ordinal());
+    }
+
+    public <E> E readEnum(Class<E> clazz) {
+        return clazz.getEnumConstants()[this.readVariableInt()];
+    }
+
     public void writeColor(Color color) {
         this.writeVariableInt(color.getRGB());
     }

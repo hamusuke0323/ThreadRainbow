@@ -4,11 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.ClientLoginPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class LoginDisconnectS2CPacket implements Packet<ClientLoginPacketListener> {
-    public LoginDisconnectS2CPacket() {
-    }
-
+public record LoginDisconnectS2CPacket() implements Packet<ClientLoginPacketListener> {
     public LoginDisconnectS2CPacket(IntelligentByteBuf byteBuf) {
+        this();
     }
 
     @Override
@@ -17,6 +15,6 @@ public class LoginDisconnectS2CPacket implements Packet<ClientLoginPacketListene
 
     @Override
     public void handle(ClientLoginPacketListener listener) {
-        listener.onDisconnect(this);
+        listener.handleDisconnect(this);
     }
 }

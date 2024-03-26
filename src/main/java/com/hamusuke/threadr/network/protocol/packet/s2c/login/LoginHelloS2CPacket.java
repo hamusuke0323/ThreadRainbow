@@ -7,21 +7,10 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.security.PublicKey;
 
-public class LoginHelloS2CPacket implements Packet<ClientLoginPacketListener> {
-    private final String serverId;
-    private final byte[] publicKey;
-    private final byte[] nonce;
-
-    public LoginHelloS2CPacket(String serverId, byte[] publicKey, byte[] nonce) {
-        this.serverId = serverId;
-        this.publicKey = publicKey;
-        this.nonce = nonce;
-    }
-
+public record LoginHelloS2CPacket(String serverId, byte[] publicKey,
+                                  byte[] nonce) implements Packet<ClientLoginPacketListener> {
     public LoginHelloS2CPacket(IntelligentByteBuf buf) {
-        this.serverId = buf.readString(20);
-        this.publicKey = buf.readByteArray();
-        this.nonce = buf.readByteArray();
+        this(buf.readString(20), buf.readByteArray(), buf.readByteArray());
     }
 
     public void write(IntelligentByteBuf buf) {
@@ -32,18 +21,10 @@ public class LoginHelloS2CPacket implements Packet<ClientLoginPacketListener> {
 
     @Override
     public void handle(ClientLoginPacketListener listener) {
-        listener.onHello(this);
-    }
-
-    public String getServerId() {
-        return this.serverId;
+        listener.handleHello(this);
     }
 
     public PublicKey getPublicKey() throws Exception {
         return NetworkEncryptionUtil.readEncodedPublicKey(this.publicKey);
-    }
-
-    public byte[] getNonce() {
-        return this.nonce;
     }
 }

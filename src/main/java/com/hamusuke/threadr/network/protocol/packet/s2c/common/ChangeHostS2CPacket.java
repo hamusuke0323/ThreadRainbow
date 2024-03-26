@@ -7,15 +7,13 @@ import com.hamusuke.threadr.server.network.ServerSpider;
 
 import java.io.IOException;
 
-public class ChangeHostS2CPacket implements Packet<ClientCommonPacketListener> {
-    private final int id;
-
+public record ChangeHostS2CPacket(int id) implements Packet<ClientCommonPacketListener> {
     public ChangeHostS2CPacket(ServerSpider spider) {
-        this.id = spider.getId();
+        this(spider.getId());
     }
 
     public ChangeHostS2CPacket(IntelligentByteBuf buf) {
-        this.id = buf.readVariableInt();
+        this(buf.readVariableInt());
     }
 
     @Override
@@ -26,9 +24,5 @@ public class ChangeHostS2CPacket implements Packet<ClientCommonPacketListener> {
     @Override
     public void handle(ClientCommonPacketListener listener) {
         listener.handleChangeHost(this);
-    }
-
-    public int getId() {
-        return this.id;
     }
 }

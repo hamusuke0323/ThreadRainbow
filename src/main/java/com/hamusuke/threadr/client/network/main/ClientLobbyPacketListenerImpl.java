@@ -19,7 +19,7 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
     public void handleChangeHost(ChangeHostS2CPacket packet) {
         super.handleChangeHost(packet);
 
-        this.mainWindow.showStartButton(this.clientSpider.getId() == packet.getId());
+        this.mainWindow.showStartButton(this.clientSpider.getId() == packet.id());
     }
 
     @Override

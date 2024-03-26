@@ -9,18 +9,14 @@ import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public class LoginKeyC2SPacket implements Packet<ServerLoginPacketListener> {
-    private final byte[] encryptedSecretKey;
-    private final byte[] encryptedNonce;
-
+public record LoginKeyC2SPacket(byte[] encryptedSecretKey,
+                                byte[] encryptedNonce) implements Packet<ServerLoginPacketListener> {
     public LoginKeyC2SPacket(SecretKey secretKey, PublicKey publicKey, byte[] nonce) throws Exception {
-        this.encryptedSecretKey = NetworkEncryptionUtil.encrypt(publicKey, secretKey.getEncoded());
-        this.encryptedNonce = NetworkEncryptionUtil.encrypt(publicKey, nonce);
+        this(NetworkEncryptionUtil.encrypt(publicKey, secretKey.getEncoded()), NetworkEncryptionUtil.encrypt(publicKey, nonce));
     }
 
     public LoginKeyC2SPacket(IntelligentByteBuf buf) {
-        this.encryptedSecretKey = buf.readByteArray();
-        this.encryptedNonce = buf.readByteArray();
+        this(buf.readByteArray(), buf.readByteArray());
     }
 
     @Override
@@ -31,7 +27,7 @@ public class LoginKeyC2SPacket implements Packet<ServerLoginPacketListener> {
 
     @Override
     public void handle(ServerLoginPacketListener listener) {
-        listener.onKey(this);
+        listener.handleKey(this);
     }
 
     public SecretKey decryptSecretKey(PrivateKey privateKey) throws Exception {

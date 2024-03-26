@@ -42,7 +42,7 @@ public class ConnectingWindow extends Window {
 
         var button = new JButton("接続");
         button.addActionListener(e -> {
-            new DedicatedConnectingDialog(this, client, host.getText(), Integer.parseInt(port.getText()));
+            new DedicatedConnectingDialog(this, this.client, host.getText(), Integer.parseInt(port.getText()));
         });
 
         var layout = new GridBagLayout();
@@ -58,7 +58,7 @@ public class ConnectingWindow extends Window {
 
     @Override
     protected void onClose() {
-        client.stopLooping();
+        this.client.stopLooping();
         super.onClose();
     }
 }

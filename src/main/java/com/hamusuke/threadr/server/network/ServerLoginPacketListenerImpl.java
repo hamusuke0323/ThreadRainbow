@@ -3,7 +3,6 @@ package com.hamusuke.threadr.server.network;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.listener.server.ServerLoginPacketListener;
-import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
@@ -15,15 +14,13 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.Random;
 
 public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int TIMEOUT_TICKS = 600;
+    private static final int ENCRYPTION_WAIT_TICKS = 60;
     private static final Random RANDOM = new Random();
     public final Connection connection;
     final ThreadRainbowServer server;
@@ -31,6 +28,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     private final String serverId;
     State state;
     private int ticks;
+    private int encWaitTicks;
     private ServerSpider serverSpider;
 
     public ServerLoginPacketListenerImpl(ThreadRainbowServer server, Connection connection) {
@@ -47,7 +45,12 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
     @Override
     public void tick() {
-        if (this.state == State.READY) {
+        if (this.state == State.ENTER_NAME && this.encWaitTicks > 0) {
+            this.encWaitTicks--;
+            if (this.encWaitTicks <= 0) {
+                this.connection.sendPacket(new EnterNameS2CPacket());
+            }
+        } else if (this.state == State.READY) {
             this.acceptSpider();
         }
 
@@ -100,7 +103,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Override
-    public void onHello(LoginHelloC2SPacket packet) {
+    public void handleHello(LoginHelloC2SPacket packet) {
         Validate.validState(this.state == State.HELLO, "Unexpected hello packet");
         if (this.state != State.HELLO) {
             this.disconnect();
@@ -111,7 +114,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Override
-    public void onKey(LoginKeyC2SPacket packet) {
+    public void handleKey(LoginKeyC2SPacket packet) {
         Validate.validState(this.state == State.KEY, "Unexpected key packet");
         var privateKey = this.server.getKeyPair().getPrivate();
 
@@ -125,27 +128,27 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
             var cipher2 = NetworkEncryptionUtil.cipherFromKey(1, secretKey);
             this.connection.setupEncryption(cipher, cipher2);
             this.state = State.ENTER_NAME;
-            this.connection.sendPacket(new EnterNameS2CPacket());
+            this.encWaitTicks = ENCRYPTION_WAIT_TICKS;
         } catch (Exception e) {
             throw new IllegalStateException("Protocol error", e);
         }
     }
 
     @Override
-    public void onPing(AliveC2SPacket packet) {
+    public void handlePing(AliveC2SPacket packet) {
         this.connection.sendPacket(new AliveS2CPacket());
     }
 
     @Override
-    public void onLogin(SpiderLoginC2SPacket packet) {
+    public void handleLogin(SpiderLoginC2SPacket packet) {
         Validate.validState(this.state == State.ENTER_NAME, "Unexpected login packet");
 
-        if (this.tryLogin(packet.getName())) {
-            this.serverSpider = new ServerSpider(packet.getName(), this.server);
+        if (this.tryLogin(packet.name())) {
+            this.serverSpider = new ServerSpider(packet.name(), this.server);
             this.serverSpider.setAuthorized(true);
             this.state = State.READY;
         } else {
-            this.connection.sendPacket(new EnterNameS2CPacket(packet.getName()));
+            this.connection.sendPacket(new EnterNameS2CPacket(packet.name()));
         }
     }
 

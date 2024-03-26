@@ -4,7 +4,6 @@ import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.command.Commands;
 import com.hamusuke.threadr.game.mode.SpidersThreadV2Game;
 import com.hamusuke.threadr.game.topic.TopicLoader;
-import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
@@ -23,18 +22,15 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.security.KeyPair;
-import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<ServerTask> implements AutoCloseable, CommandSource {
     private static final Logger LOGGER = LogManager.getLogger();
     private final ServerNetworkIo networkIo;
-    private final Random random;
     private final AtomicBoolean running = new AtomicBoolean();
     private final Thread serverThread;
     private final Executor worker;
@@ -57,7 +53,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
 
     public ThreadRainbowServer(Thread serverThread) {
         super("Server");
-        this.random = new Random();
         this.serverPort = -1;
         this.running.set(true);
         this.networkIo = new ServerNetworkIo(this);
@@ -182,10 +177,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         this.shutdown();
     }
 
-    public Random getRandom() {
-        return this.random;
-    }
-
     public void shutdown() {
         LOGGER.info("Stopping server");
         if (this.getNetworkIo() != null) {
@@ -254,6 +245,15 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
             spider.sendPacket(new StartGameS2CPacket());
         });
         this.game.start();
+    }
+
+    @Nullable
+    public SpidersThreadV2Game getGame() {
+        return this.game;
+    }
+
+    public TopicLoader getTopicLoader() {
+        return this.topicLoader;
     }
 
     public int getCompressionThreshold() {

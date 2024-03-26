@@ -4,11 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.server.ServerLoginPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class LoginHelloC2SPacket implements Packet<ServerLoginPacketListener> {
-    public LoginHelloC2SPacket() {
-    }
-
+public record LoginHelloC2SPacket() implements Packet<ServerLoginPacketListener> {
     public LoginHelloC2SPacket(IntelligentByteBuf byteBuf) {
+        this();
     }
 
     @Override
@@ -17,6 +15,6 @@ public class LoginHelloC2SPacket implements Packet<ServerLoginPacketListener> {
 
     @Override
     public void handle(ServerLoginPacketListener listener) {
-        listener.onHello(this);
+        listener.handleHello(this);
     }
 }

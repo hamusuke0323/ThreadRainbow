@@ -5,7 +5,6 @@ import com.mojang.brigadier.StringReader;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
-import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -25,7 +24,7 @@ public class LoginWindow extends Window {
     public void init() {
         super.init();
 
-        if (this.msg != null && !this.msg.isEmpty()) {
+        if (!this.msg.isEmpty()) {
             var dialog = new JDialog(this, "名前の重複エラー", true);
             var label = new JLabel("\"" + this.msg + "\"という名前はすでに使われています。別の名前を使用してください！");
             dialog.add(label, BorderLayout.CENTER);
@@ -74,12 +73,12 @@ public class LoginWindow extends Window {
     }
 
     private void login(String name) {
-        client.getConnection().sendPacket(new SpiderLoginC2SPacket(name));
+        this.client.getConnection().sendPacket(new SpiderLoginC2SPacket(name));
     }
 
     @Override
     protected void onClose() {
-        client.disconnect();
+        this.client.disconnect();
         this.dispose();
     }
 

@@ -36,7 +36,7 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
 
     @Override
     public void handleChatPacket(ChatS2CPacket packet) {
-        this.client.chat.addMessage(packet.getMsg());
+        this.client.chat.addMessage(packet.msg());
     }
 
     @Override
@@ -45,14 +45,14 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
             this.client.executeSync(() -> packet.handle(this));
         }
 
-        this.connection.sendPacket(new RTTC2SPacket((int) (Util.getMeasuringTimeMs() - packet.getClientTime())));
+        this.connection.sendPacket(new RTTC2SPacket((int) (Util.getMeasuringTimeMs() - packet.clientTime())));
     }
 
     @Override
     public void handleRTTPacket(RTTS2CPacket packet) {
         synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.stream().filter(p -> p.getId() == packet.getSpiderId()).forEach(spider -> {
-                spider.setPing(packet.getRtt());
+            this.client.clientSpiders.stream().filter(p -> p.getId() == packet.spiderId()).forEach(spider -> {
+                spider.setPing(packet.rtt());
             });
         }
 
@@ -66,21 +66,21 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
 
     @Override
     public void handleJoinPacket(JoinSpiderS2CPacket packet) {
-        var spider = new RemoteSpider(packet.getName());
-        spider.setId(packet.getId());
+        var spider = new RemoteSpider(packet.name());
+        spider.setId(packet.id());
         this.client.addClientSpider(spider);
     }
 
     @Override
     public void handleLeavePacket(LeaveSpiderS2CPacket packet) {
         synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.removeIf(p -> p.getId() == packet.getId());
+            this.client.clientSpiders.removeIf(p -> p.getId() == packet.id());
         }
     }
 
     @Override
     public void handleChangeHost(ChangeHostS2CPacket packet) {
-        this.hostId = packet.getId();
+        this.hostId = packet.id();
     }
 
     public int getHostId() {

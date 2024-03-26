@@ -6,15 +6,9 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public class SpiderLoginC2SPacket implements Packet<ServerLoginPacketListener> {
-    private final String name;
-
-    public SpiderLoginC2SPacket(String name) {
-        this.name = name;
-    }
-
+public record SpiderLoginC2SPacket(String name) implements Packet<ServerLoginPacketListener> {
     public SpiderLoginC2SPacket(IntelligentByteBuf byteBuf) {
-        this.name = byteBuf.readString();
+        this(byteBuf.readString());
     }
 
     @Override
@@ -24,10 +18,6 @@ public class SpiderLoginC2SPacket implements Packet<ServerLoginPacketListener> {
 
     @Override
     public void handle(ServerLoginPacketListener listener) {
-        listener.onLogin(this);
-    }
-
-    public String getName() {
-        return this.name;
+        listener.handleLogin(this);
     }
 }

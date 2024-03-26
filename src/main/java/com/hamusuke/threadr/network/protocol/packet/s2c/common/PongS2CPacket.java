@@ -4,15 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class PongS2CPacket implements Packet<ClientCommonPacketListener> {
-    private final long clientTime;
-
-    public PongS2CPacket(long clientTime) {
-        this.clientTime = clientTime;
-    }
-
+public record PongS2CPacket(long clientTime) implements Packet<ClientCommonPacketListener> {
     public PongS2CPacket(IntelligentByteBuf byteBuf) {
-        this.clientTime = byteBuf.readLong();
+        this(byteBuf.readLong());
     }
 
     @Override
@@ -23,9 +17,5 @@ public class PongS2CPacket implements Packet<ClientCommonPacketListener> {
     @Override
     public void handle(ClientCommonPacketListener listener) {
         listener.handlePongPacket(this);
-    }
-
-    public long getClientTime() {
-        return this.clientTime;
     }
 }

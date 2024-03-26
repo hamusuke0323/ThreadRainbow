@@ -3,6 +3,8 @@ package com.hamusuke.threadr.client.gui.window;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.ImageLabel;
 import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket.Command;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -121,7 +123,7 @@ public class MainWindow extends Window {
     }
 
     private void ackCard() {
-        this.state = WindowState.WAIT_HOST;
+        this.state = WindowState.WAITING_HOST;
         this.rmCard();
         this.ackCardPost();
     }
@@ -136,6 +138,7 @@ public class MainWindow extends Window {
 
         if (this.amIHost()) {
             this.selectTopic = new JButton("お題を選ぶ");
+            this.selectTopic.setActionCommand("select");
             this.add(this.selectTopic, BorderLayout.CENTER);
         } else {
             this.waitHost = new JLabel("ホストが次に進むのを待っています...");
@@ -143,6 +146,10 @@ public class MainWindow extends Window {
         }
 
         this.revalidate();
+    }
+
+    private void startSelectingTopic() {
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.START_SELECTING_TOPIC));
     }
 
     public void topic() {
@@ -172,7 +179,7 @@ public class MainWindow extends Window {
 
     public void onChangeHost() {
         switch (this.state) {
-            case WAIT_HOST -> this.ackCardPost();
+            case WAITING_HOST -> this.ackCardPost();
         }
     }
 
@@ -205,12 +212,15 @@ public class MainWindow extends Window {
             case "ack":
                 this.ackCard();
                 break;
+            case "topic":
+                this.startSelectingTopic();
+                break;
         }
     }
 
     private enum WindowState {
         NONE,
-        WAIT_HOST,
+        WAITING_HOST,
         SELECTING_TOPIC,
         PLAYING,
         RESULT

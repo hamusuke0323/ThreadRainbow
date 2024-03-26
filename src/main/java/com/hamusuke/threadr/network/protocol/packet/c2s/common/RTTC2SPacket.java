@@ -4,15 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.server.main.ServerCommonPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class RTTC2SPacket implements Packet<ServerCommonPacketListener> {
-    private final int rtt;
-
-    public RTTC2SPacket(int rtt) {
-        this.rtt = rtt;
-    }
-
+public record RTTC2SPacket(int rtt) implements Packet<ServerCommonPacketListener> {
     public RTTC2SPacket(IntelligentByteBuf buf) {
-        this.rtt = buf.readVariableInt();
+        this(buf.readVariableInt());
     }
 
     @Override
@@ -23,9 +17,5 @@ public class RTTC2SPacket implements Packet<ServerCommonPacketListener> {
     @Override
     public void handle(ServerCommonPacketListener listener) {
         listener.handleRTTPacket(this);
-    }
-
-    public int getRtt() {
-        return this.rtt;
     }
 }

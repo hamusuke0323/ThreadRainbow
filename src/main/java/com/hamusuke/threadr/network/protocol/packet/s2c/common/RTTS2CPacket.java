@@ -4,18 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class RTTS2CPacket implements Packet<ClientCommonPacketListener> {
-    private final int spiderId;
-    private final int rtt;
-
-    public RTTS2CPacket(int spiderId, int rtt) {
-        this.spiderId = spiderId;
-        this.rtt = rtt;
-    }
-
+public record RTTS2CPacket(int spiderId, int rtt) implements Packet<ClientCommonPacketListener> {
     public RTTS2CPacket(IntelligentByteBuf byteBuf) {
-        this.spiderId = byteBuf.readVariableInt();
-        this.rtt = byteBuf.readVariableInt();
+        this(byteBuf.readVariableInt(), byteBuf.readVariableInt());
     }
 
     @Override
@@ -27,13 +18,5 @@ public class RTTS2CPacket implements Packet<ClientCommonPacketListener> {
     @Override
     public void handle(ClientCommonPacketListener listener) {
         listener.handleRTTPacket(this);
-    }
-
-    public int getSpiderId() {
-        return this.spiderId;
-    }
-
-    public int getRtt() {
-        return this.rtt;
     }
 }

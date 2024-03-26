@@ -4,15 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class LeaveSpiderS2CPacket implements Packet<ClientCommonPacketListener> {
-    private final int id;
-
-    public LeaveSpiderS2CPacket(int id) {
-        this.id = id;
-    }
-
+public record LeaveSpiderS2CPacket(int id) implements Packet<ClientCommonPacketListener> {
     public LeaveSpiderS2CPacket(IntelligentByteBuf byteBuf) {
-        this.id = byteBuf.readVariableInt();
+        this(byteBuf.readVariableInt());
     }
 
     @Override
@@ -23,9 +17,5 @@ public class LeaveSpiderS2CPacket implements Packet<ClientCommonPacketListener> 
     @Override
     public void handle(ClientCommonPacketListener listener) {
         listener.handleLeavePacket(this);
-    }
-
-    public int getId() {
-        return this.id;
     }
 }

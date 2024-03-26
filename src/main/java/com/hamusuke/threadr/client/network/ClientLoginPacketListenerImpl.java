@@ -4,8 +4,8 @@ import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.Chat;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
-import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.client.gui.window.LoginWindow;
+import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.client.network.main.ClientLobbyPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -18,8 +18,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import java.security.PublicKey;
 import java.util.function.Consumer;
 
 public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener {
@@ -48,27 +46,27 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
     }
 
     @Override
-    public void onHello(LoginHelloS2CPacket packet) {
+    public void handleHello(LoginHelloS2CPacket packet) {
         Cipher cipher;
         Cipher cipher2;
         LoginKeyC2SPacket loginKeyC2SPacket;
         try {
-            SecretKey secretKey = NetworkEncryptionUtil.generateKey();
-            PublicKey publicKey = packet.getPublicKey();
+            var secretKey = NetworkEncryptionUtil.generateKey();
+            var publicKey = packet.getPublicKey();
             cipher = NetworkEncryptionUtil.cipherFromKey(2, secretKey);
             cipher2 = NetworkEncryptionUtil.cipherFromKey(1, secretKey);
-            loginKeyC2SPacket = new LoginKeyC2SPacket(secretKey, publicKey, packet.getNonce());
+            loginKeyC2SPacket = new LoginKeyC2SPacket(secretKey, publicKey, packet.nonce());
         } catch (Exception e) {
             LOGGER.error("Protocol error", e);
             throw new IllegalStateException("Protocol error", e);
         }
 
-        this.statusConsumer.accept("接続を暗号化しています...");
+        this.statusConsumer.accept("通信を暗号化しています...");
         this.connection.sendPacket(loginKeyC2SPacket, future -> this.connection.setupEncryption(cipher, cipher2));
     }
 
     @Override
-    public void onSuccess(LoginSuccessS2CPacket packet) {
+    public void handleSuccess(LoginSuccessS2CPacket packet) {
         this.waitingAuthComplete = false;
         this.statusConsumer.accept("ロビーに参加しています...");
         this.client.clientSpider = new LocalSpider(packet.name());
@@ -87,23 +85,23 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
     }
 
     @Override
-    public void onDisconnect(LoginDisconnectS2CPacket packet) {
+    public void handleDisconnect(LoginDisconnectS2CPacket packet) {
         this.connection.disconnect();
     }
 
     @Override
-    public void onCompression(LoginCompressionS2CPacket packet) {
-        this.connection.setCompression(packet.getThreshold(), false);
+    public void handleCompression(LoginCompressionS2CPacket packet) {
+        this.connection.setCompression(packet.threshold(), false);
     }
 
     @Override
-    public void onEnterName(EnterNameS2CPacket packet) {
+    public void handleEnterName(EnterNameS2CPacket packet) {
         if (!this.waitingAuthComplete) {
             this.waitingAuthComplete = true;
             this.onJoinLobby.run();
         }
 
-        this.client.setCurrentWindow(new LoginWindow(packet.getMsg()));
+        this.client.setCurrentWindow(new LoginWindow(packet.msg()));
     }
 
     @Override

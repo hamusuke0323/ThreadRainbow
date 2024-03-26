@@ -25,7 +25,7 @@ public record LoginSuccessS2CPacket(int id, String name) implements Packet<Clien
 
     @Override
     public void handle(ClientLoginPacketListener listener) {
-        listener.onSuccess(this);
+        listener.handleSuccess(this);
     }
 
     @Nullable

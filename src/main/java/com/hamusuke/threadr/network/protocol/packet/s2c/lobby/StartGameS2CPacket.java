@@ -8,11 +8,9 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-public class StartGameS2CPacket implements Packet<ClientLobbyPacketListener> {
-    public StartGameS2CPacket() {
-    }
-
+public record StartGameS2CPacket() implements Packet<ClientLobbyPacketListener> {
     public StartGameS2CPacket(IntelligentByteBuf buf) {
+        this();
     }
 
     @Override

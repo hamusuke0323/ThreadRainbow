@@ -36,24 +36,24 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
 
     @Override
     public void handleChatPacket(ChatC2SPacket packet) {
-        if (packet.getMsg().startsWith("/")) {
-            this.server.runCommand(this.spider, packet.getMsg().substring(1));
+        if (packet.msg().startsWith("/")) {
+            this.server.runCommand(this.spider, packet.msg().substring(1));
 
             return;
         }
 
-        this.server.sendPacketToAll(new ChatS2CPacket(String.format("<%s> %s", this.spider.getName(), packet.getMsg())));
+        this.server.sendPacketToAll(new ChatS2CPacket(String.format("<%s> %s", this.spider.getName(), packet.msg())));
     }
 
     @Override
     public void handlePingPacket(PingC2SPacket packet) {
-        this.connection.sendPacket(new PongS2CPacket(packet.getClientTime()));
+        this.connection.sendPacket(new PongS2CPacket(packet.clientTime()));
     }
 
     @Override
     public void handleRTTPacket(RTTC2SPacket packet) {
-        this.spider.setPing(packet.getRtt());
-        this.server.sendPacketToAll(new RTTS2CPacket(this.spider.getId(), packet.getRtt()));
+        this.spider.setPing(packet.rtt());
+        this.server.sendPacketToAll(new RTTS2CPacket(this.spider.getId(), packet.rtt()));
     }
 
     @Override

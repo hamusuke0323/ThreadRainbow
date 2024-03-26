@@ -6,11 +6,9 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public class AliveC2SPacket implements Packet<ServerLoginPacketListener> {
-    public AliveC2SPacket() {
-    }
-
+public record AliveC2SPacket() implements Packet<ServerLoginPacketListener> {
     public AliveC2SPacket(IntelligentByteBuf byteBuf) {
+        this();
     }
 
     @Override
@@ -19,6 +17,6 @@ public class AliveC2SPacket implements Packet<ServerLoginPacketListener> {
 
     @Override
     public void handle(ServerLoginPacketListener listener) {
-        listener.onPing(this);
+        listener.handlePing(this);
     }
 }

@@ -3,7 +3,6 @@ package com.hamusuke.threadr.server.network.handshake;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.ServerHandshakePacketListener;
-import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.LoginDisconnectS2CPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
@@ -22,11 +21,11 @@ public class ServerHandshakePacketListenerImpl implements ServerHandshakePacketL
     }
 
     @Override
-    public void onHandshake(HandshakeC2SPacket packet) {
-        switch (packet.getIntendedProtocol()) {
+    public void handleHandshake(HandshakeC2SPacket packet) {
+        switch (packet.intendedProtocol()) {
             case LOGIN:
                 this.connection.setProtocol(packet.nextProtocol());
-                if (packet.getProtocolVersion() != Constants.PROTOCOL_VERSION) {
+                if (packet.protocolVersion() != Constants.PROTOCOL_VERSION) {
                     this.connection.sendPacket(new LoginDisconnectS2CPacket());
                     this.connection.disconnect();
                 } else {
@@ -35,7 +34,7 @@ public class ServerHandshakePacketListenerImpl implements ServerHandshakePacketL
                 }
                 break;
             default:
-                throw new UnsupportedOperationException("Invalid intention " + packet.getIntendedProtocol());
+                throw new UnsupportedOperationException("Invalid intention " + packet.intendedProtocol());
         }
     }
 

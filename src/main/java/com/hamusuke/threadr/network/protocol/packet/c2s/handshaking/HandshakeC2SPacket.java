@@ -8,18 +8,14 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import javax.annotation.Nullable;
 
-public class HandshakeC2SPacket implements Packet<ServerHandshakePacketListener> {
-    private final int protocolVersion;
-    private final Protocol intendedProtocol;
-
+public record HandshakeC2SPacket(int protocolVersion,
+                                 Protocol intendedProtocol) implements Packet<ServerHandshakePacketListener> {
     public HandshakeC2SPacket(Protocol intendedProtocol) {
-        this.protocolVersion = Constants.PROTOCOL_VERSION;
-        this.intendedProtocol = intendedProtocol;
+        this(Constants.PROTOCOL_VERSION, intendedProtocol);
     }
 
     public HandshakeC2SPacket(IntelligentByteBuf buf) {
-        this.protocolVersion = buf.readVariableInt();
-        this.intendedProtocol = Protocol.byId(buf.readVariableInt());
+        this(buf.readVariableInt(), Protocol.byId(buf.readVariableInt()));
     }
 
     @Override
@@ -30,15 +26,7 @@ public class HandshakeC2SPacket implements Packet<ServerHandshakePacketListener>
 
     @Override
     public void handle(ServerHandshakePacketListener listener) {
-        listener.onHandshake(this);
-    }
-
-    public Protocol getIntendedProtocol() {
-        return this.intendedProtocol;
-    }
-
-    public int getProtocolVersion() {
-        return this.protocolVersion;
+        listener.handleHandshake(this);
     }
 
     @Nullable

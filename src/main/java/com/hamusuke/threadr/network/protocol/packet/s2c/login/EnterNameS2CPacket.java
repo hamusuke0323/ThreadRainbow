@@ -6,19 +6,13 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public class EnterNameS2CPacket implements Packet<ClientLoginPacketListener> {
-    private final String msg;
-
+public record EnterNameS2CPacket(String msg) implements Packet<ClientLoginPacketListener> {
     public EnterNameS2CPacket() {
         this("");
     }
 
-    public EnterNameS2CPacket(String msg) {
-        this.msg = msg;
-    }
-
     public EnterNameS2CPacket(IntelligentByteBuf byteBuf) {
-        this.msg = byteBuf.readString();
+        this(byteBuf.readString());
     }
 
     @Override
@@ -28,10 +22,6 @@ public class EnterNameS2CPacket implements Packet<ClientLoginPacketListener> {
 
     @Override
     public void handle(ClientLoginPacketListener listener) {
-        listener.onEnterName(this);
-    }
-
-    public String getMsg() {
-        return this.msg;
+        listener.handleEnterName(this);
     }
 }

@@ -6,11 +6,9 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public class StartGameC2SPacket implements Packet<ServerLobbyPacketListener> {
-    public StartGameC2SPacket() {
-    }
-
+public record StartGameC2SPacket() implements Packet<ServerLobbyPacketListener> {
     public StartGameC2SPacket(IntelligentByteBuf buf) {
+        this();
     }
 
     @Override

@@ -6,11 +6,9 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public class AliveS2CPacket implements Packet<ClientLoginPacketListener> {
-    public AliveS2CPacket() {
-    }
-
+public record AliveS2CPacket() implements Packet<ClientLoginPacketListener> {
     public AliveS2CPacket(IntelligentByteBuf byteBuf) {
+        this();
     }
 
     @Override

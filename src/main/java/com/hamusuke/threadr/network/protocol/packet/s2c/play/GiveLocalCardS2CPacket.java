@@ -6,15 +6,9 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public class GiveLocalCardS2CPacket implements Packet<ClientPlayPacketListener> {
-    private final byte num;
-
-    public GiveLocalCardS2CPacket(byte num) {
-        this.num = num;
-    }
-
+public record GiveLocalCardS2CPacket(byte num) implements Packet<ClientPlayPacketListener> {
     public GiveLocalCardS2CPacket(IntelligentByteBuf buf) {
-        this.num = buf.readByte();
+        this(buf.readByte());
     }
 
     @Override
@@ -25,9 +19,5 @@ public class GiveLocalCardS2CPacket implements Packet<ClientPlayPacketListener> 
     @Override
     public void handle(ClientPlayPacketListener listener) {
         listener.handleGiveCard(this);
-    }
-
-    public byte getNum() {
-        return this.num;
     }
 }

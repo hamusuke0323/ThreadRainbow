@@ -4,15 +4,9 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.server.main.ServerCommonPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public class ChatC2SPacket implements Packet<ServerCommonPacketListener> {
-    private final String msg;
-
-    public ChatC2SPacket(String msg) {
-        this.msg = msg;
-    }
-
+public record ChatC2SPacket(String msg) implements Packet<ServerCommonPacketListener> {
     public ChatC2SPacket(IntelligentByteBuf byteBuf) {
-        this.msg = byteBuf.readString();
+        this(byteBuf.readString());
     }
 
     @Override
@@ -23,9 +17,5 @@ public class ChatC2SPacket implements Packet<ServerCommonPacketListener> {
     @Override
     public void handle(ServerCommonPacketListener listener) {
         listener.handleChatPacket(this);
-    }
-
-    public String getMsg() {
-        return this.msg;
     }
 }
