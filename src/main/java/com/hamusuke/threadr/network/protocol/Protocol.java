@@ -56,11 +56,11 @@ public enum Protocol {
                     .add(StartGameS2CPacket.class, StartGameS2CPacket::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLobbyPacketListener>()
-                    .add(StartGameC2SPacket.class, StartGameC2SPacket::new)
                     .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)
                     .add(PingC2SPacket.class, PingC2SPacket::new)
                     .add(RTTC2SPacket.class, RTTC2SPacket::new)
                     .add(ChatC2SPacket.class, ChatC2SPacket::new)
+                    .add(StartGameC2SPacket.class, StartGameC2SPacket::new)
             )
     ),
     PLAY(1, protocol()
