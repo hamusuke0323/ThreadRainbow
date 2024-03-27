@@ -143,6 +143,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet<?> msg) {
         if (this.isConnected()) {
+            if (msg.nextProtocol() != null) {
+                this.disableAutoRead();
+            }
+
             handle(msg, this.packetListener);
         }
     }
