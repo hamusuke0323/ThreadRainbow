@@ -95,7 +95,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     @Override
-    public void handleExit(ExitGameS2CPacket packet) {
+    public void handleExit(ExitGameSuccS2CPacket packet) {
         int id = this.hostId;
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
         listener.hostId = id;
@@ -104,6 +104,15 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
         this.mainWindow.lobby();
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
+    }
+
+    @Override
+    public void handleSpiderExit(SpiderExitGameS2CPacket packet) {
+        var card = this.cardMap.get(packet.id());
+        if (card != null) {
+            this.mainWindow.onSpiderLeft(card);
+            this.cardMap.remove(packet.id());
+        }
     }
 
     @Nullable

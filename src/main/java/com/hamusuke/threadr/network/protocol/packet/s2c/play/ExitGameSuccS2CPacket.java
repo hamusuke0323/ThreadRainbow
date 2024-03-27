@@ -7,8 +7,8 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.io.IOException;
 
-public record ExitGameS2CPacket() implements Packet<ClientPlayPacketListener> {
-    public ExitGameS2CPacket(IntelligentByteBuf buf) {
+public record ExitGameSuccS2CPacket() implements Packet<ClientPlayPacketListener> {
+    public ExitGameSuccS2CPacket(IntelligentByteBuf buf) {
         this();
     }
 

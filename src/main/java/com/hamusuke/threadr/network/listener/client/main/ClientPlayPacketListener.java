@@ -21,5 +21,7 @@ public interface ClientPlayPacketListener extends ClientCommonPacketListener {
 
     void handleRestart(RestartGameS2CPacket packet);
 
-    void handleExit(ExitGameS2CPacket packet);
+    void handleExit(ExitGameSuccS2CPacket packet);
+
+    void handleSpiderExit(SpiderExitGameS2CPacket packet);
 }

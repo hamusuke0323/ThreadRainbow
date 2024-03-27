@@ -97,6 +97,12 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         }
     }
 
+    public void removeCard(NumberCard card) {
+        var model = (DefaultListModel<NumberCard>) this.getModel();
+        model.removeElement(card);
+        this.repaint();
+    }
+
     protected void initTargetLine(Point p) {
         var rect = getCellBounds(0, 0);
         int width = rect.width;

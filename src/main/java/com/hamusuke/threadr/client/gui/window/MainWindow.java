@@ -556,6 +556,10 @@ public class MainWindow extends Window {
         }
     }
 
+    public void onSpiderLeft(NumberCard card) {
+        this.list.removeCard(card);
+    }
+
     private boolean amIHost() {
         return this.client.clientSpider != null && this.client.listener != null && this.client.clientSpider.getId() == this.client.listener.getHostId();
     }
