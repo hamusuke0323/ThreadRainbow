@@ -226,7 +226,7 @@ public class SpidersThreadV2Game {
     }
 
     private void onCardRemoved() {
-        if (this.cards.size() > this.uncoveredIndex || this.succeeded) {
+        if (this.status != Status.RESULT || this.cards.size() > this.uncoveredIndex || this.succeeded) {
             return;
         }
 

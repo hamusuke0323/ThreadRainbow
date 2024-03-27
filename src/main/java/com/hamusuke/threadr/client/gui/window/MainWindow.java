@@ -557,7 +557,9 @@ public class MainWindow extends Window {
     }
 
     public void onSpiderLeft(NumberCard card) {
-        this.list.removeCard(card);
+        if (this.list != null) {
+            this.list.removeCard(card);
+        }
     }
 
     private boolean amIHost() {
