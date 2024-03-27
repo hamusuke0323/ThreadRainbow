@@ -217,13 +217,16 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     }
 
     private void sendInternal(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> callback) {
+        if (packet.nextProtocol() != null) {
+            this.disableAutoRead();
+        }
+
         var channelFuture = this.channel.writeAndFlush(packet);
         if (callback != null) {
             channelFuture.addListener(callback);
         }
 
         if (packet.nextProtocol() != null) {
-            this.disableAutoRead();
             channelFuture.addListener(future -> this.setProtocol(packet.nextProtocol()));
         }
         channelFuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
