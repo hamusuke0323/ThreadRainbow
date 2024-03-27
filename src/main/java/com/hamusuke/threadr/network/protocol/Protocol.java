@@ -81,6 +81,7 @@ public enum Protocol {
                     .add(MainGameFinishedS2CPacket.class, MainGameFinishedS2CPacket::new)
                     .add(UncoverCardS2CPacket.class, UncoverCardS2CPacket::new)
                     .add(RestartGameS2CPacket.class, RestartGameS2CPacket::new)
+                    .add(ExitGameS2CPacket.class, ExitGameS2CPacket::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)

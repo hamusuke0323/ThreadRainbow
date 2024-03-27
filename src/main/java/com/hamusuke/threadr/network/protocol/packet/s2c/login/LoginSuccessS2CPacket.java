@@ -6,8 +6,6 @@ import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.server.network.ServerSpider;
 
-import javax.annotation.Nullable;
-
 public record LoginSuccessS2CPacket(int id, String name) implements Packet<ClientLoginPacketListener> {
     public LoginSuccessS2CPacket(ServerSpider spider) {
         this(spider.getId(), spider.getName());
@@ -28,7 +26,6 @@ public record LoginSuccessS2CPacket(int id, String name) implements Packet<Clien
         listener.handleSuccess(this);
     }
 
-    @Nullable
     @Override
     public Protocol nextProtocol() {
         return Protocol.LOBBY;

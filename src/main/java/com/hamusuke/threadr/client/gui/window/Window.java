@@ -5,12 +5,9 @@ import com.hamusuke.threadr.client.ThreadRainbowClient;
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 
-public abstract class Window extends JFrame implements ActionListener, WindowListener {
+public abstract class Window extends JFrame implements ActionListener, WindowListener, ComponentListener {
     protected ThreadRainbowClient client = ThreadRainbowClient.getInstance();
     protected Runnable onDisposed = () -> {
     };
@@ -20,6 +17,7 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
     protected Window(String title) {
         this.setTitle(title);
         this.addWindowListener(this);
+        this.addComponentListener(this);
         this.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }
 
@@ -113,5 +111,21 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
     @Override
     public void windowDeactivated(WindowEvent e) {
         this.onHide();
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
     }
 }

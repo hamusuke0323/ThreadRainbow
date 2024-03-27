@@ -235,6 +235,10 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     }
 
     public synchronized void startGame() {
+        if (this.game != null && !this.game.getPlayingSpiders().isEmpty()) {
+            return;
+        }
+
         this.game = new SpidersThreadV2Game(this, this.spiderManager.getSpiders());
         this.game.getPlayingSpiders().forEach(spider -> {
             spider.sendPacket(new ChatS2CPacket("もうすぐでゲームが始まります！"));

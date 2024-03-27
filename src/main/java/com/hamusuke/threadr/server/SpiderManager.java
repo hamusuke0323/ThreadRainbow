@@ -2,7 +2,6 @@ package com.hamusuke.threadr.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChangeHostS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
@@ -80,13 +79,13 @@ public class SpiderManager {
 
     public void changeHost(String name) {
         synchronized (this.spiders) {
-            var host = this.spiders.stream().filter(serverSpider -> serverSpider.getName().equals(name)).findFirst();
-            host.ifPresent(serverSpider -> this.host = serverSpider);
+            this.spiders.stream().filter(serverSpider -> serverSpider.getName().equals(name)).findFirst().ifPresent(this::changeHost);
         }
+    }
 
-        if (this.host != null) {
-            this.sendPacketToAll(new ChangeHostS2CPacket(this.host));
-        }
+    public void changeHost(ServerSpider host) {
+        this.host = host;
+        this.sendPacketToAll(new ChangeHostS2CPacket(this.host));
     }
 
     public ImmutableList<ServerSpider> getSpiders() {

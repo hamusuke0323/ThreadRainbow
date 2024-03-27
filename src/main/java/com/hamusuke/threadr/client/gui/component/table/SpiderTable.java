@@ -17,6 +17,7 @@ public class SpiderTable extends JTable {
         this.setDragEnabled(false);
         this.setColumnSelectionAllowed(false);
         this.setCellSelectionEnabled(false);
+        this.setRowHeight(30);
     }
 
     @Override

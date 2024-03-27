@@ -20,4 +20,6 @@ public interface ClientPlayPacketListener extends ClientCommonPacketListener {
     void handleUncoverCard(UncoverCardS2CPacket packet);
 
     void handleRestart(RestartGameS2CPacket packet);
+
+    void handleExit(ExitGameS2CPacket packet);
 }

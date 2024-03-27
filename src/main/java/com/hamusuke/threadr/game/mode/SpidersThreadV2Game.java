@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.hamusuke.threadr.game.card.ServerCard;
 import com.hamusuke.threadr.game.topic.Topic;
+import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
@@ -38,7 +39,7 @@ public class SpidersThreadV2Game {
 
     public SpidersThreadV2Game(ThreadRainbowServer server, List<ServerSpider> spidersToPlay) {
         this.server = server;
-        this.spiders = spidersToPlay;
+        this.spiders = Collections.synchronizedList(Lists.newArrayList(spidersToPlay));
     }
 
     public void tick() {
@@ -66,7 +67,7 @@ public class SpidersThreadV2Game {
             spider.takeCard(new ServerCard(spider, num));
             spider.sendPacket(new GiveLocalCardS2CPacket(num));
         });
-        this.spiders.forEach(spider -> spider.sendPacketToOthers(new RemoteCardGivenS2CPacket(spider)));
+        this.spiders.forEach(spider -> this.sendPacketToOthersInGame(spider, new RemoteCardGivenS2CPacket(spider)));
         this.nextStatus();
     }
 
@@ -77,7 +78,7 @@ public class SpidersThreadV2Game {
 
         this.nextStatus();
         this.chooseRandomTopic();
-        this.spiders.forEach(spider -> spider.sendPacket(new StartTopicSelectionS2CPacket(this.topic)));
+        this.sendPacketToAllInGame(new StartTopicSelectionS2CPacket(this.topic));
     }
 
     public void reselectTopic() {
@@ -86,7 +87,7 @@ public class SpidersThreadV2Game {
         }
 
         this.chooseRandomTopic();
-        this.spiders.forEach(spider -> spider.sendPacket(new SelectTopicS2CPacket(this.topic)));
+        this.sendPacketToAllInGame(new SelectTopicS2CPacket(this.topic));
     }
 
     protected void chooseRandomTopic() {
@@ -119,7 +120,7 @@ public class SpidersThreadV2Game {
         }
 
         Collections.swap(this.cards, from, to);
-        this.spiders.forEach(spider -> spider.sendPacket(new CardMovedS2CPacket(from, to)));
+        this.sendPacketToAllInGame(new CardMovedS2CPacket(from, to));
     }
 
     public void finish() {
@@ -128,7 +129,7 @@ public class SpidersThreadV2Game {
         }
 
         this.nextStatus();
-        this.spiders.forEach(spider -> spider.sendPacket(new MainGameFinishedS2CPacket()));
+        this.sendPacketToAllInGame(new MainGameFinishedS2CPacket());
     }
 
     public void uncover() {
@@ -166,9 +167,7 @@ public class SpidersThreadV2Game {
 
         boolean last = this.cards.size() <= this.uncoveredIndex;
         if (owner != null) {
-            for (ServerSpider spider : this.spiders) {
-                spider.sendPacket(new UncoverCardS2CPacket(owner.getId(), owner.getHoldingCard().getNumber(), last));
-            }
+            this.sendPacketToAllInGame(new UncoverCardS2CPacket(owner.getId(), owner.getHoldingCard().getNumber(), last));
         }
         if (last && !this.failed) {
             this.succeed();
@@ -181,7 +180,7 @@ public class SpidersThreadV2Game {
         }
 
         this.failed = true;
-        this.spiders.forEach(spider -> spider.sendPacket(new ChatS2CPacket("失敗です！もう一度挑戦してみましょう")));
+        this.sendPacketToAllInGame(new ChatS2CPacket("失敗です！もう一度挑戦してみましょう"));
     }
 
     protected void succeed() {
@@ -189,7 +188,7 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.spiders.forEach(spider -> spider.sendPacket(new ChatS2CPacket("成功です！")));
+        this.sendPacketToAllInGame(new ChatS2CPacket("成功です！"));
     }
 
     public void restart() {
@@ -210,11 +209,20 @@ public class SpidersThreadV2Game {
     }
 
     public List<ServerSpider> getPlayingSpiders() {
-        return this.spiders;
+        return ImmutableList.copyOf(this.spiders);
     }
 
-    public void onSpiderLeft(ServerSpider spider) {
-        this.getPlayingSpiders().stream().filter(spider1 -> spider1 != spider).forEach(spider1 -> spider1.sendPacket(new ChatS2CPacket(spider.getName() + " がゲームをやめました")));
+    public synchronized void onSpiderLeft(ServerSpider spider) {
+        this.spiders.removeIf(spider1 -> spider1.equals(spider));
+        this.sendPacketToAllInGame(new ChatS2CPacket(spider.getName() + " がゲームをやめました"));
+    }
+
+    public void sendPacketToAllInGame(Packet<?> packet) {
+        this.spiders.forEach(spider -> spider.sendPacket(packet));
+    }
+
+    protected void sendPacketToOthersInGame(ServerSpider exclusive, Packet<?> packet) {
+        this.spiders.stream().filter(spider -> !spider.equals(exclusive)).forEach(spider -> spider.sendPacket(packet));
     }
 
     protected enum Status {

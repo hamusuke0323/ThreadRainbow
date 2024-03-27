@@ -3,7 +3,9 @@ package com.hamusuke.threadr.server.network.main;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket.Command;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.play.ExitGameS2CPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +25,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
             return;
         }
 
-        if (!this.server.isHost(this.spider)) {
+        if (!this.server.isHost(this.spider) && packet.command() != Command.EXIT) {
             this.spider.sendError("ホストのみ操作できます");
             return;
         }
@@ -35,6 +37,14 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
             case FINISH -> this.server.getGame().finish();
             case UNCOVER -> this.server.getGame().uncover();
             case RESTART -> this.server.getGame().restart();
+            case EXIT -> {
+                this.server.getGame().onSpiderLeft(this.spider);
+                if (this.server.isHost(this.spider) && !this.server.getGame().getPlayingSpiders().isEmpty()) {
+                    this.server.getSpiderManager().changeHost(this.server.getGame().getPlayingSpiders().get(0));
+                }
+                new ServerLobbyPacketListenerImpl(this.server, this.connection, this.spider);
+                this.spider.sendPacket(new ExitGameS2CPacket());
+            }
             default -> this.spider.sendError("Illegal client command: " + packet.command());
         }
     }

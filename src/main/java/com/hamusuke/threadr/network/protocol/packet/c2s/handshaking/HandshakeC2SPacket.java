@@ -6,8 +6,6 @@ import com.hamusuke.threadr.network.listener.server.ServerHandshakePacketListene
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-import javax.annotation.Nullable;
-
 public record HandshakeC2SPacket(int protocolVersion,
                                  Protocol intendedProtocol) implements Packet<ServerHandshakePacketListener> {
     public HandshakeC2SPacket(Protocol intendedProtocol) {
@@ -29,7 +27,6 @@ public record HandshakeC2SPacket(int protocolVersion,
         listener.handleHandshake(this);
     }
 
-    @Nullable
     @Override
     public Protocol nextProtocol() {
         return Protocol.LOGIN;

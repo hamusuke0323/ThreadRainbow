@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class MainWindow extends Window {
@@ -81,13 +82,20 @@ public class MainWindow extends Window {
             addButton(this.south, table, layout, 2, 0, 1, 1, 0.5D, 1.0D);
         }
 
+        this.south.setPreferredSize(new Dimension(100, this.getHeight() / 4));
         this.add(this.south, BorderLayout.SOUTH);
         this.revalidate();
     }
 
     public void lobby() {
+        this.setTitle("ロビー - " + this.client.getAddresses());
+
         if (this.lobbyPanel != null) {
-            return;
+            this.lobbyPanel.setVisible(false);
+            this.remove(this.lobbyPanel);
+        }
+        if (this.startGame != null) {
+            this.startGame.setVisible(false);
         }
 
         this.state = WindowState.LOBBY;
@@ -98,13 +106,15 @@ public class MainWindow extends Window {
         this.menu = this.createMenuBar();
         this.add(this.menu, BorderLayout.NORTH);
         this.client.spiderTable.removeCardNumCol();
-        this.startGame = new JButton("始める");
-        this.startGame.setActionCommand("start");
-        this.startGame.addActionListener(this);
-        this.startGame.setVisible(false);
-        this.startGame.setEnabled(false);
         this.lobbyPanel = new JPanel(new FlowLayout());
-        this.lobbyPanel.add(this.startGame);
+
+        if (this.amIHost()) {
+            this.startGame = new JButton("始める");
+            this.startGame.setActionCommand("start");
+            this.startGame.addActionListener(this);
+            this.lobbyPanel.add(this.startGame);
+        }
+
         this.add(this.lobbyPanel, BorderLayout.CENTER);
         this.revalidate();
     }
@@ -113,6 +123,9 @@ public class MainWindow extends Window {
         this.lobbyPanel.setVisible(false);
         this.lobbyPanel.setEnabled(false);
         this.remove(this.lobbyPanel);
+        if (this.startGame != null) {
+            this.startGame.setVisible(false);
+        }
         this.startGame = null;
         this.lobbyPanel = null;
         this.state = WindowState.STARTED;
@@ -452,33 +465,50 @@ public class MainWindow extends Window {
 
     public void reset() {
         this.state = WindowState.LOBBY;
+        this.remove(this.startGame);
         this.startGame = null;
+        this.remove(this.lobbyPanel);
         this.lobbyPanel = null;
+        this.remove(this.cardPanel);
         this.cardPanel = null;
+        this.remove(this.card);
         this.card = null;
+        this.remove(this.cardNum);
         this.cardNum = null;
+        this.remove(this.show);
         this.show = null;
+        this.remove(this.ack);
         this.ack = null;
+        this.remove(this.waitHost);
         this.waitHost = null;
+        this.remove(this.selectTopic);
         this.selectTopic = null;
         this.topic = null;
+        this.remove(this.topicPanel);
         this.topicPanel = null;
+        this.remove(this.decideTopic);
         this.decideTopic = null;
+        this.remove(this.list);
         this.list = null;
+        this.remove(this.finish);
         this.finish = null;
-        if (this.gamePanel != null) {
-            this.gamePanel.setVisible(false);
-            this.remove(this.gamePanel);
-        }
+        this.remove(this.gamePanel);
         this.gamePanel = null;
+        this.remove(this.uncover);
         this.uncover = null;
-        if (this.restart != null) {
-            this.restart.setVisible(false);
-            this.remove(this.restart);
-        }
+        this.remove(this.restart);
         this.restart = null;
+        this.repaint();
         this.revalidate();
         this.createSouth();
+    }
+
+    @Override
+    public void remove(@Nullable Component comp) {
+        if (comp != null) {
+            comp.setVisible(false);
+            super.remove(comp);
+        }
     }
 
     @Nullable
@@ -517,6 +547,7 @@ public class MainWindow extends Window {
 
     public void onChangeHost() {
         switch (this.state) {
+            case LOBBY -> this.lobby();
             case WAITING_HOST -> this.ackCardPost();
             case SELECTING_TOPIC -> this.addCompForTopic();
             case PLAYING -> this.addCompForPlay();
@@ -529,14 +560,17 @@ public class MainWindow extends Window {
         return this.client.clientSpider != null && this.client.listener != null && this.client.clientSpider.getId() == this.client.listener.getHostId();
     }
 
-    public void showStartButton(boolean flag) {
-        this.startGame.setVisible(flag);
-        this.startGame.setEnabled(flag);
-    }
-
     @Override
     protected void onClose() {
         this.dispose(this.client::disconnect);
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        var c = e.getComponent();
+        if (c == this && this.south != null) {
+            this.south.setPreferredSize(new Dimension(100, c.getHeight() / 4));
+        }
     }
 
     @Override

@@ -94,6 +94,18 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
         this.mainWindow.reset();
     }
 
+    @Override
+    public void handleExit(ExitGameS2CPacket packet) {
+        int id = this.hostId;
+        var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
+        listener.hostId = id;
+        listener.mainWindow = this.mainWindow;
+        this.mainWindow.reset();
+        this.mainWindow.lobby();
+        this.connection.setListener(listener);
+        this.connection.setProtocol(packet.nextProtocol());
+    }
+
     @Nullable
     public NumberCard getCardById(int id) {
         return this.cardMap.get(id);

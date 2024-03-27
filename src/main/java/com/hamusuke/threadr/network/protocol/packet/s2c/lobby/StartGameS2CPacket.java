@@ -5,7 +5,6 @@ import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListen
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
 public record StartGameS2CPacket() implements Packet<ClientLobbyPacketListener> {
@@ -22,7 +21,6 @@ public record StartGameS2CPacket() implements Packet<ClientLobbyPacketListener> 
         listener.handleStartGame(this);
     }
 
-    @Nullable
     @Override
     public Protocol nextProtocol() {
         return Protocol.PLAY;
