@@ -36,6 +36,7 @@ public class SpidersThreadV2Game {
     protected final List<Integer> cards = Collections.synchronizedList(Lists.newArrayList());
     protected int uncoveredIndex;
     protected boolean failed;
+    protected boolean succeeded;
 
     public SpidersThreadV2Game(ThreadRainbowServer server, List<ServerSpider> spidersToPlay) {
         this.server = server;
@@ -184,10 +185,11 @@ public class SpidersThreadV2Game {
     }
 
     protected void succeed() {
-        if (this.failed) {
+        if (this.failed || this.succeeded) {
             return;
         }
 
+        this.succeeded = true;
         this.sendPacketToAllInGame(new ChatS2CPacket("成功です！"));
     }
 
@@ -224,7 +226,7 @@ public class SpidersThreadV2Game {
     }
 
     private void onCardRemoved() {
-        if (this.cards.size() > this.uncoveredIndex) {
+        if (this.cards.size() > this.uncoveredIndex || this.succeeded) {
             return;
         }
 
