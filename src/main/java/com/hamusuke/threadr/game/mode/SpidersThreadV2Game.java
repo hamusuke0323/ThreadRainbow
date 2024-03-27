@@ -215,11 +215,23 @@ public class SpidersThreadV2Game {
     public synchronized void onSpiderLeft(ServerSpider spider) {
         this.spiders.remove(spider);
         this.cards.removeIf(integer -> spider.getId() == integer);
+        this.onCardRemoved();
         if (this.server.isHost(spider) && !this.spiders.isEmpty()) {
             this.server.getSpiderManager().changeHost(this.spiders.get(0));
         }
         this.sendPacketToAllInGame(new SpiderExitGameS2CPacket(spider));
         this.sendPacketToAllInGame(new ChatS2CPacket(spider.getName() + " がゲームをやめました"));
+    }
+
+    private void onCardRemoved() {
+        if (this.cards.size() > this.uncoveredIndex) {
+            return;
+        }
+
+        this.sendPacketToAllInGame(new UncoverCardS2CPacket(-1, (byte) -1, true));
+        if (!this.failed) {
+            this.succeed();
+        }
     }
 
     public void sendPacketToAllInGame(Packet<?> packet) {
