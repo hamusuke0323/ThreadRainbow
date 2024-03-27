@@ -1,5 +1,6 @@
 package com.hamusuke.threadr.network.channel;
 
+import com.hamusuke.threadr.network.VarInt;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,14 +13,13 @@ public class PacketPrepender extends MessageToByteEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
         int i = msg.readableBytes();
-        int j = IntelligentByteBuf.getVariableIntSize(i);
+        int j = VarInt.getByteSize(i);
         if (j > MAX) {
             throw new IllegalArgumentException("unable to fit " + i + " into " + MAX);
         } else {
-            var byteBuf = new IntelligentByteBuf(out);
-            byteBuf.ensureWritable(j + i);
-            byteBuf.writeVariableInt(i);
-            byteBuf.writeBytes(msg, msg.readerIndex(), i);
+            out.ensureWritable(j + i);
+            VarInt.write(out, i);
+            out.writeBytes(msg, msg.readerIndex(), i);
         }
     }
 }

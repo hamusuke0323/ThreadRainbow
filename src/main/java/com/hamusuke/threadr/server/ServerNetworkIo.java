@@ -15,6 +15,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.flow.FlowControlHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,7 +69,7 @@ public class ServerNetworkIo {
                     channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new PacketSplitter()).addLast("decoder", new PacketDecoder(PacketDirection.SERVERBOUND)).addLast("prepender", new PacketPrepender()).addLast("encoder", new PacketEncoder(PacketDirection.CLIENTBOUND));
                     Connection connection = new Connection(PacketDirection.SERVERBOUND);
                     ServerNetworkIo.this.connections.add(connection);
-                    channel.pipeline().addLast("packet_handler", connection);
+                    channel.pipeline().addLast(new FlowControlHandler()).addLast("packet_handler", connection);
                     connection.setListener(new ServerHandshakePacketListenerImpl(ServerNetworkIo.this.server, connection));
                 }
             }).group(lazy.get()).localAddress(address, port).bind().syncUninterruptibly());

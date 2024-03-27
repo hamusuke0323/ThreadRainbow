@@ -1,6 +1,7 @@
 package com.hamusuke.threadr.network.channel;
 
 import com.google.common.collect.Lists;
+import com.hamusuke.threadr.network.VarInt;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.DecoderException;
@@ -29,16 +30,6 @@ public class IntelligentByteBuf extends ByteBuf {
 
     public IntelligentByteBuf(ByteBuf parent) {
         this.parent = parent;
-    }
-
-    public static int getVariableIntSize(int value) {
-        for (int i = 1; i < 5; ++i) {
-            if ((value & -1 << i * 7) == 0) {
-                return i;
-            }
-        }
-
-        return 5;
     }
 
     public void writeEnum(Enum<?> e) {
@@ -81,19 +72,7 @@ public class IntelligentByteBuf extends ByteBuf {
     }
 
     public int readVariableInt() {
-        int i = 0;
-        int j = 0;
-
-        byte b0;
-        do {
-            b0 = this.readByte();
-            i |= (b0 & 127) << j++ * 7;
-            if (j > 5) {
-                throw new RuntimeException("Variable Int is too big");
-            }
-        } while ((b0 & 128) == 128);
-
-        return i;
+        return VarInt.read(this.parent);
     }
 
     public byte[] readByteArray() {
@@ -116,13 +95,9 @@ public class IntelligentByteBuf extends ByteBuf {
         }
     }
 
-    public void writeVariableInt(int value) {
-        while ((value & -128) != 0) {
-            this.writeByte(value & 127 | 128);
-            value >>>= 7;
-        }
-
-        this.writeByte(value);
+    public IntelligentByteBuf writeVariableInt(int value) {
+        VarInt.write(this.parent, value);
+        return this;
     }
 
     public String readString() {
