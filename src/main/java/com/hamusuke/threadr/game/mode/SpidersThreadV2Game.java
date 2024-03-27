@@ -214,6 +214,7 @@ public class SpidersThreadV2Game {
 
     public synchronized void onSpiderLeft(ServerSpider spider) {
         this.spiders.remove(spider);
+        this.cards.removeIf(integer -> spider.getId() == integer);
         if (this.server.isHost(spider) && !this.spiders.isEmpty()) {
             this.server.getSpiderManager().changeHost(this.spiders.get(0));
         }
