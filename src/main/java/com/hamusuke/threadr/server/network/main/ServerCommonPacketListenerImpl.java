@@ -31,7 +31,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
 
     @Override
     public void handleDisconnect(DisconnectC2SPacket packet) {
-        this.connection.disconnect();
+        this.connection.disconnect("");
     }
 
     @Override
@@ -57,7 +57,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnected(String msg) {
         LOGGER.info("{} lost connection", this.connection.getAddress());
         this.spider.sendPacketToOthers(new LeaveSpiderS2CPacket(this.spider.getId()));
         this.server.getSpiderManager().removeSpider(this.spider);

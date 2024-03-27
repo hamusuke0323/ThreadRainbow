@@ -61,7 +61,7 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
 
     @Override
     public void handleDisconnectPacket(DisconnectS2CPacket packet) {
-        this.connection.disconnect();
+        this.connection.disconnect(packet.msg());
     }
 
     @Override
@@ -88,14 +88,14 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnected(String msg) {
         this.client.clientSpiders.clear();
         this.client.disconnect();
         var window = this.client.getCurrentWindow();
         if (window != null) {
             window.dispose();
         }
-        this.client.setCurrentWindow(new ConnectingWindow());
+        this.client.setCurrentWindow(new ConnectingWindow(msg));
         this.client.clientSpider = null;
         this.client.spiderTable = null;
         this.client.chat = null;

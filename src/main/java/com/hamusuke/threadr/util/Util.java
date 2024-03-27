@@ -30,6 +30,10 @@ public class Util {
     private static final String ALGORITHM = "SHA-256";
     public static LongSupplier nanoTimeSupplier = System::nanoTime;
 
+    public static String toHTML(String s) {
+        return "<html>" + s.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>";
+    }
+
     public static File avoidDuplicatingDirectoryName(File dir, String dirName) {
         File file = new File(dir, dirName);
         int i = 1;

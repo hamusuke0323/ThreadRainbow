@@ -69,8 +69,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public void disconnect() {
         try {
             LOGGER.info("Disconnecting {}", this.getConnectionInfo());
-            this.connection.sendPacket(new LoginDisconnectS2CPacket());
-            this.connection.disconnect();
+            this.connection.sendPacket(new LoginDisconnectS2CPacket(""));
+            this.connection.disconnect("");
         } catch (Exception e) {
             LOGGER.error("Error while disconnecting spider", e);
         }
@@ -94,7 +94,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnected(String msg) {
         LOGGER.info("{} lost connection", this.getConnectionInfo());
     }
 

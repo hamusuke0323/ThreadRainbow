@@ -50,8 +50,8 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
     }
 
     @Override
-    public void onDisconnected() {
-        super.onDisconnected();
+    public void onDisconnected(String msg) {
+        super.onDisconnected(msg);
 
         if (this.server.getGame() != null) {
             this.server.getGame().onSpiderLeft(this.spider);

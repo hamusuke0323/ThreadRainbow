@@ -23,7 +23,7 @@ import java.util.List;
 public class MainWindow extends Window {
     private static final Logger LOGGER = LogManager.getLogger();
     private JPanel south;
-    private WindowState state = WindowState.NONE;
+    private WindowState state = WindowState.LOBBY;
     private JButton startGame;
     private JPanel lobbyPanel;
     private JPanel cardPanel;
@@ -90,6 +90,13 @@ public class MainWindow extends Window {
             return;
         }
 
+        this.state = WindowState.LOBBY;
+        if (this.menu != null) {
+            this.menu.setVisible(false);
+            this.remove(this.menu);
+        }
+        this.menu = this.createMenuBar();
+        this.add(this.menu, BorderLayout.NORTH);
         this.client.spiderTable.removeCardNumCol();
         this.startGame = new JButton("始める");
         this.startGame.setActionCommand("start");
@@ -108,6 +115,15 @@ public class MainWindow extends Window {
         this.remove(this.lobbyPanel);
         this.startGame = null;
         this.lobbyPanel = null;
+        this.state = WindowState.STARTED;
+
+        if (this.menu != null) {
+            this.menu.setVisible(false);
+            this.remove(this.menu);
+        }
+        this.menu = this.createMenuBar();
+        this.add(this.menu, BorderLayout.NORTH);
+
         this.revalidate();
     }
 
@@ -435,7 +451,7 @@ public class MainWindow extends Window {
     }
 
     public void reset() {
-        this.state = WindowState.NONE;
+        this.state = WindowState.LOBBY;
         this.startGame = null;
         this.lobbyPanel = null;
         this.cardPanel = null;
@@ -469,10 +485,19 @@ public class MainWindow extends Window {
     @Override
     protected JMenuBar createMenuBar() {
         var jMenuBar = new JMenuBar();
-        var menu = new JMenu("Menu");
-        var disconnect = new JMenuItem("Disconnect");
+        var menu = new JMenu("メニュー");
+
+        var disconnect = new JMenuItem("切断");
         disconnect.setActionCommand("disconnect");
         disconnect.addActionListener(this);
+
+        if (this.state != WindowState.LOBBY) {
+            var exit = new JMenuItem("ゲームをやめる");
+            exit.setActionCommand("exit");
+            exit.addActionListener(this);
+            menu.add(exit);
+        }
+
         menu.add(disconnect);
         jMenuBar.add(menu);
         return jMenuBar;
@@ -480,6 +505,14 @@ public class MainWindow extends Window {
 
     private void startGame() {
         this.client.getConnection().sendPacket(new StartGameC2SPacket());
+    }
+
+    private void exitGame() {
+        if (this.state == WindowState.LOBBY) {
+            return;
+        }
+
+        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.EXIT));
     }
 
     public void onChangeHost() {
@@ -539,11 +572,15 @@ public class MainWindow extends Window {
             case "restart":
                 this.restart();
                 break;
+            case "exit":
+                this.exitGame();
+                break;
         }
     }
 
     private enum WindowState {
-        NONE,
+        LOBBY,
+        STARTED,
         WAITING_HOST,
         SELECTING_TOPIC,
         PLAYING,

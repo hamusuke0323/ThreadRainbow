@@ -27,6 +27,7 @@ public record ClientCommandC2SPacket(Command command) implements Packet<ServerPl
         DECIDE_TOPIC,
         FINISH,
         UNCOVER,
-        RESTART
+        RESTART,
+        EXIT
     }
 }

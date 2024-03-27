@@ -10,6 +10,7 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.DisconnectS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.LoginDisconnectS2CPacket;
 import com.hamusuke.threadr.util.Lazy;
+import com.hamusuke.threadr.util.Util;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -49,6 +50,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     private final PacketDirection receiving;
     private final Queue<QueuedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     private boolean disconnected;
+    private String disconnectedReason = "";
 
     public Connection(PacketDirection receiving) {
         this.receiving = receiving;
@@ -101,7 +103,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        this.disconnect();
+        this.disconnect("サーバーが停止しました");
     }
 
     @Override
@@ -121,11 +123,21 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (this.channel.isOpen()) {
             LOGGER.warn(String.format("Caught exception in %s side", this.receiving == PacketDirection.SERVERBOUND ? "server" : "client"), cause);
-            this.sendPacket(this.getProtocol() == Protocol.LOGIN ? new LoginDisconnectS2CPacket() : new DisconnectS2CPacket(), future -> {
-                this.disconnect();
-            });
+            String msg = Util.toHTML("通信エラーが発生しました\n" + cause);
+            if (this.getSending() == PacketDirection.CLIENTBOUND) {
+                this.sendPacket(this.getProtocol() == Protocol.LOGIN ? new LoginDisconnectS2CPacket(msg) : new DisconnectS2CPacket(msg), future -> {
+                    this.disconnect(msg);
+                });
+            } else {
+                this.disconnect(msg);
+            }
+
             this.disableAutoRead();
         }
+    }
+
+    public PacketDirection getSending() {
+        return this.receiving.getOpposite();
     }
 
     @Override
@@ -239,9 +251,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         }
     }
 
-    public void disconnect() {
+    public void disconnect(String msg) {
         if (this.isConnected()) {
             this.channel.close().awaitUninterruptibly();
+            this.disconnectedReason = msg;
         }
     }
 
@@ -251,7 +264,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 LOGGER.warn("handleDisconnection() called twice");
             } else {
                 this.disconnected = true;
-                this.getPacketListener().onDisconnected();
+                String msg = this.disconnectedReason;
+                this.getPacketListener().onDisconnected(msg);
             }
         }
     }

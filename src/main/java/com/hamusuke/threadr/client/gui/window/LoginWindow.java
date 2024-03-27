@@ -37,6 +37,9 @@ public class LoginWindow extends Window {
             dialog.setVisible(true);
         }
 
+        this.menu = this.createMenuBar();
+        this.add(this.menu, BorderLayout.NORTH);
+
         this.nameField = new JTextField("nanashi");
         this.nameField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
@@ -64,8 +67,8 @@ public class LoginWindow extends Window {
     @Override
     protected JMenuBar createMenuBar() {
         var jMenuBar = new JMenuBar();
-        var menu = new JMenu("Menu");
-        var disconnect = new JMenuItem("Disconnect");
+        var menu = new JMenu("メニュー");
+        var disconnect = new JMenuItem("切断");
         disconnect.setActionCommand("disconnect");
         disconnect.addActionListener(this);
         menu.add(disconnect);

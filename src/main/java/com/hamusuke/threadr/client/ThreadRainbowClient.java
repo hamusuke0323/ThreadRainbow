@@ -11,9 +11,9 @@ import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.protocol.Protocol;
+import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPacket;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import org.apache.logging.log4j.LogManager;
@@ -192,6 +192,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             return;
         }
 
-        this.connection.sendPacket(new DisconnectC2SPacket(), future -> this.connection.disconnect());
+        this.connection.sendPacket(new DisconnectC2SPacket(), future -> this.connection.disconnect(""));
     }
 }

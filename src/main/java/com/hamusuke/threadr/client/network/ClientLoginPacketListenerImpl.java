@@ -86,7 +86,7 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
 
     @Override
     public void handleDisconnect(LoginDisconnectS2CPacket packet) {
-        this.connection.disconnect();
+        this.connection.disconnect(packet.msg());
     }
 
     @Override
@@ -105,8 +105,12 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
     }
 
     @Override
-    public void onDisconnected() {
-        this.client.setCurrentWindow(new ConnectingWindow());
+    public void onDisconnected(String msg) {
+        if (this.client.getCurrentWindow() != null) {
+            this.client.getCurrentWindow().dispose();
+        }
+
+        this.client.setCurrentWindow(new ConnectingWindow(msg));
     }
 
     @Override

@@ -14,13 +14,11 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
     protected ThreadRainbowClient client = ThreadRainbowClient.getInstance();
     protected Runnable onDisposed = () -> {
     };
+    @Nullable
+    protected JMenuBar menu;
 
     protected Window(String title) {
         this.setTitle(title);
-        var bar = this.createMenuBar();
-        if (bar != null) {
-            this.add(bar, BorderLayout.NORTH);
-        }
         this.addWindowListener(this);
         this.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }

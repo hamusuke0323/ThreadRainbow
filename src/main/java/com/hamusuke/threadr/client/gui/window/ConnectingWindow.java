@@ -10,13 +10,33 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class ConnectingWindow extends Window {
-    public ConnectingWindow() {
+    private final String msg;
+
+    public ConnectingWindow(String msg) {
         super("サーバーに接続");
+
+        this.msg = msg;
+    }
+
+    public ConnectingWindow() {
+        this("");
     }
 
     @Override
     public void init() {
         super.init();
+
+        if (!this.msg.isEmpty()) {
+            var dialog = new JDialog(this, "エラー", true);
+            var label = new JLabel(this.msg);
+            dialog.add(label, BorderLayout.CENTER);
+            var ok = new JButton("OK");
+            ok.addActionListener(e -> dialog.dispose());
+            dialog.add(ok, BorderLayout.SOUTH);
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        }
 
         var host = new JTextField();
         host.setName("host");

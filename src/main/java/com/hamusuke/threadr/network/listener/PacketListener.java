@@ -3,7 +3,7 @@ package com.hamusuke.threadr.network.listener;
 import com.hamusuke.threadr.network.channel.Connection;
 
 public interface PacketListener {
-    void onDisconnected();
+    void onDisconnected(String msg);
 
     Connection getConnection();
 

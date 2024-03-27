@@ -26,8 +26,9 @@ public class ServerHandshakePacketListenerImpl implements ServerHandshakePacketL
             case LOGIN:
                 this.connection.setProtocol(packet.nextProtocol());
                 if (packet.protocolVersion() != Constants.PROTOCOL_VERSION) {
-                    this.connection.sendPacket(new LoginDisconnectS2CPacket());
-                    this.connection.disconnect();
+                    String msg = "プロトコルのバージョンが違います";
+                    this.connection.sendPacket(new LoginDisconnectS2CPacket(msg));
+                    this.connection.disconnect(msg);
                 } else {
                     LOGGER.info("Hello Packet came from {} and the connection established!", this.connection.getAddress());
                     this.connection.setListener(new ServerLoginPacketListenerImpl(this.server, this.connection));
@@ -39,7 +40,7 @@ public class ServerHandshakePacketListenerImpl implements ServerHandshakePacketL
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnected(String msg) {
     }
 
     @Override
