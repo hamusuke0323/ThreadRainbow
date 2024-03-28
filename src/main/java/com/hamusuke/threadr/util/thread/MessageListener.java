@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public interface MessageListener<Msg> extends AutoCloseable {
     static <Msg> MessageListener<Msg> create(String name, Consumer<Msg> action) {
-        return new MessageListener<Msg>() {
+        return new MessageListener<>() {
             @Override
             public String getName() {
                 return name;

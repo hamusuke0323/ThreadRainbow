@@ -4,15 +4,13 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-import java.io.IOException;
-
 public record ClientCommandC2SPacket(Command command) implements Packet<ServerPlayPacketListener> {
     public ClientCommandC2SPacket(IntelligentByteBuf buf) {
         this(buf.readEnum(Command.class));
     }
 
     @Override
-    public void write(IntelligentByteBuf buf) throws IOException {
+    public void write(IntelligentByteBuf buf) {
         buf.writeEnum(this.command);
     }
 

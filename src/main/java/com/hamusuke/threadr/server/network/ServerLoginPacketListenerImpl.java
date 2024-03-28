@@ -40,7 +40,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     public static boolean isValidName(String name) {
-        return !name.chars().filter(c -> c <= 32 || c >= 127).findAny().isPresent();
+        return name.chars().filter(c -> c <= 32 || c >= 127).findAny().isEmpty();
     }
 
     @Override

@@ -5,8 +5,6 @@ import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListene
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.server.network.ServerSpider;
 
-import java.io.IOException;
-
 public record RemoteCardGivenS2CPacket(int id) implements Packet<ClientPlayPacketListener> {
     public RemoteCardGivenS2CPacket(ServerSpider others) {
         this(others.getId());
@@ -17,7 +15,7 @@ public record RemoteCardGivenS2CPacket(int id) implements Packet<ClientPlayPacke
     }
 
     @Override
-    public void write(IntelligentByteBuf buf) throws IOException {
+    public void write(IntelligentByteBuf buf) {
         buf.writeVariableInt(this.id);
     }
 

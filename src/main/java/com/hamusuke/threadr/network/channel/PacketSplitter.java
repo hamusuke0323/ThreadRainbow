@@ -30,7 +30,7 @@ public class PacketSplitter extends ByteToMessageDecoder {
     }
 
     @Override
-    protected void handlerRemoved0(ChannelHandlerContext ctx) throws Exception {
+    protected void handlerRemoved0(ChannelHandlerContext ctx) {
         this.helperBuf.release();
     }
 

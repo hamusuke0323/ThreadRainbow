@@ -6,7 +6,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
-import java.security.spec.EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class NetworkEncryptionUtil {

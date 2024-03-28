@@ -5,15 +5,13 @@ import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListene
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-import java.io.IOException;
-
 public record ExitGameSuccS2CPacket() implements Packet<ClientPlayPacketListener> {
     public ExitGameSuccS2CPacket(IntelligentByteBuf buf) {
         this();
     }
 
     @Override
-    public void write(IntelligentByteBuf buf) throws IOException {
+    public void write(IntelligentByteBuf buf) {
     }
 
     @Override

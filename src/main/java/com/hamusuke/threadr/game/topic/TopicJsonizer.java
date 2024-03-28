@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class TopicJsonizer {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
     }
 
     private static List<Topic> getTopics(InputStream is) {

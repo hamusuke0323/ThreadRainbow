@@ -1,7 +1,6 @@
 package com.hamusuke.threadr.network.channel;
 
 import com.hamusuke.threadr.network.protocol.PacketDirection;
-import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

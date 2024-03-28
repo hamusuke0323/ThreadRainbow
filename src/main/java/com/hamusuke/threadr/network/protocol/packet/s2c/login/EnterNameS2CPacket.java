@@ -4,8 +4,6 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.ClientLoginPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-import java.io.IOException;
-
 public record EnterNameS2CPacket(String msg) implements Packet<ClientLoginPacketListener> {
     public EnterNameS2CPacket() {
         this("");
@@ -16,7 +14,7 @@ public record EnterNameS2CPacket(String msg) implements Packet<ClientLoginPacket
     }
 
     @Override
-    public void write(IntelligentByteBuf byteBuf) throws IOException {
+    public void write(IntelligentByteBuf byteBuf) {
         byteBuf.writeString(this.msg);
     }
 

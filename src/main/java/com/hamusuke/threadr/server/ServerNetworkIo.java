@@ -58,7 +58,7 @@ public class ServerNetworkIo {
                 LOGGER.info("Using default channel type");
             }
 
-            this.channels.add(new ServerBootstrap().channel(clazz).childHandler(new ChannelInitializer<Channel>() {
+            this.channels.add(new ServerBootstrap().channel(clazz).childHandler(new ChannelInitializer<>() {
                 @Override
                 protected void initChannel(Channel channel) {
                     try {

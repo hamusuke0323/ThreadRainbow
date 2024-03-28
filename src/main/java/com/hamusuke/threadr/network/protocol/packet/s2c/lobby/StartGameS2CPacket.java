@@ -5,15 +5,13 @@ import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListen
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-import java.io.IOException;
-
 public record StartGameS2CPacket() implements Packet<ClientLobbyPacketListener> {
     public StartGameS2CPacket(IntelligentByteBuf buf) {
         this();
     }
 
     @Override
-    public void write(IntelligentByteBuf buf) throws IOException {
+    public void write(IntelligentByteBuf buf) {
     }
 
     @Override

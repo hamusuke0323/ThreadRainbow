@@ -5,8 +5,6 @@ import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListe
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.server.network.ServerSpider;
 
-import java.io.IOException;
-
 public record ChangeHostS2CPacket(int id) implements Packet<ClientCommonPacketListener> {
     public ChangeHostS2CPacket(ServerSpider spider) {
         this(spider.getId());
@@ -17,7 +15,7 @@ public record ChangeHostS2CPacket(int id) implements Packet<ClientCommonPacketLi
     }
 
     @Override
-    public void write(IntelligentByteBuf byteBuf) throws IOException {
+    public void write(IntelligentByteBuf byteBuf) {
         byteBuf.writeVariableInt(this.id);
     }
 

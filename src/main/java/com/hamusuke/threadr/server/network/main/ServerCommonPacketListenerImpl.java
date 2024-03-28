@@ -19,7 +19,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
     private static final Logger LOGGER = LogManager.getLogger();
     public final Connection connection;
     protected final ThreadRainbowServer server;
-    public ServerSpider spider;
+    public final ServerSpider spider;
 
     protected ServerCommonPacketListenerImpl(ThreadRainbowServer server, Connection connection, ServerSpider spider) {
         this.server = server;

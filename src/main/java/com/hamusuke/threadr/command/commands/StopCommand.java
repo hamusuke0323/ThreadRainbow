@@ -2,7 +2,6 @@ package com.hamusuke.threadr.command.commands;
 
 import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.command.Commands;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
 import com.mojang.brigadier.CommandDispatcher;
 
 public class StopCommand {

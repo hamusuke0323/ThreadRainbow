@@ -5,8 +5,6 @@ import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListene
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.server.network.ServerSpider;
 
-import java.io.IOException;
-
 public record SpiderExitGameS2CPacket(int id) implements Packet<ClientPlayPacketListener> {
     public SpiderExitGameS2CPacket(ServerSpider spider) {
         this(spider.getId());
@@ -17,7 +15,7 @@ public record SpiderExitGameS2CPacket(int id) implements Packet<ClientPlayPacket
     }
 
     @Override
-    public void write(IntelligentByteBuf buf) throws IOException {
+    public void write(IntelligentByteBuf buf) {
         buf.writeVariableInt(this.id);
     }
 

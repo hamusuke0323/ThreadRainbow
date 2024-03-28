@@ -28,7 +28,7 @@ public class Util {
     private static final ExecutorService MAIN_WORKER_EXECUTOR = createWorker("Main");
     private static final ExecutorService IO_WORKER_EXECUTOR = createIoWorker();
     private static final String ALGORITHM = "SHA-256";
-    public static LongSupplier nanoTimeSupplier = System::nanoTime;
+    public static final LongSupplier nanoTimeSupplier = System::nanoTime;
 
     public static String toHTML(String s) {
         return "<html>" + s.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>";
