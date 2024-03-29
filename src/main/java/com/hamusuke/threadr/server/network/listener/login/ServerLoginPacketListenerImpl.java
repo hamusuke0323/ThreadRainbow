@@ -28,7 +28,6 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public final Connection connection;
     final ThreadRainbowServer server;
     private final byte[] nonce = new byte[4];
-    private final String serverId;
     State state;
     private int ticks;
     private int encWaitTicks;
@@ -36,7 +35,6 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
     public ServerLoginPacketListenerImpl(ThreadRainbowServer server, Connection connection) {
         this.state = State.HELLO;
-        this.serverId = "";
         this.server = server;
         this.connection = connection;
         RANDOM.nextBytes(this.nonce);
@@ -113,7 +111,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         }
 
         this.state = State.KEY;
-        this.connection.sendPacket(new LoginHelloS2CPacket("", this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
+        this.connection.sendPacket(new LoginHelloS2CPacket(this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
     }
 
     @Override

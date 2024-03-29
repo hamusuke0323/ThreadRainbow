@@ -3,7 +3,6 @@ package com.hamusuke.threadr.server.dedicated;
 import com.google.common.collect.Lists;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
-import com.hamusuke.threadr.util.Util;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,12 +59,6 @@ public class DedicatedServer extends ThreadRainbowServer {
         } catch (IOException var4) {
             DedicatedServer.LOGGER.error("Exception handling console input", var4);
         }
-    }
-
-    @Override
-    public void shutdown() {
-        super.shutdown();
-        Util.shutdownExecutors();
     }
 
     @Override

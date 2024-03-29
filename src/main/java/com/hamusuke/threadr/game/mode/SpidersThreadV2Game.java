@@ -44,9 +44,6 @@ public class SpidersThreadV2Game {
     }
 
     public void tick() {
-        if (this.status == Status.NONE) {
-            return;
-        }
     }
 
     public void start() {

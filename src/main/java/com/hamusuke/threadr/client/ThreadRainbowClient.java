@@ -189,7 +189,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
     @Override
     public void close() {
-        Util.shutdownExecutors();
         System.exit(0);
     }
 

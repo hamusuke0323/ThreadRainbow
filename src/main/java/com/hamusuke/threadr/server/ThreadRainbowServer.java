@@ -23,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.security.KeyPair;
-import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,7 +33,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     private final ServerNetworkIo networkIo;
     private final AtomicBoolean running = new AtomicBoolean();
     private final Thread serverThread;
-    private final Executor worker;
     protected final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<>();
     private String serverIp;
     private int serverPort;
@@ -58,7 +56,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         this.running.set(true);
         this.networkIo = new ServerNetworkIo(this);
         this.serverThread = serverThread;
-        this.worker = Util.getMainWorkerExecutor();
         this.setSpiderManager(new SpiderManager(this));
     }
 
@@ -287,18 +284,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         }
     }
 
-    public boolean isLoading() {
-        return this.loading.get();
-    }
-
-    public boolean acceptsStatusQuery() {
-        return true;
-    }
-
-    public boolean isStopping() {
-        return !this.serverThread.isAlive();
-    }
-
     public SpiderManager getSpiderManager() {
         return this.spiderManager;
     }
@@ -338,10 +323,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
 
     public ServerNetworkIo getNetworkIo() {
         return this.networkIo;
-    }
-
-    public int getTicks() {
-        return this.ticks;
     }
 
     @Override

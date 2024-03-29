@@ -7,14 +7,13 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.security.PublicKey;
 
-public record LoginHelloS2CPacket(String serverId, byte[] publicKey,
+public record LoginHelloS2CPacket(byte[] publicKey,
                                   byte[] nonce) implements Packet<ClientLoginPacketListener> {
     public LoginHelloS2CPacket(IntelligentByteBuf buf) {
-        this(buf.readString(20), buf.readByteArray(), buf.readByteArray());
+        this(buf.readByteArray(), buf.readByteArray());
     }
 
     public void write(IntelligentByteBuf buf) {
-        buf.writeString(this.serverId);
         buf.writeByteArray(this.publicKey);
         buf.writeByteArray(this.nonce);
     }
