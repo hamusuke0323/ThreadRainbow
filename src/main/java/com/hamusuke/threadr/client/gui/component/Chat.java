@@ -37,7 +37,12 @@ public class Chat {
     }
 
     public void addMessage(String msg) {
-        this.textArea.setText(this.textArea.getText() + msg + "\n");
+        this.textArea.append(msg + "\n");
+        this.scrollToMax();
+    }
+
+    public void scrollToMax() {
+        this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
     }
 
     public JScrollPane getTextArea() {

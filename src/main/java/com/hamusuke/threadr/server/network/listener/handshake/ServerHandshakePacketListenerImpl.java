@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.server.network.handshake;
+package com.hamusuke.threadr.server.network.listener.handshake;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -6,7 +6,7 @@ import com.hamusuke.threadr.network.listener.server.ServerHandshakePacketListene
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.LoginDisconnectS2CPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
-import com.hamusuke.threadr.server.network.ServerLoginPacketListenerImpl;
+import com.hamusuke.threadr.server.network.listener.login.ServerLoginPacketListenerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

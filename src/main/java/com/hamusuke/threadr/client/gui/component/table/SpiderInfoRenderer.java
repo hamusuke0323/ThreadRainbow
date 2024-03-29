@@ -1,6 +1,6 @@
 package com.hamusuke.threadr.client.gui.component.table;
 
-import com.hamusuke.threadr.network.Spider;
+import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -11,13 +11,13 @@ import java.util.function.BiConsumer;
 public class SpiderInfoRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        AtomicReference<JLabel> label = new AtomicReference<>();
+        var label = new AtomicReference<JLabel>();
         label.set((JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column));
 
-        searchByClass(table, row, Spider.class, (spider, integer) -> {
+        searchByClass(table, row, AbstractClientSpider.class, (spider, integer) -> {
             label.set((JLabel) super.getTableCellRendererComponent(table, spider, isSelected, hasFocus, row, integer));
             label.get().setText(spider.getName());
-            label.get().setToolTipText(spider.getName());
+            label.get().setToolTipText(String.format("id: %s, ping: %dms", spider.getId(), spider.getPing()));
         });
 
         return label.get();

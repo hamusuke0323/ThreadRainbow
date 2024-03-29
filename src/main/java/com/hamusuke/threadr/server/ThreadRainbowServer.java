@@ -10,7 +10,7 @@ import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.RestartGameS2CPacket;
 import com.hamusuke.threadr.server.network.ServerSpider;
-import com.hamusuke.threadr.server.network.main.ServerPlayPacketListenerImpl;
+import com.hamusuke.threadr.server.network.listener.main.ServerPlayPacketListenerImpl;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import com.mojang.brigadier.CommandDispatcher;

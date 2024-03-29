@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.client.network;
+package com.hamusuke.threadr.client.network.listener.login;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.Chat;
@@ -6,7 +6,7 @@ import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
 import com.hamusuke.threadr.client.gui.window.LoginWindow;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
-import com.hamusuke.threadr.client.network.main.ClientLobbyPacketListenerImpl;
+import com.hamusuke.threadr.client.network.listener.main.ClientLobbyPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;

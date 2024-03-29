@@ -26,8 +26,8 @@ public class LoginWindow extends Window {
         super.init();
 
         if (!this.msg.isEmpty()) {
-            var dialog = new JDialog(this, "名前の重複エラー", true);
-            var label = new JLabel("\"" + this.msg + "\"という名前はすでに使われています。別の名前を使用してください！");
+            var dialog = new JDialog(this, "エラー", true);
+            var label = new JLabel(this.msg);
             dialog.add(label, BorderLayout.CENTER);
             var ok = new JButton("OK");
             ok.addActionListener(e -> dialog.dispose());
@@ -77,13 +77,12 @@ public class LoginWindow extends Window {
     }
 
     private void login(String name) {
-        this.client.getConnection().sendPacket(new SpiderLoginC2SPacket(name));
+        this.client.getConnection().sendPacket(new SpiderLoginC2SPacket(name.substring(0, Math.min(name.length(), 16))));
     }
 
     @Override
     protected void onClose() {
         this.client.disconnect();
-        this.dispose();
     }
 
     @Override

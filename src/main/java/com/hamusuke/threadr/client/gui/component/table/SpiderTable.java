@@ -6,9 +6,10 @@ import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 public class SpiderTable extends JTable {
-    private static final DefaultTableModel MODEL = new DefaultTableModel(new String[]{"spiders (ping[ms])"}, 0);
+    private static final DefaultTableModel MODEL = new DefaultTableModel(new String[]{"クモ"}, 0);
     protected final ThreadRainbowClient client;
 
     public SpiderTable(ThreadRainbowClient client) {
@@ -18,6 +19,11 @@ public class SpiderTable extends JTable {
         this.setColumnSelectionAllowed(false);
         this.setCellSelectionEnabled(false);
         this.setRowHeight(30);
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int row, int column) {
+        return column == 0 ? new SpiderInfoRenderer() : super.getCellRenderer(row, column);
     }
 
     @Override
@@ -37,9 +43,9 @@ public class SpiderTable extends JTable {
                         num = Byte.toString(remote.getRemoteCard().getNumber());
                     }
 
-                    MODEL.addRow(new Object[]{"%s (%sms)".formatted(spider.getName(), spider.getPing()), num});
+                    MODEL.addRow(new Object[]{spider, num});
                 } else {
-                    MODEL.addRow(new Object[]{"%s (%sms)".formatted(spider.getName(), spider.getPing())});
+                    MODEL.addRow(new Object[]{spider});
                 }
             });
         }
@@ -50,7 +56,7 @@ public class SpiderTable extends JTable {
             return;
         }
 
-        MODEL.addColumn("cards");
+        MODEL.addColumn("カード");
     }
 
     public void removeCardNumCol() {
@@ -58,6 +64,7 @@ public class SpiderTable extends JTable {
     }
 
     public void clear() {
+        MODEL.getDataVector().clear();
         MODEL.setRowCount(0);
     }
 }

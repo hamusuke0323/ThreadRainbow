@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.server.network.main;
+package com.hamusuke.threadr.server.network.listener.main;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;

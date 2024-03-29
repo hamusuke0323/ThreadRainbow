@@ -12,6 +12,7 @@ public class MainClient {
         if (is != null) {
             var font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20.0F).deriveFont(AffineTransform.getTranslateInstance(0.0D, 4.5D));
             EventQueue.invokeLater(() -> setUIFont(new FontUIResource(font)));
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
         }
 
         var client = new ThreadRainbowClient();

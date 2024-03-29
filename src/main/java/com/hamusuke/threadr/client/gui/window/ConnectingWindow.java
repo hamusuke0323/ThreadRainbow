@@ -1,6 +1,7 @@
 package com.hamusuke.threadr.client.gui.window;
 
 import com.hamusuke.threadr.client.gui.dialog.DedicatedConnectingDialog;
+import com.hamusuke.threadr.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +29,7 @@ public class ConnectingWindow extends Window {
 
         if (!this.msg.isEmpty()) {
             var dialog = new JDialog(this, "エラー", true);
-            var label = new JLabel(this.msg);
+            var label = new JLabel(Util.toHTML(this.msg));
             dialog.add(label, BorderLayout.CENTER);
             var ok = new JButton("OK");
             ok.addActionListener(e -> dialog.dispose());

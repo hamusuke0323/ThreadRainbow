@@ -3,7 +3,6 @@ package com.hamusuke.threadr.client.gui.dialog;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
 import com.hamusuke.threadr.client.gui.window.Window;
-import com.hamusuke.threadr.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,7 +34,7 @@ public class DedicatedConnectingDialog extends JDialog {
                     } catch (Exception e) {
                         LOGGER.warn("Connection Error!", e);
                         DedicatedConnectingDialog.this.getOwner().dispose();
-                        client.setCurrentWindow(new ConnectingWindow(Util.toHTML(String.format("%s:%d に接続できませんでした\n%s", host, port, e))));
+                        client.setCurrentWindow(new ConnectingWindow(String.format("%s:%d に接続できませんでした\n%s", host, port, e)));
                     }
                 });
 

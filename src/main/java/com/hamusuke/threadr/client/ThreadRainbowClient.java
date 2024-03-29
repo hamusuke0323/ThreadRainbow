@@ -2,18 +2,26 @@ package com.hamusuke.threadr.client;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.threadr.client.gui.component.Chat;
+import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
 import com.hamusuke.threadr.client.gui.window.Window;
-import com.hamusuke.threadr.client.network.ClientLoginPacketListenerImpl;
-import com.hamusuke.threadr.client.network.main.ClientCommonPacketListenerImpl;
+import com.hamusuke.threadr.client.network.listener.login.ClientLoginPacketListenerImpl;
+import com.hamusuke.threadr.client.network.listener.main.ClientCommonPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.protocol.Protocol;
+import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.common.PongS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.common.RTTS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.s2c.login.AliveS2CPacket;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -43,6 +52,15 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public final List<AbstractClientSpider> clientSpiders = Lists.newArrayList();
     public SpiderTable spiderTable;
     public Chat chat;
+    public final PacketLogTable packetLogTable = new PacketLogTable();
+    private final List<String> packetFilters = Collections.synchronizedList(Lists.newArrayList(
+            AliveC2SPacket.class.getSimpleName(),
+            AliveS2CPacket.class.getSimpleName(),
+            PingC2SPacket.class.getSimpleName(),
+            PongS2CPacket.class.getSimpleName(),
+            RTTC2SPacket.class.getSimpleName(),
+            RTTS2CPacket.class.getSimpleName()
+    ));
 
     ThreadRainbowClient() {
         super("Client");
@@ -155,10 +173,18 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public void connectToServer(String host, int port, Consumer<String> consumer, Runnable onJoinLobby) {
         this.clientSpider = null;
         InetSocketAddress address = new InetSocketAddress(host, port);
-        this.connection = Connection.connect(address);
+        this.connection = Connection.connect(this, address);
         this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer, onJoinLobby));
         this.connection.sendPacket(new HandshakeC2SPacket(Protocol.LOGIN));
         this.connection.sendPacket(new LoginHelloC2SPacket());
+    }
+
+    public void addPacketFilter(String packetName) {
+        this.packetFilters.add(packetName);
+    }
+
+    public boolean isPacketTrash(Packet<?> packet) {
+        return this.packetFilters.contains(packet.getClass().getSimpleName());
     }
 
     @Override

@@ -5,9 +5,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.hamusuke.threadr.network.channel.*;
 import com.hamusuke.threadr.network.protocol.PacketDirection;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.DisconnectS2CPacket;
-import com.hamusuke.threadr.server.network.handshake.ServerHandshakePacketListenerImpl;
+import com.hamusuke.threadr.server.network.listener.handshake.ServerHandshakePacketListenerImpl;
 import com.hamusuke.threadr.util.Lazy;
-import com.hamusuke.threadr.util.Util;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -96,7 +95,7 @@ public class ServerNetworkIo {
                         connection.tick();
                     } catch (Exception e) {
                         LOGGER.warn("Failed to handle packet for {}", connection.getAddress(), e);
-                        String msg = Util.toHTML("パケットの処理に失敗しました\n" + e);
+                        var msg = "パケットの処理に失敗しました\n" + e;
                         connection.sendPacket(new DisconnectS2CPacket(msg), future -> connection.disconnect(msg));
                         connection.disableAutoRead();
                     }

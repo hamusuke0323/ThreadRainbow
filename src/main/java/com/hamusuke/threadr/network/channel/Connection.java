@@ -1,6 +1,9 @@
 package com.hamusuke.threadr.network.channel;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.network.ClientPacketLogger;
+import com.hamusuke.threadr.network.PacketLogger;
 import com.hamusuke.threadr.network.encryption.PacketDecryptor;
 import com.hamusuke.threadr.network.encryption.PacketEncryptor;
 import com.hamusuke.threadr.network.listener.PacketListener;
@@ -10,7 +13,6 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.DisconnectS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.LoginDisconnectS2CPacket;
 import com.hamusuke.threadr.util.Lazy;
-import com.hamusuke.threadr.util.Util;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -51,13 +53,19 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     private final Queue<QueuedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     private boolean disconnected;
     private String disconnectedReason = "";
+    private final PacketLogger logger;
 
     public Connection(PacketDirection receiving) {
-        this.receiving = receiving;
+        this(receiving, PacketLogger.EMPTY);
     }
 
-    public static Connection connect(InetSocketAddress address) {
-        final var connection = new Connection(PacketDirection.CLIENTBOUND);
+    public Connection(PacketDirection receiving, PacketLogger logger) {
+        this.receiving = receiving;
+        this.logger = logger;
+    }
+
+    public static Connection connect(ThreadRainbowClient client, InetSocketAddress address) {
+        final var connection = new Connection(PacketDirection.CLIENTBOUND, new ClientPacketLogger(client));
         Class<? extends SocketChannel> clazz;
         Lazy<? extends EventLoopGroup> lazy;
         if (Epoll.isAvailable()) {
@@ -123,7 +131,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (this.channel.isOpen()) {
             LOGGER.warn(String.format("Caught exception in %s side", this.receiving == PacketDirection.SERVERBOUND ? "server" : "client"), cause);
-            String msg = Util.toHTML("通信エラーが発生しました\n" + cause);
+            var msg = "通信エラーが発生しました\n" + cause;
             if (this.getSending() == PacketDirection.CLIENTBOUND) {
                 this.sendPacket(this.getProtocol() == Protocol.LOGIN ? new LoginDisconnectS2CPacket(msg) : new DisconnectS2CPacket(msg), future -> {
                     this.disconnect(msg);
@@ -147,6 +155,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 this.disableAutoRead();
             }
 
+            this.logger.receive(msg);
             handle(msg, this.packetListener);
         }
     }
@@ -226,6 +235,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         }
 
         var channelFuture = this.channel.writeAndFlush(packet);
+        this.logger.send(packet);
         if (callback != null) {
             channelFuture.addListener(callback);
         }

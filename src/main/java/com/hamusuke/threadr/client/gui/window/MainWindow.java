@@ -3,7 +3,7 @@ package com.hamusuke.threadr.client.gui.window;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.ImageLabel;
 import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
-import com.hamusuke.threadr.client.network.main.ClientPlayPacketListenerImpl;
+import com.hamusuke.threadr.client.network.listener.main.ClientPlayPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.NumberCard;
@@ -42,6 +42,9 @@ public class MainWindow extends Window {
     private JPanel gamePanel;
     private JButton uncover;
     private JButton restart;
+    private JPanel east;
+    private JMenuItem packetLog;
+    private JScrollPane logScroll;
 
     public MainWindow() {
         super("ロビー");
@@ -52,6 +55,10 @@ public class MainWindow extends Window {
         super.init();
 
         this.setTitle("ロビー - " + this.client.getAddresses());
+        this.east = new JPanel(new FlowLayout());
+        this.logScroll = new JScrollPane(this.client.packetLogTable);
+        this.logScroll.setAutoscrolls(true);
+        this.east.add(this.logScroll);
         this.createSouth();
         this.setSize(1280, 720);
         this.setLocationRelativeTo(null);
@@ -530,6 +537,16 @@ public class MainWindow extends Window {
 
         menu.add(disconnect);
         jMenuBar.add(menu);
+
+        var debug = new JMenu("ネットワーク");
+        if (this.packetLog == null) {
+            this.packetLog = new JMenuItem("ログを見る");
+            this.packetLog.setActionCommand("packetLog");
+            this.packetLog.addActionListener(this);
+        }
+        debug.add(this.packetLog);
+        jMenuBar.add(debug);
+
         return jMenuBar;
     }
 
@@ -568,7 +585,7 @@ public class MainWindow extends Window {
 
     @Override
     protected void onClose() {
-        this.dispose(this.client::disconnect);
+        this.client.disconnect();
     }
 
     @Override
@@ -576,7 +593,26 @@ public class MainWindow extends Window {
         var c = e.getComponent();
         if (c == this && this.south != null) {
             this.south.setPreferredSize(new Dimension(100, c.getHeight() / 4));
+            this.south.revalidate();
         }
+        if (c == this) {
+            this.east.setPreferredSize(new Dimension(c.getWidth() / 3, c.getHeight() / 2));
+            this.east.revalidate();
+        }
+    }
+
+    private synchronized void showPacketLog() {
+        this.add(this.east, BorderLayout.EAST);
+        this.packetLog.setText("ログを閉じる");
+        this.packetLog.setActionCommand("hPacketLog");
+        this.revalidate();
+    }
+
+    private synchronized void hidePacketLog() {
+        super.remove(this.east);
+        this.packetLog.setText("ログを見る");
+        this.packetLog.setActionCommand("packetLog");
+        this.revalidate();
     }
 
     @Override
@@ -587,6 +623,12 @@ public class MainWindow extends Window {
                 break;
             case "disconnect":
                 this.onClose();
+                break;
+            case "packetLog":
+                this.showPacketLog();
+                break;
+            case "hPacketLog":
+                this.hidePacketLog();
                 break;
             case "show":
                 this.showCard();

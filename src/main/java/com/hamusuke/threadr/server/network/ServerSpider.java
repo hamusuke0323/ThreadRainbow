@@ -6,7 +6,7 @@ import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
-import com.hamusuke.threadr.server.network.main.ServerCommonPacketListenerImpl;
+import com.hamusuke.threadr.server.network.listener.main.ServerCommonPacketListenerImpl;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 

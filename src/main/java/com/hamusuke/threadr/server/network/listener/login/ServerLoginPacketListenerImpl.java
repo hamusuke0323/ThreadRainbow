@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.server.network;
+package com.hamusuke.threadr.server.network.listener.login;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
@@ -9,13 +9,16 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
-import com.hamusuke.threadr.server.network.main.ServerLobbyPacketListenerImpl;
+import com.hamusuke.threadr.server.network.ServerSpider;
+import com.hamusuke.threadr.server.network.listener.main.ServerLobbyPacketListenerImpl;
+import com.mojang.brigadier.StringReader;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.Function;
 
 public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -40,7 +43,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     public static boolean isValidName(String name) {
-        return name.chars().filter(c -> c <= 32 || c >= 127).findAny().isEmpty();
+        return name.chars().filter(value -> !StringReader.isAllowedInUnquotedString((char) value)).findAny().isEmpty();
     }
 
     @Override
@@ -143,17 +146,28 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public void handleLogin(SpiderLoginC2SPacket packet) {
         Validate.validState(this.state == State.ENTER_NAME, "Unexpected login packet");
 
-        if (this.tryLogin(packet.name())) {
-            this.serverSpider = new ServerSpider(packet.name(), this.server);
-            this.serverSpider.setAuthorized(true);
-            this.state = State.READY;
-        } else {
-            this.connection.sendPacket(new EnterNameS2CPacket(packet.name()));
+        var res = this.tryLogin(packet.name());
+        switch (res) {
+            case OK -> {
+                this.serverSpider = new ServerSpider(packet.name(), this.server);
+                this.serverSpider.setAuthorized(true);
+                this.state = State.READY;
+            }
+            case DUPLICATED_NAME, INVALID_CHARS_IN_NAME ->
+                    this.connection.sendPacket(new EnterNameS2CPacket(res.messageFactory.apply(packet.name())));
         }
     }
 
-    private boolean tryLogin(String name) {
-        return this.server.getSpiderManager().getSpiders().stream().noneMatch(spider -> spider.getName().equals(name));
+    private LoginResult tryLogin(String name) {
+        if (!isValidName(name)) {
+            return LoginResult.INVALID_CHARS_IN_NAME;
+        }
+
+        if (this.server.getSpiderManager().getSpiders().stream().anyMatch(spider -> spider.getName().equals(name))) {
+            return LoginResult.DUPLICATED_NAME;
+        }
+
+        return LoginResult.OK;
     }
 
     private enum State {
@@ -162,5 +176,17 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         ENTER_NAME,
         READY,
         ACCEPTED
+    }
+
+    private enum LoginResult {
+        OK(s -> s),
+        INVALID_CHARS_IN_NAME(s -> "使用不可能な文字が含まれています。"),
+        DUPLICATED_NAME(s -> String.format("'%s' という名前は既に使われています。別の名前を使用してください。", s));
+
+        private final Function<String, String> messageFactory;
+
+        LoginResult(Function<String, String> messageFactory) {
+            this.messageFactory = messageFactory;
+        }
     }
 }

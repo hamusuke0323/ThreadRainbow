@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.client.network.main;
+package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
