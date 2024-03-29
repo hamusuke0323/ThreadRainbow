@@ -44,7 +44,6 @@ public class MainWindow extends Window {
     private JButton restart;
     private JPanel east;
     private JMenuItem packetLog;
-    private JScrollPane logScroll;
 
     public MainWindow() {
         super("ロビー");
@@ -56,9 +55,9 @@ public class MainWindow extends Window {
 
         this.setTitle("ロビー - " + this.client.getAddresses());
         this.east = new JPanel(new FlowLayout());
-        this.logScroll = new JScrollPane(this.client.packetLogTable);
-        this.logScroll.setAutoscrolls(true);
-        this.east.add(this.logScroll);
+        JScrollPane logScroll = new JScrollPane(this.client.packetLogTable);
+        logScroll.setAutoscrolls(true);
+        this.east.add(logScroll);
         this.createSouth();
         this.setSize(1280, 720);
         this.setLocationRelativeTo(null);
