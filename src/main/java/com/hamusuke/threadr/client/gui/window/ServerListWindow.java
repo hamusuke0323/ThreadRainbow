@@ -20,7 +20,7 @@ public class ServerListWindow extends Window {
     private int refreshBtnTicks;
 
     public ServerListWindow(String msg) {
-        super("サーバーに接続");
+        super("サーバー一覧");
 
         this.msg = msg;
     }
