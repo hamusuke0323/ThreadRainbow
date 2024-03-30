@@ -1,5 +1,6 @@
 package com.hamusuke.threadr.client.gui.window;
 
+import com.hamusuke.threadr.client.gui.dialog.OkDialog;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
 import com.mojang.brigadier.StringReader;
 
@@ -26,15 +27,13 @@ public class LoginWindow extends Window {
         super.init();
 
         if (!this.msg.isEmpty()) {
-            var dialog = new JDialog(this, "エラー", true);
-            var label = new JLabel(this.msg);
-            dialog.add(label, BorderLayout.CENTER);
-            var ok = new JButton("OK");
-            ok.addActionListener(e -> dialog.dispose());
-            dialog.add(ok, BorderLayout.SOUTH);
-            dialog.pack();
-            dialog.setLocationRelativeTo(null);
-            dialog.setVisible(true);
+            new SwingWorker<>() {
+                @Override
+                protected Object doInBackground() throws Exception {
+                    new OkDialog(LoginWindow.this, "エラー", msg);
+                    return null;
+                }
+            }.execute();
         }
 
         this.menu = this.createMenuBar();

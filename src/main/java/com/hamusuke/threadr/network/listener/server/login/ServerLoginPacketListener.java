@@ -1,5 +1,6 @@
-package com.hamusuke.threadr.network.listener.server;
+package com.hamusuke.threadr.network.listener.server.login;
 
+import com.hamusuke.threadr.network.listener.server.ServerPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;

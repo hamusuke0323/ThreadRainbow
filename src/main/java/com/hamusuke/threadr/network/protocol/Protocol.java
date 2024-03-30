@@ -1,14 +1,15 @@
 package com.hamusuke.threadr.network.protocol;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.PacketListener;
-import com.hamusuke.threadr.network.listener.client.ClientLoginPacketListener;
+import com.hamusuke.threadr.network.listener.client.info.ClientInfoPacketListener;
+import com.hamusuke.threadr.network.listener.client.login.ClientLoginPacketListener;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
-import com.hamusuke.threadr.network.listener.server.ServerHandshakePacketListener;
-import com.hamusuke.threadr.network.listener.server.ServerLoginPacketListener;
+import com.hamusuke.threadr.network.listener.server.handshake.ServerHandshakePacketListener;
+import com.hamusuke.threadr.network.listener.server.info.ServerInfoPacketListener;
+import com.hamusuke.threadr.network.listener.server.login.ServerLoginPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
@@ -17,6 +18,7 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPack
 import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.info.ServerInfoRequestC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
@@ -25,6 +27,7 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPack
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
+import com.hamusuke.threadr.network.protocol.packet.s2c.info.ServerInfoResponseS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
 import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
@@ -108,10 +111,18 @@ public enum Protocol {
                     .add(AliveC2SPacket.class, AliveC2SPacket::new)
                     .add(SpiderLoginC2SPacket.class, SpiderLoginC2SPacket::new)
             )
+    ),
+    INFO(3, protocol()
+            .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientInfoPacketListener>()
+                    .add(ServerInfoResponseS2CPacket.class, ServerInfoResponseS2CPacket::new)
+            )
+            .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerInfoPacketListener>()
+                    .add(ServerInfoRequestC2SPacket.class, ServerInfoRequestC2SPacket::new)
+            )
     );
 
     private static final int MIN = -1;
-    private static final int MAX = 2;
+    private static final int MAX = 3;
     private static final Protocol[] PROTOCOLS = new Protocol[MAX - MIN + 1];
 
     static {
@@ -184,10 +195,6 @@ public enum Protocol {
 
             var function = this.idToInitializer.get(id);
             return function != null ? function.apply(byteBuf) : null;
-        }
-
-        public Iterable<Class<? extends Packet<? super T>>> getPacketIds() {
-            return Iterables.unmodifiableIterable(this.packetIds.keySet());
         }
     }
 

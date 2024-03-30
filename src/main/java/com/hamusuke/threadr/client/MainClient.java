@@ -17,7 +17,6 @@ public class MainClient {
 
         var client = new ThreadRainbowClient();
         client.run();
-        client.stop();
     }
 
     public static void setUIFont(FontUIResource f) {

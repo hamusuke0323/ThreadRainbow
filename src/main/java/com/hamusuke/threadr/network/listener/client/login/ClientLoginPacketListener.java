@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.network.listener.client;
+package com.hamusuke.threadr.network.listener.client.login;
 
 import com.hamusuke.threadr.network.listener.PacketListener;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;

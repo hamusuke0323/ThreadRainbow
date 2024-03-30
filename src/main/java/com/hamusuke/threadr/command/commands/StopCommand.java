@@ -11,7 +11,7 @@ public class StopCommand {
                 c.getSource().getServer().sendMessageToAll("サーバーを停止します");
                 c.getSource().getServer().stop(false);
             } else {
-                c.getSource().sendError("ホストのみこのコマンドを実行できます。");
+                c.getSource().sendError("ホストのみこのコマンドを実行できます");
             }
 
             return 1;

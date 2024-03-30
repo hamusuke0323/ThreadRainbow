@@ -2,7 +2,7 @@ package com.hamusuke.threadr.network.protocol.packet.s2c.login;
 
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
-import com.hamusuke.threadr.network.listener.client.ClientLoginPacketListener;
+import com.hamusuke.threadr.network.listener.client.login.ClientLoginPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 import java.security.PublicKey;

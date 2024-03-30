@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.dialog;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
+import com.hamusuke.threadr.client.gui.window.ServerListWindow;
 import com.hamusuke.threadr.client.gui.window.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,10 +15,10 @@ public class DedicatedConnectingDialog extends JDialog {
         super(owner, String.format("%s:%dに接続しています...", host, port), true);
         JLabel label = new JLabel(String.format("%s:%d に接続しています...", host, port));
         this.add(label);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.pack();
         this.setSize(this.getWidth() * 2, this.getHeight() * 2);
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(owner);
         new SwingWorker<>() {
             @Override
             protected Object doInBackground() {
@@ -34,7 +34,7 @@ public class DedicatedConnectingDialog extends JDialog {
                     } catch (Exception e) {
                         LOGGER.warn("Connection Error!", e);
                         DedicatedConnectingDialog.this.getOwner().dispose();
-                        client.setCurrentWindow(new ConnectingWindow(String.format("%s:%d に接続できませんでした\n%s", host, port, e)));
+                        client.setCurrentWindow(new ServerListWindow(String.format("%s:%d に接続できませんでした\n%s", host, port, e)));
                     }
                 });
 

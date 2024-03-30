@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
+import com.hamusuke.threadr.client.gui.window.ServerListWindow;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -95,7 +95,7 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
         if (window != null) {
             window.dispose();
         }
-        this.client.setCurrentWindow(new ConnectingWindow(msg));
+        this.client.setCurrentWindow(new ServerListWindow(msg));
         this.client.clientSpider = null;
         this.client.spiderTable = null;
         this.client.chat = null;

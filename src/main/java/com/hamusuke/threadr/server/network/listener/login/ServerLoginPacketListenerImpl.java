@@ -2,7 +2,7 @@ package com.hamusuke.threadr.server.network.listener.login;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
-import com.hamusuke.threadr.network.listener.server.ServerLoginPacketListener;
+import com.hamusuke.threadr.network.listener.server.login.ServerLoginPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
@@ -178,8 +178,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
     private enum LoginResult {
         OK(s -> s),
-        INVALID_CHARS_IN_NAME(s -> "使用不可能な文字が含まれています。"),
-        DUPLICATED_NAME(s -> String.format("'%s' という名前は既に使われています。別の名前を使用してください。", s));
+        INVALID_CHARS_IN_NAME(s -> "使用不可能な文字が含まれています"),
+        DUPLICATED_NAME(s -> String.format("'%s' という名前は既に使われています。別の名前を使用してください", s));
 
         private final Function<String, String> messageFactory;
 

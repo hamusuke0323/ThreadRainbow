@@ -1,15 +1,22 @@
 package com.hamusuke.threadr.client;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.hamusuke.threadr.client.gui.component.Chat;
 import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
-import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
+import com.hamusuke.threadr.client.gui.window.ServerListWindow;
 import com.hamusuke.threadr.client.gui.window.Window;
+import com.hamusuke.threadr.client.network.listener.info.ClientInfoPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.login.ClientLoginPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.main.ClientCommonPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.network.ServerInfo;
+import com.hamusuke.threadr.network.ServerInfo.Status;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
@@ -17,6 +24,7 @@ import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPack
 import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.c2s.info.ServerInfoRequestC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.common.PongS2CPacket;
@@ -28,15 +36,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.*;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     private static final Logger LOGGER = LogManager.getLogger();
     private static ThreadRainbowClient INSTANCE;
+    private static final Gson GSON = new Gson();
     private final AtomicBoolean running = new AtomicBoolean();
     private final TickCounter tickCounter = new TickCounter(20.0F, 0L);
     @Nullable
@@ -61,22 +74,119 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             RTTC2SPacket.class.getSimpleName(),
             RTTS2CPacket.class.getSimpleName()
     ));
+    private final File serversFile;
+    private final List<ServerInfo> servers = Collections.synchronizedList(Lists.newArrayList());
+    private final List<Connection> infoConnections = Collections.synchronizedList(Lists.newArrayList());
 
     ThreadRainbowClient() {
         super("Client");
 
         if (INSTANCE != null) {
-            throw new IllegalStateException("ThreadRainbowClient can be instantiated just once!");
+            throw new IllegalStateException("ThreadRainbowClient is singleton class!");
         }
 
         INSTANCE = this;
         this.running.set(true);
         this.thread = Thread.currentThread();
-        this.setCurrentWindow(new ConnectingWindow());
+        this.serversFile = new File("./servers.json");
+        this.loadServers();
+        this.setCurrentWindow(new ServerListWindow());
     }
 
     public static ThreadRainbowClient getInstance() {
         return INSTANCE;
+    }
+
+    private synchronized void loadServers() {
+        this.servers.clear();
+
+        try {
+            if (!this.serversFile.exists() || !this.serversFile.isFile()) {
+                this.serversFile.createNewFile();
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to load servers", e);
+            return;
+        }
+
+        if (this.serversFile.exists() && this.serversFile.isFile()) {
+            try (var isr = new InputStreamReader(new FileInputStream(this.serversFile), StandardCharsets.UTF_8)) {
+                var servers = GSON.fromJson(isr, JsonArray.class);
+                if (servers == null) {
+                    return;
+                }
+
+                Set<ServerInfo> set = Sets.newHashSet();
+                servers.forEach(e -> {
+                    try {
+                        var info = GSON.fromJson(e, ServerInfo.class);
+                        if (info == null) {
+                            return;
+                        }
+
+                        info.status = Status.NONE;
+                        set.add(info);
+                    } catch (Exception ex) {
+                        LOGGER.warn("Error occurred while loading json and skip", ex);
+                    }
+                });
+
+                this.servers.addAll(set);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to load servers json file", e);
+            }
+        }
+    }
+
+    public synchronized void saveServers() {
+        try (var w = new OutputStreamWriter(new FileOutputStream(this.serversFile), StandardCharsets.UTF_8)) {
+            GSON.toJson(this.servers, w);
+            w.flush();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred while saving servers", e);
+        }
+    }
+
+    public List<ServerInfo> getServers() {
+        return ImmutableList.copyOf(this.servers);
+    }
+
+    public boolean addServer(ServerInfo info) {
+        if (this.servers.contains(info)) {
+            return false;
+        }
+
+        this.servers.add(info);
+        return true;
+    }
+
+    public void removeServer(ServerInfo info) {
+        this.servers.remove(info);
+    }
+
+    public void checkServerInfo(ServerInfo info) {
+        CompletableFuture.runAsync(() -> {
+            var address = new InetSocketAddress(info.address, info.port);
+            var connection = Connection.connect(this, address);
+            connection.setListener(new ClientInfoPacketListenerImpl(this, connection, info));
+            info.status = Status.CONNECTING;
+            this.onServerInfoChanged();
+            connection.sendPacket(new HandshakeC2SPacket(Protocol.INFO));
+            connection.sendPacket(new ServerInfoRequestC2SPacket(Util.getMeasuringTimeMs()));
+            this.infoConnections.add(connection);
+        }, this).exceptionally(throwable -> {
+            info.status = Status.FAILED;
+            this.onServerInfoChanged();
+            return null;
+        });
+    }
+
+    public void onServerInfoChanged() {
+        this.sendMsg(() -> {
+            if (this.currentWindow instanceof ServerListWindow w) {
+                w.onServerInfoChanged();
+            }
+        });
     }
 
     public void run() {
@@ -103,6 +213,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             }
         } catch (Exception e) {
             LOGGER.fatal("Error thrown!", e);
+        } finally {
+            this.stop();
         }
     }
 
@@ -119,7 +231,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         this.currentWindow = currentWindow;
 
         if (this.currentWindow == null) {
-            this.currentWindow = new ConnectingWindow();
+            this.currentWindow = new ServerListWindow();
         }
 
         this.currentWindow.init();
@@ -162,6 +274,9 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
                 this.connection = null;
             }
         }
+
+        this.infoConnections.forEach(Connection::tick);
+        this.infoConnections.removeIf(Connection::isDisconnected);
     }
 
     public void addClientSpider(AbstractClientSpider clientSpider) {
@@ -177,10 +292,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer, onJoinLobby));
         this.connection.sendPacket(new HandshakeC2SPacket(Protocol.LOGIN));
         this.connection.sendPacket(new LoginHelloC2SPacket());
-    }
-
-    public void addPacketFilter(String packetName) {
-        this.packetFilters.add(packetName);
     }
 
     public boolean isPacketTrash(Packet<?> packet) {

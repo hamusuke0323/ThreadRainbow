@@ -3,14 +3,14 @@ package com.hamusuke.threadr.client.network.listener.login;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.Chat;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
-import com.hamusuke.threadr.client.gui.window.ConnectingWindow;
 import com.hamusuke.threadr.client.gui.window.LoginWindow;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
+import com.hamusuke.threadr.client.gui.window.ServerListWindow;
 import com.hamusuke.threadr.client.network.listener.main.ClientLobbyPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
-import com.hamusuke.threadr.network.listener.client.ClientLoginPacketListener;
+import com.hamusuke.threadr.network.listener.client.login.ClientLoginPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
 import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
@@ -110,7 +110,7 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
             this.client.getCurrentWindow().dispose();
         }
 
-        this.client.setCurrentWindow(new ConnectingWindow(msg));
+        this.client.setCurrentWindow(new ServerListWindow(msg));
     }
 
     @Override

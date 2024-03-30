@@ -2,7 +2,7 @@ package com.hamusuke.threadr.network.protocol.packet.c2s.handshaking;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
-import com.hamusuke.threadr.network.listener.server.ServerHandshakePacketListener;
+import com.hamusuke.threadr.network.listener.server.handshake.ServerHandshakePacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
@@ -29,6 +29,6 @@ public record HandshakeC2SPacket(int protocolVersion,
 
     @Override
     public Protocol nextProtocol() {
-        return Protocol.LOGIN;
+        return this.intendedProtocol;
     }
 }

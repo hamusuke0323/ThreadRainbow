@@ -281,8 +281,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 LOGGER.warn("handleDisconnection() called twice");
             } else {
                 this.disconnected = true;
-                String msg = this.disconnectedReason;
-                this.getPacketListener().onDisconnected(msg);
+                this.getPacketListener().onDisconnected(this.disconnectedReason);
             }
         }
     }

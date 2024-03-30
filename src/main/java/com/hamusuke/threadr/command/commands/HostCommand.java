@@ -16,10 +16,13 @@ public class HostCommand {
         if (source.getServer().getSpiderManager().isHost(name)) {
             source.sendError("そのクモは既にホストです");
         } else if (source.getServer().isHost(source.getSender())) {
-            source.getServer().getSpiderManager().changeHost(name);
-            source.sendFeedback("ホストを " + name + " に変更しました");
+            if (source.getServer().getSpiderManager().changeHost(name)) {
+                source.sendFeedback("ホストを " + name + " に変更しました");
+            } else {
+                source.sendError("クモが見つかりませんでした");
+            }
         } else {
-            source.sendError("ホストのみこのコマンドを実行できます。");
+            source.sendError("ホストのみこのコマンドを実行できます");
         }
 
         return 1;

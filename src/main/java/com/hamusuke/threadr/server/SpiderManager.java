@@ -77,9 +77,11 @@ public class SpiderManager {
         return this.host != null && this.host.getName().equals(name);
     }
 
-    public void changeHost(String name) {
+    public boolean changeHost(String name) {
         synchronized (this.spiders) {
-            this.spiders.stream().filter(serverSpider -> serverSpider.getName().equals(name)).findFirst().ifPresent(this::changeHost);
+            var target = this.spiders.stream().filter(serverSpider -> serverSpider.getName().equals(name)).findFirst();
+            target.ifPresent(this::changeHost);
+            return target.isPresent();
         }
     }
 

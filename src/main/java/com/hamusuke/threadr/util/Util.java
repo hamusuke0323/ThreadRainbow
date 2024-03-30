@@ -13,6 +13,12 @@ public class Util {
         return "<html>" + s.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>";
     }
 
+    public static String numberOnly(String s) {
+        var buf = new StringBuilder();
+        s.chars().filter(value -> '0' <= value && value <= '9').forEach(value -> buf.append((char) value));
+        return buf.toString();
+    }
+
     public static <T> T make(Supplier<T> supplier) {
         return supplier.get();
     }
