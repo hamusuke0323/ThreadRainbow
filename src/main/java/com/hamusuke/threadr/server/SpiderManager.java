@@ -14,14 +14,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SpiderManager {
-    private final ThreadRainbowServer server;
     private final List<ServerSpider> spiders = Lists.newArrayList();
     @Nullable
     private ServerSpider host;
-
-    public SpiderManager(ThreadRainbowServer server) {
-        this.server = server;
-    }
 
     public boolean canJoin(ServerSpider serverSpider) {
         return serverSpider.isAuthorized();

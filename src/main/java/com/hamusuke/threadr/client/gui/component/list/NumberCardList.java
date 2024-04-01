@@ -5,8 +5,6 @@ import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,22 +16,21 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class NumberCardList extends JList<NumberCard> implements DragGestureListener, DragSourceListener, Transferable {
-    private static final Logger LOGGER = LogManager.getLogger();
     private static final Color LINE_COLOR = new Color(0x64_64_FF);
     private static final String NAME = "test";
     private static final String MIME_TYPE = DataFlavor.javaJVMLocalObjectMimeType;
     private static final DataFlavor FLAVOR = new DataFlavor(MIME_TYPE, NAME);
-    private static final Color EVEN_BGC = new Color(0xF0_F0_F0);
     private final Rectangle targetLine = new Rectangle();
     protected int draggedIndex = -1;
     protected int targetIndex = -1;
     protected final BufferedImage card;
     protected final ThreadRainbowClient client;
-    private boolean locked;
+    private final boolean locked;
 
-    public NumberCardList(ThreadRainbowClient client) {
+    private NumberCardList(ThreadRainbowClient client, boolean locked) {
         super();
         this.client = client;
+        this.locked = locked;
         this.setCellRenderer(null);
         new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new ItemDropTargetListener(), true);
         DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
@@ -56,6 +53,14 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         }
 
         this.card = card;
+    }
+
+    public static NumberCardList play(ThreadRainbowClient client) {
+        return new NumberCardList(client, false);
+    }
+
+    public static NumberCardList result(ThreadRainbowClient client) {
+        return new NumberCardList(client, true);
     }
 
     private void drawCardImage(Graphics g, int x) {
@@ -97,12 +102,6 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         }
     }
 
-    public void removeCard(NumberCard card) {
-        var model = (DefaultListModel<NumberCard>) this.getModel();
-        model.removeElement(card);
-        this.repaint();
-    }
-
     protected void initTargetLine(Point p) {
         var rect = getCellBounds(0, 0);
         int width = rect.width;
@@ -124,26 +123,8 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         }
     }
 
-    public void lock() {
-        this.locked = true;
-    }
-
     private void onMoved(int from, int to) {
         this.client.getConnection().sendPacket(new MoveCardReq(from, to));
-    }
-
-    public void moveCard(int from, int to) {
-        var model = (DefaultListModel<NumberCard>) this.getModel();
-        var str = model.get(from);
-        if (to < from) {
-            model.remove(from);
-            model.add(to, str);
-            setSelectedIndex(to);
-        } else {
-            model.add(to + 1, str);
-            model.remove(from);
-            setSelectedIndex(to);
-        }
     }
 
     @Override

@@ -27,7 +27,6 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
         var listener = new ClientPlayPacketListenerImpl(this.client, this.connection);
         listener.hostId = id;
         listener.mainWindow = this.mainWindow;
-        this.mainWindow.rmLobby();
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
     }

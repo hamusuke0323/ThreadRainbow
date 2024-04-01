@@ -82,7 +82,7 @@ public class DedicatedServer extends ThreadRainbowServer {
         try {
             this.dispatcher.execute(command, this);
         } catch (CommandSyntaxException e) {
-            LOGGER.info("Command Syntax Error!", e);
+            this.sendError(e.getMessage());
         }
     }
 }

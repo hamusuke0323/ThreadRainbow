@@ -13,9 +13,15 @@ public class ImageLabel extends JPanel {
     private static final Logger LOGGER = LogManager.getLogger();
     @Nullable
     protected final BufferedImage image;
+    protected final boolean centered;
 
     public ImageLabel(String name) {
+        this(name, false);
+    }
+
+    public ImageLabel(String name, boolean centered) {
         this.image = read(name);
+        this.centered = centered;
     }
 
     @Nullable
@@ -39,7 +45,13 @@ public class ImageLabel extends JPanel {
         super.paintComponent(g);
 
         if (this.image != null) {
-            g.drawImage(this.image, this.getX(), this.getY(), null);
+            int x = this.centered ?
+                    (int) (this.getX() + this.getWidth() / 2 - this.getPreferredSize().getWidth() / 2)
+                    : this.getX();
+            int y = this.centered ?
+                    (int) (this.getY() + this.getHeight() / 2 - this.getPreferredSize().getHeight() / 2)
+                    : this.getY();
+            g.drawImage(this.image, x, y, null);
         }
     }
 }

@@ -40,7 +40,6 @@ public class ServerInfoDialog extends JDialog {
         } else {
             host.setText(info.address);
         }
-
         host.setToolTipText("host ip/name");
 
         var port = new JTextField();

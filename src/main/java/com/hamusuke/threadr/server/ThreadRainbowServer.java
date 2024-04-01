@@ -56,7 +56,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         this.running.set(true);
         this.networkIo = new ServerNetworkIo(this);
         this.serverThread = serverThread;
-        this.setSpiderManager(new SpiderManager(this));
+        this.setSpiderManager(new SpiderManager());
     }
 
     public static <S extends ThreadRainbowServer> S startServer(Function<Thread, S> factory) {
@@ -162,7 +162,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         try {
             this.dispatcher.execute(command, spider);
         } catch (CommandSyntaxException e) {
-            spider.sendFeedback(e.getContext());
+            spider.sendError(e.getMessage());
         }
     }
 

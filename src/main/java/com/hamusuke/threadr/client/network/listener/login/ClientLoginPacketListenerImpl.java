@@ -2,6 +2,7 @@ package com.hamusuke.threadr.client.network.listener.login;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.Chat;
+import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel.PanelState;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.gui.window.LoginWindow;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
@@ -77,7 +78,7 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
         var window = new MainWindow();
         listener.mainWindow = window;
-        window.lobby();
+        window.changeState(PanelState.LOBBY);
         this.client.setCurrentWindow(window);
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());

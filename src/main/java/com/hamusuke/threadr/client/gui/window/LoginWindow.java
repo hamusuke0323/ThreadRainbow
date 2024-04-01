@@ -29,7 +29,7 @@ public class LoginWindow extends Window {
         if (!this.msg.isEmpty()) {
             new SwingWorker<>() {
                 @Override
-                protected Object doInBackground() throws Exception {
+                protected Object doInBackground() {
                     new OkDialog(LoginWindow.this, "エラー", msg);
                     return null;
                 }

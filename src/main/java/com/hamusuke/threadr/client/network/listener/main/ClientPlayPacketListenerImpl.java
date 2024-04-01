@@ -2,6 +2,7 @@ package com.hamusuke.threadr.client.network.listener.main;
 
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel.PanelState;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
@@ -41,7 +42,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
         this.clientSpider.takeCard(card);
         this.cardMap.clear();
         this.cardMap.put(this.clientSpider.getId(), card);
-        this.mainWindow.card();
+        this.mainWindow.changeState(PanelState.HANDED_CARD);
     }
 
     @Override
@@ -61,12 +62,12 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartTopicSelection(StartTopicSelectionNotify packet) {
-        this.mainWindow.topic(packet.firstTopic());
+        this.mainWindow.setTopic(packet.firstTopic());
     }
 
     @Override
     public void handleSelectTopic(TopicChangeNotify packet) {
-        this.mainWindow.topic(packet.topic());
+        this.mainWindow.setTopic(packet.topic());
     }
 
     @Override
@@ -81,7 +82,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleMainGameFinish(FinishMainGameNotify packet) {
-        this.mainWindow.onMainGameFinished();
+        this.mainWindow.changeState(PanelState.RESULT);
     }
 
     @Override
@@ -91,8 +92,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleRestart(RestartGameNotify packet) {
-        this.mainWindow.reset();
-        this.client.spiderTable.removeCardNumCol();
+        this.mainWindow.changeState(PanelState.LOBBY);
     }
 
     @Override
@@ -101,8 +101,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
         listener.hostId = id;
         listener.mainWindow = this.mainWindow;
-        this.mainWindow.reset();
-        this.mainWindow.lobby();
+        this.mainWindow.changeState(PanelState.LOBBY);
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
     }
