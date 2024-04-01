@@ -117,8 +117,21 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        Collections.swap(this.cards, from, to);
-        this.sendPacketToAllInGame(new CardMovedS2CPacket(from, to));
+        try {
+            var v = this.cards.get(from);
+            if (to < from) {
+                this.cards.remove(from);
+                this.cards.add(to, v);
+            } else {
+                this.cards.add(to + 1, v);
+                this.cards.remove(from);
+            }
+
+            this.sendPacketToAllInGame(new CardMovedS2CPacket(from, to));
+        } catch (IndexOutOfBoundsException e) {
+            LOGGER.warn("The card moved wrongly!", e);
+            this.sendPacketToAllInGame(new ChatS2CPacket("カードが変なところに移動したので操作をキャンセルしました"));
+        }
     }
 
     public void finish() {
@@ -214,7 +227,7 @@ public class SpidersThreadV2Game {
     public synchronized void onSpiderLeft(ServerSpider spider) {
         this.spiders.remove(spider);
         this.cards.removeIf(integer -> spider.getId() == integer);
-        this.onCardRemoved();
+        this.finishIfLastCardLeft();
         if (this.server.isHost(spider) && !this.spiders.isEmpty()) {
             this.server.getSpiderManager().changeHost(this.spiders.get(0));
         }
@@ -222,7 +235,7 @@ public class SpidersThreadV2Game {
         this.sendPacketToAllInGame(new ChatS2CPacket(spider.getName() + " がゲームをやめました"));
     }
 
-    private void onCardRemoved() {
+    private void finishIfLastCardLeft() {
         if (this.status != Status.RESULT || this.cards.size() > this.uncoveredIndex || this.succeeded) {
             return;
         }

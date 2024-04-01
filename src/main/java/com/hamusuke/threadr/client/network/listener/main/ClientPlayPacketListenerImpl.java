@@ -92,6 +92,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     @Override
     public void handleRestart(RestartGameS2CPacket packet) {
         this.mainWindow.reset();
+        this.client.spiderTable.removeCardNumCol();
     }
 
     @Override
