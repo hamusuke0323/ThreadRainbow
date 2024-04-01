@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.hamusuke.threadr.network.channel.*;
 import com.hamusuke.threadr.network.protocol.PacketDirection;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.DisconnectS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.DisconnectNotify;
 import com.hamusuke.threadr.server.network.listener.handshake.ServerHandshakePacketListenerImpl;
 import com.hamusuke.threadr.util.Lazy;
 import io.netty.bootstrap.ServerBootstrap;
@@ -96,7 +96,7 @@ public class ServerNetworkIo {
                     } catch (Exception e) {
                         LOGGER.warn("Failed to handle packet for {}", connection.getAddress(), e);
                         var msg = "パケットの処理に失敗しました\n" + e;
-                        connection.sendPacket(new DisconnectS2CPacket(msg), future -> connection.disconnect(msg));
+                        connection.sendPacket(new DisconnectNotify(msg), future -> connection.disconnect(msg));
                         connection.disableAutoRead();
                     }
                 }

@@ -4,7 +4,7 @@ import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.NumberCard;
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -129,7 +129,7 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
     }
 
     private void onMoved(int from, int to) {
-        this.client.getConnection().sendPacket(new MoveCardC2SPacket(from, to));
+        this.client.getConnection().sendPacket(new MoveCardReq(from, to));
     }
 
     public void moveCard(int from, int to) {

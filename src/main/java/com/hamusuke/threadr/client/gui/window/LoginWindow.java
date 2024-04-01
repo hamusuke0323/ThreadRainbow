@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.window;
 
 import com.hamusuke.threadr.client.gui.dialog.OkDialog;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.mojang.brigadier.StringReader;
 
 import javax.annotation.Nullable;
@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import static com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket.MAX_NAME_LENGTH;
+import static com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp.MAX_NAME_LENGTH;
 
 public class LoginWindow extends Window {
     private final String msg;
@@ -76,7 +76,7 @@ public class LoginWindow extends Window {
     }
 
     private void login(String name) {
-        this.client.getConnection().sendPacket(new SpiderLoginC2SPacket(name.substring(0, Math.min(name.length(), 16))));
+        this.client.getConnection().sendPacket(new EnterNameRsp(name.substring(0, Math.min(name.length(), 16))));
     }
 
     @Override

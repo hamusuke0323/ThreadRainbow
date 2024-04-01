@@ -2,7 +2,7 @@ package com.hamusuke.threadr.server.network.listener.main;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.StartGameReq;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 
@@ -12,7 +12,7 @@ public class ServerLobbyPacketListenerImpl extends ServerCommonPacketListenerImp
     }
 
     @Override
-    public void handleStartGame(StartGameC2SPacket packet) {
+    public void handleStartGame(StartGameReq packet) {
         if (!this.server.isHost(this.spider)) {
             this.spider.sendError("ホストのみ操作できます");
             return;

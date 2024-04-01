@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.component;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.ChatC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -25,8 +25,8 @@ public class Chat {
         this.field.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == '\n') {
-                    client.getConnection().sendPacket(new ChatC2SPacket(Chat.this.field.getText()));
+                if (e.getKeyChar() == '\n' && !Chat.this.field.getText().isEmpty()) {
+                    client.getConnection().sendPacket(new ChatReq(Chat.this.field.getText()));
                     Chat.this.field.setText("");
                     e.consume();
                 }

@@ -1,27 +1,27 @@
 package com.hamusuke.threadr.network.listener.client.main;
 
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 
 public interface ClientPlayPacketListener extends ClientCommonPacketListener {
-    void handleGiveCard(GiveLocalCardS2CPacket packet);
+    void handleGiveCard(LocalCardHandedNotify packet);
 
-    void handleRemoteCard(RemoteCardGivenS2CPacket packet);
+    void handleRemoteCard(RemoteCardGivenNotify packet);
 
-    void handleStartTopicSelection(StartTopicSelectionS2CPacket packet);
+    void handleStartTopicSelection(StartTopicSelectionNotify packet);
 
-    void handleSelectTopic(SelectTopicS2CPacket packet);
+    void handleSelectTopic(TopicChangeNotify packet);
 
-    void handleStartMainGame(StartMainGameS2CPacket packet);
+    void handleStartMainGame(StartMainGameNotify packet);
 
-    void handleCardMoved(CardMovedS2CPacket packet);
+    void handleCardMoved(CardMoveNotify packet);
 
-    void handleMainGameFinish(MainGameFinishedS2CPacket packet);
+    void handleMainGameFinish(FinishMainGameNotify packet);
 
-    void handleUncoverCard(UncoverCardS2CPacket packet);
+    void handleUncoverCard(UncoverCardNotify packet);
 
-    void handleRestart(RestartGameS2CPacket packet);
+    void handleRestart(RestartGameNotify packet);
 
-    void handleExit(ExitGameSuccS2CPacket packet);
+    void handleExit(ExitGameNotify packet);
 
-    void handleSpiderExit(SpiderExitGameS2CPacket packet);
+    void handleSpiderExit(SpiderExitGameNotify packet);
 }

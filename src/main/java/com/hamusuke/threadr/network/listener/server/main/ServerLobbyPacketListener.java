@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.network.listener.server.main;
 
-import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.StartGameReq;
 
 public interface ServerLobbyPacketListener extends ServerCommonPacketListener {
-    void handleStartGame(StartGameC2SPacket packet);
+    void handleStartGame(StartGameReq packet);
 }

@@ -3,9 +3,9 @@ package com.hamusuke.threadr.server;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChangeHostS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.JoinSpiderS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.SpiderJoinNotify;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -28,18 +28,18 @@ public class SpiderManager {
     }
 
     public void addSpider(ServerSpider serverSpider) {
-        this.sendPacketToAll(new JoinSpiderS2CPacket(serverSpider));
+        this.sendPacketToAll(new SpiderJoinNotify(serverSpider));
 
         synchronized (this.spiders) {
-            this.spiders.forEach(serverSpider1 -> serverSpider.sendPacket(new JoinSpiderS2CPacket(serverSpider1)));
+            this.spiders.forEach(serverSpider1 -> serverSpider.sendPacket(new SpiderJoinNotify(serverSpider1)));
             this.spiders.add(serverSpider);
             if (this.host == null) {
                 this.host = serverSpider;
             }
         }
 
-        this.sendPacketToAll(new ChatS2CPacket(String.format("%s[%s] がサーバーに参加しました", serverSpider.getName(), serverSpider.connection.getConnection().getAddress())));
-        this.sendPacketToAll(new ChangeHostS2CPacket(this.host));
+        this.sendPacketToAll(new ChatNotify(String.format("%s[%s] がサーバーに参加しました", serverSpider.getName(), serverSpider.connection.getConnection().getAddress())));
+        this.sendPacketToAll(new ChangeHostNotify(this.host));
     }
 
     public void sendPacketToAll(Packet<?> packet) {
@@ -67,10 +67,10 @@ public class SpiderManager {
         }
 
         if (this.host != null) {
-            this.sendPacketToAll(new ChangeHostS2CPacket(this.host));
+            this.sendPacketToAll(new ChangeHostNotify(this.host));
         }
 
-        this.sendPacketToAll(new ChatS2CPacket(String.format("%s[%s] がサーバーから退出しました", spider.getName(), spider.connection.getConnection().getAddress())));
+        this.sendPacketToAll(new ChatNotify(String.format("%s[%s] がサーバーから退出しました", spider.getName(), spider.connection.getConnection().getAddress())));
     }
 
     public boolean isHost(String name) {
@@ -87,7 +87,7 @@ public class SpiderManager {
 
     public void changeHost(ServerSpider host) {
         this.host = host;
-        this.sendPacketToAll(new ChangeHostS2CPacket(this.host));
+        this.sendPacketToAll(new ChangeHostNotify(this.host));
     }
 
     public ImmutableList<ServerSpider> getSpiders() {

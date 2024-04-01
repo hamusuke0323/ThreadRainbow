@@ -8,9 +8,9 @@ import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.game.topic.Topic;
-import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket.Command;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.StartGameReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq.Command;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -225,7 +225,7 @@ public class MainWindow extends Window {
     }
 
     private void startSelectingTopic() {
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.START_SELECTING_TOPIC));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.START_TOPIC_SELECTION));
     }
 
     public void topic(Topic topic) {
@@ -270,11 +270,11 @@ public class MainWindow extends Window {
     }
 
     private void reselect() {
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.RESELECT_TOPIC));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.CHANGE_TOPIC));
     }
 
     private void decideTopic() {
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.DECIDE_TOPIC));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.DECIDE_TOPIC));
     }
 
     public void rmTopic() {
@@ -354,7 +354,7 @@ public class MainWindow extends Window {
     }
 
     private void finish() {
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.FINISH));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.FINISH));
     }
 
     public void onMainGameFinished() {
@@ -404,7 +404,7 @@ public class MainWindow extends Window {
     }
 
     private void uncover() {
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.UNCOVER));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.UNCOVER));
     }
 
     public void onUncovered(int id, byte number, boolean last) {
@@ -466,7 +466,7 @@ public class MainWindow extends Window {
     }
 
     private void restart() {
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.RESTART));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.RESTART));
     }
 
     public void reset() {
@@ -550,7 +550,7 @@ public class MainWindow extends Window {
     }
 
     private void startGame() {
-        this.client.getConnection().sendPacket(new StartGameC2SPacket());
+        this.client.getConnection().sendPacket(new StartGameReq());
     }
 
     private void exitGame() {
@@ -558,7 +558,7 @@ public class MainWindow extends Window {
             return;
         }
 
-        this.client.getConnection().sendPacket(new ClientCommandC2SPacket(Command.EXIT));
+        this.client.getConnection().sendPacket(new ClientCommandReq(Command.EXIT));
     }
 
     public void onChangeHost() {

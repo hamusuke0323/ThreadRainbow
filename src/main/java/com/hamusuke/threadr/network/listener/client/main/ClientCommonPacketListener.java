@@ -1,20 +1,20 @@
 package com.hamusuke.threadr.network.listener.client.main;
 
 import com.hamusuke.threadr.network.listener.PacketListener;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 
 public interface ClientCommonPacketListener extends PacketListener {
-    void handleChatPacket(ChatS2CPacket packet);
+    void handleChatPacket(ChatNotify packet);
 
-    void handlePongPacket(PongS2CPacket packet);
+    void handlePongPacket(PongRsp packet);
 
-    void handleDisconnectPacket(DisconnectS2CPacket packet);
+    void handleDisconnectPacket(DisconnectNotify packet);
 
-    void handleJoinPacket(JoinSpiderS2CPacket packet);
+    void handleJoinPacket(SpiderJoinNotify packet);
 
-    void handleRTTPacket(RTTS2CPacket packet);
+    void handleRTTPacket(RTTChangeNotify packet);
 
-    void handleLeavePacket(LeaveSpiderS2CPacket packet);
+    void handleLeavePacket(SpiderLeaveNotify packet);
 
-    void handleChangeHost(ChangeHostS2CPacket packet);
+    void handleChangeHost(ChangeHostNotify packet);
 }

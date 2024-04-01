@@ -13,24 +13,24 @@ import com.hamusuke.threadr.network.listener.server.login.ServerLoginPacketListe
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.ChatC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.info.ServerInfoRequestC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.lobby.StartGameC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
-import com.hamusuke.threadr.network.protocol.packet.s2c.info.ServerInfoResponseS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.StartGameNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.StartGameReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EncryptionSetupReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
 import com.hamusuke.threadr.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -44,80 +44,80 @@ import java.util.function.Function;
 public enum Protocol {
     HANDSHAKING(-1, protocol()
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerHandshakePacketListener>()
-                    .add(HandshakeC2SPacket.class, HandshakeC2SPacket::new)
+                    .add(HandshakeReq.class, HandshakeReq::new)
             )
     ),
     LOBBY(0, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientLobbyPacketListener>()
-                    .add(JoinSpiderS2CPacket.class, JoinSpiderS2CPacket::new)
-                    .add(LeaveSpiderS2CPacket.class, LeaveSpiderS2CPacket::new)
-                    .add(DisconnectS2CPacket.class, DisconnectS2CPacket::new)
-                    .add(ChatS2CPacket.class, ChatS2CPacket::new)
-                    .add(PongS2CPacket.class, PongS2CPacket::new)
-                    .add(RTTS2CPacket.class, RTTS2CPacket::new)
-                    .add(ChangeHostS2CPacket.class, ChangeHostS2CPacket::new)
-                    .add(StartGameS2CPacket.class, StartGameS2CPacket::new)
+                    .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
+                    .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
+                    .add(DisconnectNotify.class, DisconnectNotify::new)
+                    .add(ChatNotify.class, ChatNotify::new)
+                    .add(PongRsp.class, PongRsp::new)
+                    .add(RTTChangeNotify.class, RTTChangeNotify::new)
+                    .add(ChangeHostNotify.class, ChangeHostNotify::new)
+                    .add(StartGameNotify.class, StartGameNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLobbyPacketListener>()
-                    .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)
-                    .add(PingC2SPacket.class, PingC2SPacket::new)
-                    .add(RTTC2SPacket.class, RTTC2SPacket::new)
-                    .add(ChatC2SPacket.class, ChatC2SPacket::new)
-                    .add(StartGameC2SPacket.class, StartGameC2SPacket::new)
+                    .add(DisconnectReq.class, DisconnectReq::new)
+                    .add(PingReq.class, PingReq::new)
+                    .add(RTTChangeReq.class, RTTChangeReq::new)
+                    .add(ChatReq.class, ChatReq::new)
+                    .add(StartGameReq.class, StartGameReq::new)
             )
     ),
     PLAY(1, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientPlayPacketListener>()
-                    .add(JoinSpiderS2CPacket.class, JoinSpiderS2CPacket::new)
-                    .add(LeaveSpiderS2CPacket.class, LeaveSpiderS2CPacket::new)
-                    .add(DisconnectS2CPacket.class, DisconnectS2CPacket::new)
-                    .add(ChatS2CPacket.class, ChatS2CPacket::new)
-                    .add(PongS2CPacket.class, PongS2CPacket::new)
-                    .add(RTTS2CPacket.class, RTTS2CPacket::new)
-                    .add(ChangeHostS2CPacket.class, ChangeHostS2CPacket::new)
-                    .add(GiveLocalCardS2CPacket.class, GiveLocalCardS2CPacket::new)
-                    .add(RemoteCardGivenS2CPacket.class, RemoteCardGivenS2CPacket::new)
-                    .add(StartTopicSelectionS2CPacket.class, StartTopicSelectionS2CPacket::new)
-                    .add(SelectTopicS2CPacket.class, SelectTopicS2CPacket::new)
-                    .add(StartMainGameS2CPacket.class, StartMainGameS2CPacket::new)
-                    .add(CardMovedS2CPacket.class, CardMovedS2CPacket::new)
-                    .add(MainGameFinishedS2CPacket.class, MainGameFinishedS2CPacket::new)
-                    .add(UncoverCardS2CPacket.class, UncoverCardS2CPacket::new)
-                    .add(RestartGameS2CPacket.class, RestartGameS2CPacket::new)
-                    .add(ExitGameSuccS2CPacket.class, ExitGameSuccS2CPacket::new)
-                    .add(SpiderExitGameS2CPacket.class, SpiderExitGameS2CPacket::new)
+                    .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
+                    .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
+                    .add(DisconnectNotify.class, DisconnectNotify::new)
+                    .add(ChatNotify.class, ChatNotify::new)
+                    .add(PongRsp.class, PongRsp::new)
+                    .add(RTTChangeNotify.class, RTTChangeNotify::new)
+                    .add(ChangeHostNotify.class, ChangeHostNotify::new)
+                    .add(LocalCardHandedNotify.class, LocalCardHandedNotify::new)
+                    .add(RemoteCardGivenNotify.class, RemoteCardGivenNotify::new)
+                    .add(StartTopicSelectionNotify.class, StartTopicSelectionNotify::new)
+                    .add(TopicChangeNotify.class, TopicChangeNotify::new)
+                    .add(StartMainGameNotify.class, StartMainGameNotify::new)
+                    .add(CardMoveNotify.class, CardMoveNotify::new)
+                    .add(FinishMainGameNotify.class, FinishMainGameNotify::new)
+                    .add(UncoverCardNotify.class, UncoverCardNotify::new)
+                    .add(RestartGameNotify.class, RestartGameNotify::new)
+                    .add(ExitGameNotify.class, ExitGameNotify::new)
+                    .add(SpiderExitGameNotify.class, SpiderExitGameNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
-                    .add(DisconnectC2SPacket.class, DisconnectC2SPacket::new)
-                    .add(PingC2SPacket.class, PingC2SPacket::new)
-                    .add(RTTC2SPacket.class, RTTC2SPacket::new)
-                    .add(ChatC2SPacket.class, ChatC2SPacket::new)
-                    .add(ClientCommandC2SPacket.class, ClientCommandC2SPacket::new)
-                    .add(MoveCardC2SPacket.class, MoveCardC2SPacket::new)
+                    .add(DisconnectReq.class, DisconnectReq::new)
+                    .add(PingReq.class, PingReq::new)
+                    .add(RTTChangeReq.class, RTTChangeReq::new)
+                    .add(ChatReq.class, ChatReq::new)
+                    .add(ClientCommandReq.class, ClientCommandReq::new)
+                    .add(MoveCardReq.class, MoveCardReq::new)
             )
     ),
     LOGIN(2, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientLoginPacketListener>()
-                    .add(LoginDisconnectS2CPacket.class, LoginDisconnectS2CPacket::new)
-                    .add(LoginHelloS2CPacket.class, LoginHelloS2CPacket::new)
-                    .add(LoginSuccessS2CPacket.class, LoginSuccessS2CPacket::new)
-                    .add(LoginCompressionS2CPacket.class, LoginCompressionS2CPacket::new)
-                    .add(AliveS2CPacket.class, AliveS2CPacket::new)
-                    .add(EnterNameS2CPacket.class, EnterNameS2CPacket::new)
+                    .add(LoginDisconnectNotify.class, LoginDisconnectNotify::new)
+                    .add(KeyExchangeRsp.class, KeyExchangeRsp::new)
+                    .add(LoginSuccessNotify.class, LoginSuccessNotify::new)
+                    .add(LoginCompressionNotify.class, LoginCompressionNotify::new)
+                    .add(AliveRsp.class, AliveRsp::new)
+                    .add(EnterNameReq.class, EnterNameReq::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLoginPacketListener>()
-                    .add(LoginHelloC2SPacket.class, LoginHelloC2SPacket::new)
-                    .add(LoginKeyC2SPacket.class, LoginKeyC2SPacket::new)
-                    .add(AliveC2SPacket.class, AliveC2SPacket::new)
-                    .add(SpiderLoginC2SPacket.class, SpiderLoginC2SPacket::new)
+                    .add(KeyExchangeReq.class, KeyExchangeReq::new)
+                    .add(EncryptionSetupReq.class, EncryptionSetupReq::new)
+                    .add(AliveReq.class, AliveReq::new)
+                    .add(EnterNameRsp.class, EnterNameRsp::new)
             )
     ),
     INFO(3, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientInfoPacketListener>()
-                    .add(ServerInfoResponseS2CPacket.class, ServerInfoResponseS2CPacket::new)
+                    .add(ServerInfoRsp.class, ServerInfoRsp::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerInfoPacketListener>()
-                    .add(ServerInfoRequestC2SPacket.class, ServerInfoRequestC2SPacket::new)
+                    .add(ServerInfoReq.class, ServerInfoReq::new)
             )
     );
 

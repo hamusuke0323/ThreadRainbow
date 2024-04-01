@@ -3,11 +3,11 @@ package com.hamusuke.threadr.server.network.listener.login;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.listener.server.login.ServerLoginPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EncryptionSetupReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.network.listener.main.ServerLobbyPacketListenerImpl;
@@ -49,7 +49,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         if (this.state == State.ENTER_NAME && this.encWaitTicks > 0) {
             this.encWaitTicks--;
             if (this.encWaitTicks <= 0) {
-                this.connection.sendPacket(new EnterNameS2CPacket());
+                this.connection.sendPacket(new EnterNameReq());
             }
         } else if (this.state == State.READY) {
             this.acceptSpider();
@@ -70,7 +70,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public void disconnect() {
         try {
             LOGGER.info("Disconnecting {}", this.getConnectionInfo());
-            this.connection.sendPacket(new LoginDisconnectS2CPacket(""));
+            this.connection.sendPacket(new LoginDisconnectNotify(""));
             this.connection.disconnect("");
         } catch (Exception e) {
             LOGGER.error("Error while disconnecting spider", e);
@@ -80,13 +80,13 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public void acceptSpider() {
         this.state = State.ACCEPTED;
         if (this.server.getCompressionThreshold() >= 0) {
-            this.connection.sendPacket(new LoginCompressionS2CPacket(this.server.getCompressionThreshold()), future -> {
+            this.connection.sendPacket(new LoginCompressionNotify(this.server.getCompressionThreshold()), future -> {
                 this.connection.setCompression(this.server.getCompressionThreshold(), true);
             });
         }
 
         if (this.server.getSpiderManager().canJoin(this.serverSpider)) {
-            this.connection.sendPacket(new LoginSuccessS2CPacket(this.serverSpider));
+            this.connection.sendPacket(new LoginSuccessNotify(this.serverSpider));
             new ServerLobbyPacketListenerImpl(this.server, this.connection, this.serverSpider);
             this.server.getSpiderManager().addSpider(this.serverSpider);
         } else {
@@ -104,18 +104,18 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Override
-    public void handleHello(LoginHelloC2SPacket packet) {
+    public void handleKeyEx(KeyExchangeReq packet) {
         Validate.validState(this.state == State.HELLO, "Unexpected hello packet");
         if (this.state != State.HELLO) {
             this.disconnect();
         }
 
         this.state = State.KEY;
-        this.connection.sendPacket(new LoginHelloS2CPacket(this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
+        this.connection.sendPacket(new KeyExchangeRsp(this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
     }
 
     @Override
-    public void handleKey(LoginKeyC2SPacket packet) {
+    public void handleEncryption(EncryptionSetupReq packet) {
         Validate.validState(this.state == State.KEY, "Unexpected key packet");
         var privateKey = this.server.getKeyPair().getPrivate();
 
@@ -136,12 +136,12 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Override
-    public void handlePing(AliveC2SPacket packet) {
-        this.connection.sendPacket(new AliveS2CPacket());
+    public void handlePing(AliveReq packet) {
+        this.connection.sendPacket(new AliveRsp());
     }
 
     @Override
-    public void handleLogin(SpiderLoginC2SPacket packet) {
+    public void handleLogin(EnterNameRsp packet) {
         Validate.validState(this.state == State.ENTER_NAME, "Unexpected login packet");
 
         var res = this.tryLogin(packet.name());
@@ -152,7 +152,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                 this.state = State.READY;
             }
             case DUPLICATED_NAME, INVALID_CHARS_IN_NAME ->
-                    this.connection.sendPacket(new EnterNameS2CPacket(res.messageFactory.apply(packet.name())));
+                    this.connection.sendPacket(new EnterNameReq(res.messageFactory.apply(packet.name())));
         }
     }
 

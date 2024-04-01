@@ -4,7 +4,7 @@ import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.game.card.ServerCard;
 import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.listener.main.ServerCommonPacketListenerImpl;
 import io.netty.util.concurrent.Future;
@@ -68,19 +68,19 @@ public class ServerSpider extends Spider implements CommandSource {
 
     @Override
     public void sendMessage(String msg, boolean all) {
-        this.sendPacket(new ChatS2CPacket(String.format("<%s> %s", this.getDisplayName(), msg)));
+        this.sendPacket(new ChatNotify(String.format("<%s> %s", this.getDisplayName(), msg)));
 
         if (all) {
-            this.sendPacketToOthers(new ChatS2CPacket(String.format("<%s> %s", this.getDisplayName(), msg)));
+            this.sendPacketToOthers(new ChatNotify(String.format("<%s> %s", this.getDisplayName(), msg)));
         }
     }
 
     @Override
     public void sendCommandFeedback(String msg, boolean all) {
-        this.sendPacket(new ChatS2CPacket(msg));
+        this.sendPacket(new ChatNotify(msg));
 
         if (all) {
-            this.sendPacketToOthers(new ChatS2CPacket(String.format("[%s]: %s", this.getDisplayName(), msg)));
+            this.sendPacketToOthers(new ChatNotify(String.format("[%s]: %s", this.getDisplayName(), msg)));
         }
     }
 

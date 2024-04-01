@@ -1,10 +1,10 @@
 package com.hamusuke.threadr.network.listener.server.main;
 
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.ClientCommandC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.play.MoveCardC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
 
 public interface ServerPlayPacketListener extends ServerCommonPacketListener {
-    void handleClientCommand(ClientCommandC2SPacket packet);
+    void handleClientCommand(ClientCommandReq packet);
 
-    void handleMoveCard(MoveCardC2SPacket packet);
+    void handleMoveCard(MoveCardReq packet);
 }

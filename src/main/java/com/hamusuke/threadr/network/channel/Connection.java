@@ -10,8 +10,8 @@ import com.hamusuke.threadr.network.listener.PacketListener;
 import com.hamusuke.threadr.network.protocol.PacketDirection;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.DisconnectS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.login.LoginDisconnectS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.DisconnectNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.login.LoginDisconnectNotify;
 import com.hamusuke.threadr.util.Lazy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -133,7 +133,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
             LOGGER.warn(String.format("Caught exception in %s side", this.receiving == PacketDirection.SERVERBOUND ? "server" : "client"), cause);
             var msg = "通信エラーが発生しました\n" + cause;
             if (this.getSending() == PacketDirection.CLIENTBOUND) {
-                this.sendPacket(this.getProtocol() == Protocol.LOGIN ? new LoginDisconnectS2CPacket(msg) : new DisconnectS2CPacket(msg), future -> {
+                this.sendPacket(this.getProtocol() == Protocol.LOGIN ? new LoginDisconnectNotify(msg) : new DisconnectNotify(msg), future -> {
                     this.disconnect(msg);
                 });
             } else {

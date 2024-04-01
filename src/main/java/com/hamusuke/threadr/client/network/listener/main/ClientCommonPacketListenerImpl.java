@@ -6,9 +6,9 @@ import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
 import com.hamusuke.threadr.util.Util;
 
 import javax.swing.*;
@@ -30,26 +30,26 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     public void tick() {
         this.tickCount++;
         if (this.tickCount % 20 == 0) {
-            this.connection.sendPacket(new PingC2SPacket(Util.getMeasuringTimeMs()));
+            this.connection.sendPacket(new PingReq(Util.getMeasuringTimeMs()));
         }
     }
 
     @Override
-    public void handleChatPacket(ChatS2CPacket packet) {
+    public void handleChatPacket(ChatNotify packet) {
         this.client.chat.addMessage(packet.msg());
     }
 
     @Override
-    public void handlePongPacket(PongS2CPacket packet) {
+    public void handlePongPacket(PongRsp packet) {
         if (!this.client.isSameThread()) {
             this.client.executeSync(() -> packet.handle(this));
         }
 
-        this.connection.sendPacket(new RTTC2SPacket((int) (Util.getMeasuringTimeMs() - packet.clientTime())));
+        this.connection.sendPacket(new RTTChangeReq((int) (Util.getMeasuringTimeMs() - packet.clientTime())));
     }
 
     @Override
-    public void handleRTTPacket(RTTS2CPacket packet) {
+    public void handleRTTPacket(RTTChangeNotify packet) {
         synchronized (this.client.clientSpiders) {
             this.client.clientSpiders.stream().filter(p -> p.getId() == packet.spiderId()).forEach(spider -> {
                 spider.setPing(packet.rtt());
@@ -60,26 +60,26 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     }
 
     @Override
-    public void handleDisconnectPacket(DisconnectS2CPacket packet) {
+    public void handleDisconnectPacket(DisconnectNotify packet) {
         this.connection.disconnect(packet.msg());
     }
 
     @Override
-    public void handleJoinPacket(JoinSpiderS2CPacket packet) {
+    public void handleJoinPacket(SpiderJoinNotify packet) {
         var spider = new RemoteSpider(packet.name());
         spider.setId(packet.id());
         this.client.addClientSpider(spider);
     }
 
     @Override
-    public void handleLeavePacket(LeaveSpiderS2CPacket packet) {
+    public void handleLeavePacket(SpiderLeaveNotify packet) {
         synchronized (this.client.clientSpiders) {
             this.client.clientSpiders.removeIf(p -> p.getId() == packet.id());
         }
     }
 
     @Override
-    public void handleChangeHost(ChangeHostS2CPacket packet) {
+    public void handleChangeHost(ChangeHostNotify packet) {
         this.hostId = packet.id();
     }
 

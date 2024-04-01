@@ -4,8 +4,8 @@ import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChangeHostS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.lobby.StartGameS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.StartGameNotify;
 
 public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientLobbyPacketListener {
     public MainWindow mainWindow;
@@ -16,13 +16,13 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
     }
 
     @Override
-    public void handleChangeHost(ChangeHostS2CPacket packet) {
+    public void handleChangeHost(ChangeHostNotify packet) {
         super.handleChangeHost(packet);
         this.mainWindow.onChangeHost();
     }
 
     @Override
-    public void handleStartGame(StartGameS2CPacket packet) {
+    public void handleStartGame(StartGameNotify packet) {
         int id = this.hostId;
         var listener = new ClientPlayPacketListenerImpl(this.client, this.connection);
         listener.hostId = id;

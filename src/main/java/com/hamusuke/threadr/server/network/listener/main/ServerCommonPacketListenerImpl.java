@@ -2,14 +2,14 @@ package com.hamusuke.threadr.server.network.listener.main;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerCommonPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.ChatC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChatS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.LeaveSpiderS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.PongS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.RTTS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.PongRsp;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.RTTChangeNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.SpiderLeaveNotify;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import org.apache.logging.log4j.LogManager;
@@ -30,36 +30,36 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
     }
 
     @Override
-    public void handleDisconnect(DisconnectC2SPacket packet) {
+    public void handleDisconnect(DisconnectReq packet) {
         this.connection.disconnect("");
     }
 
     @Override
-    public void handleChatPacket(ChatC2SPacket packet) {
+    public void handleChatPacket(ChatReq packet) {
         if (packet.msg().startsWith("/")) {
             this.server.runCommand(this.spider, packet.msg().substring(1));
 
             return;
         }
 
-        this.server.sendPacketToAll(new ChatS2CPacket(String.format("<%s> %s", this.spider.getName(), packet.msg())));
+        this.server.sendPacketToAll(new ChatNotify(String.format("<%s> %s", this.spider.getName(), packet.msg())));
     }
 
     @Override
-    public void handlePingPacket(PingC2SPacket packet) {
-        this.connection.sendPacket(new PongS2CPacket(packet.clientTime()));
+    public void handlePingPacket(PingReq packet) {
+        this.connection.sendPacket(new PongRsp(packet.clientTime()));
     }
 
     @Override
-    public void handleRTTPacket(RTTC2SPacket packet) {
+    public void handleRTTPacket(RTTChangeReq packet) {
         this.spider.setPing(packet.rtt());
-        this.server.sendPacketToAll(new RTTS2CPacket(this.spider.getId(), packet.rtt()));
+        this.server.sendPacketToAll(new RTTChangeNotify(this.spider.getId(), packet.rtt()));
     }
 
     @Override
     public void onDisconnected(String msg) {
         LOGGER.info("{} lost connection", this.connection.getAddress());
-        this.spider.sendPacketToOthers(new LeaveSpiderS2CPacket(this.spider.getId()));
+        this.spider.sendPacketToOthers(new SpiderLeaveNotify(this.spider.getId()));
         this.server.getSpiderManager().removeSpider(this.spider);
     }
 

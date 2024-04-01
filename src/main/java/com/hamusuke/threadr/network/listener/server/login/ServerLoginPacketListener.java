@@ -1,17 +1,17 @@
 package com.hamusuke.threadr.network.listener.server.login;
 
 import com.hamusuke.threadr.network.listener.server.ServerPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginKeyC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.SpiderLoginC2SPacket;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EncryptionSetupReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 
 public interface ServerLoginPacketListener extends ServerPacketListener {
-    void handleHello(LoginHelloC2SPacket packet);
+    void handleKeyEx(KeyExchangeReq packet);
 
-    void handleKey(LoginKeyC2SPacket packet);
+    void handleEncryption(EncryptionSetupReq packet);
 
-    void handlePing(AliveC2SPacket packet);
+    void handlePing(AliveReq packet);
 
-    void handleLogin(SpiderLoginC2SPacket packet);
+    void handleLogin(EnterNameRsp packet);
 }

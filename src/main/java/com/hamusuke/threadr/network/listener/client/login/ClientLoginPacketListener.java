@@ -1,16 +1,16 @@
 package com.hamusuke.threadr.network.listener.client.login;
 
 import com.hamusuke.threadr.network.listener.PacketListener;
-import com.hamusuke.threadr.network.protocol.packet.s2c.login.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 
 public interface ClientLoginPacketListener extends PacketListener {
-    void handleHello(LoginHelloS2CPacket packet);
+    void handleKeyEx(KeyExchangeRsp packet);
 
-    void handleSuccess(LoginSuccessS2CPacket packet);
+    void handleSuccess(LoginSuccessNotify packet);
 
-    void handleDisconnect(LoginDisconnectS2CPacket packet);
+    void handleDisconnect(LoginDisconnectNotify packet);
 
-    void handleCompression(LoginCompressionS2CPacket packet);
+    void handleCompression(LoginCompressionNotify packet);
 
-    void handleEnterName(EnterNameS2CPacket packet);
+    void handleEnterName(EnterNameReq packet);
 }

@@ -10,8 +10,8 @@ import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.ChangeHostS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.play.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,14 +29,14 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     @Override
-    public void handleChangeHost(ChangeHostS2CPacket packet) {
+    public void handleChangeHost(ChangeHostNotify packet) {
         super.handleChangeHost(packet);
 
         this.mainWindow.onChangeHost();
     }
 
     @Override
-    public void handleGiveCard(GiveLocalCardS2CPacket packet) {
+    public void handleGiveCard(LocalCardHandedNotify packet) {
         var card = new LocalCard(this.clientSpider, packet.num());
         this.clientSpider.takeCard(card);
         this.cardMap.clear();
@@ -45,7 +45,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     @Override
-    public void handleRemoteCard(RemoteCardGivenS2CPacket packet) {
+    public void handleRemoteCard(RemoteCardGivenNotify packet) {
         synchronized (this.client.clientSpiders) {
             this.client.clientSpiders.stream().filter(s -> s.getId() == packet.id()).findFirst().ifPresent(s -> {
                 if (s instanceof LocalSpider) {
@@ -60,43 +60,43 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     @Override
-    public void handleStartTopicSelection(StartTopicSelectionS2CPacket packet) {
+    public void handleStartTopicSelection(StartTopicSelectionNotify packet) {
         this.mainWindow.topic(packet.firstTopic());
     }
 
     @Override
-    public void handleSelectTopic(SelectTopicS2CPacket packet) {
+    public void handleSelectTopic(TopicChangeNotify packet) {
         this.mainWindow.topic(packet.topic());
     }
 
     @Override
-    public void handleStartMainGame(StartMainGameS2CPacket packet) {
+    public void handleStartMainGame(StartMainGameNotify packet) {
         this.mainWindow.lineupCard(packet.cards());
     }
 
     @Override
-    public void handleCardMoved(CardMovedS2CPacket packet) {
+    public void handleCardMoved(CardMoveNotify packet) {
         this.mainWindow.onCardMoved(packet.from(), packet.to());
     }
 
     @Override
-    public void handleMainGameFinish(MainGameFinishedS2CPacket packet) {
+    public void handleMainGameFinish(FinishMainGameNotify packet) {
         this.mainWindow.onMainGameFinished();
     }
 
     @Override
-    public void handleUncoverCard(UncoverCardS2CPacket packet) {
+    public void handleUncoverCard(UncoverCardNotify packet) {
         this.mainWindow.onUncovered(packet.id(), packet.num(), packet.last());
     }
 
     @Override
-    public void handleRestart(RestartGameS2CPacket packet) {
+    public void handleRestart(RestartGameNotify packet) {
         this.mainWindow.reset();
         this.client.spiderTable.removeCardNumCol();
     }
 
     @Override
-    public void handleExit(ExitGameSuccS2CPacket packet) {
+    public void handleExit(ExitGameNotify packet) {
         int id = this.hostId;
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
         listener.hostId = id;
@@ -108,7 +108,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     @Override
-    public void handleSpiderExit(SpiderExitGameS2CPacket packet) {
+    public void handleSpiderExit(SpiderExitGameNotify packet) {
         var card = this.cardMap.get(packet.id());
         if (card != null) {
             this.mainWindow.onSpiderLeft(card);

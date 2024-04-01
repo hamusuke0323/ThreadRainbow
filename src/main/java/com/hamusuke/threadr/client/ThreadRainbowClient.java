@@ -20,16 +20,16 @@ import com.hamusuke.threadr.network.ServerInfo.Status;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.DisconnectC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.PingC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.common.RTTC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.handshaking.HandshakeC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.info.ServerInfoRequestC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.AliveC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.c2s.login.LoginHelloC2SPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.PongS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.common.RTTS2CPacket;
-import com.hamusuke.threadr.network.protocol.packet.s2c.login.AliveS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.PongRsp;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.RTTChangeNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.login.AliveRsp;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import org.apache.logging.log4j.LogManager;
@@ -67,12 +67,12 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public Chat chat;
     public final PacketLogTable packetLogTable = new PacketLogTable();
     private final List<String> packetFilters = Collections.synchronizedList(Lists.newArrayList(
-            AliveC2SPacket.class.getSimpleName(),
-            AliveS2CPacket.class.getSimpleName(),
-            PingC2SPacket.class.getSimpleName(),
-            PongS2CPacket.class.getSimpleName(),
-            RTTC2SPacket.class.getSimpleName(),
-            RTTS2CPacket.class.getSimpleName()
+            AliveReq.class.getSimpleName(),
+            AliveRsp.class.getSimpleName(),
+            PingReq.class.getSimpleName(),
+            PongRsp.class.getSimpleName(),
+            RTTChangeReq.class.getSimpleName(),
+            RTTChangeNotify.class.getSimpleName()
     ));
     private final File serversFile;
     private final List<ServerInfo> servers = Collections.synchronizedList(Lists.newArrayList());
@@ -171,8 +171,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             connection.setListener(new ClientInfoPacketListenerImpl(this, connection, info));
             info.status = Status.CONNECTING;
             this.onServerInfoChanged();
-            connection.sendPacket(new HandshakeC2SPacket(Protocol.INFO));
-            connection.sendPacket(new ServerInfoRequestC2SPacket(Util.getMeasuringTimeMs()));
+            connection.sendPacket(new HandshakeReq(Protocol.INFO));
+            connection.sendPacket(new ServerInfoReq(Util.getMeasuringTimeMs()));
             this.infoConnections.add(connection);
         }, this).exceptionally(throwable -> {
             info.status = Status.FAILED;
@@ -290,8 +290,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         InetSocketAddress address = new InetSocketAddress(host, port);
         this.connection = Connection.connect(this, address);
         this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer, onJoinLobby));
-        this.connection.sendPacket(new HandshakeC2SPacket(Protocol.LOGIN));
-        this.connection.sendPacket(new LoginHelloC2SPacket());
+        this.connection.sendPacket(new HandshakeReq(Protocol.LOGIN));
+        this.connection.sendPacket(new KeyExchangeReq());
     }
 
     public boolean isPacketTrash(Packet<?> packet) {
@@ -328,6 +328,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             return;
         }
 
-        this.connection.sendPacket(new DisconnectC2SPacket(), future -> this.connection.disconnect(""));
+        this.connection.sendPacket(new DisconnectReq(), future -> this.connection.disconnect(""));
     }
 }

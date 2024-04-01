@@ -6,7 +6,7 @@ import com.hamusuke.threadr.network.ServerInfo;
 import com.hamusuke.threadr.network.ServerInfo.Status;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.info.ClientInfoPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.s2c.info.ServerInfoResponseS2CPacket;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
 import com.hamusuke.threadr.util.Util;
 
 public class ClientInfoPacketListenerImpl implements ClientInfoPacketListener {
@@ -48,7 +48,7 @@ public class ClientInfoPacketListenerImpl implements ClientInfoPacketListener {
     }
 
     @Override
-    public void handleInfoRsp(ServerInfoResponseS2CPacket packet) {
+    public void handleInfoRsp(ServerInfoRsp packet) {
         this.target.protocolVersion = packet.protocolVersion();
         this.target.ping = (int) (Util.getMeasuringTimeMs() - packet.clientTimeEcho());
         this.target.status = this.target.protocolVersion == Constants.PROTOCOL_VERSION ? Status.OK : Status.MISMATCH_PROTOCOL_VERSION;
