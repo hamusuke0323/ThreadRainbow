@@ -1,6 +1,6 @@
-package com.hamusuke.threadr.client.gui.component.main.lobby;
+package com.hamusuke.threadr.client.gui.component.panel.main.lobby;
 
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.StartGameReq;
 

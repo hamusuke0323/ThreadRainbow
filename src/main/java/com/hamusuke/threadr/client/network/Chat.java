@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.client.gui.component;
+package com.hamusuke.threadr.client.network;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;

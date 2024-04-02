@@ -2,7 +2,7 @@ package com.hamusuke.threadr.client.network.listener.main;
 
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel.PanelState;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel.PanelState;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;

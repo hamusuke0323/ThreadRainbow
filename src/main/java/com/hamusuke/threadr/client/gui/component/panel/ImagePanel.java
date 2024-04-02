@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.client.gui.component;
+package com.hamusuke.threadr.client.gui.component.panel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,24 +9,24 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ImageLabel extends JPanel {
+public class ImagePanel extends JPanel {
     private static final Logger LOGGER = LogManager.getLogger();
     @Nullable
     protected final BufferedImage image;
     protected final boolean centered;
 
-    public ImageLabel(String name) {
+    public ImagePanel(String name) {
         this(name, false);
     }
 
-    public ImageLabel(String name, boolean centered) {
+    public ImagePanel(String name, boolean centered) {
         this.image = read(name);
         this.centered = centered;
     }
 
     @Nullable
     private static BufferedImage read(String name) {
-        var is = ImageLabel.class.getResourceAsStream(name);
+        var is = ImagePanel.class.getResourceAsStream(name);
         if (is == null) {
             return null;
         }

@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.window;
 
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel;
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel.PanelState;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel.PanelState;
 import com.hamusuke.threadr.client.network.listener.main.ClientPlayPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;

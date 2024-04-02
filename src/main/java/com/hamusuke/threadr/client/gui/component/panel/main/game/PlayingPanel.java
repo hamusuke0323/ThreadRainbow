@@ -1,9 +1,9 @@
-package com.hamusuke.threadr.client.gui.component.main.game;
+package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
-import com.hamusuke.threadr.client.gui.component.ImageLabel;
 import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel;
+import com.hamusuke.threadr.client.gui.component.panel.ImagePanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq.Command;
@@ -39,7 +39,7 @@ public class PlayingPanel extends AbstractMainPanel {
 
     @Override
     protected JPanel createCenter() {
-        var image = this.addCenterComponent(new ImageLabel("/zero.jpg"));
+        var image = this.addCenterComponent(new ImagePanel("/zero.jpg"));
         image.setMaximumSize(new Dimension(Constants.CARD_WIDTH, Integer.MAX_VALUE));
         image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
         var p = this.addCenterComponent(new JPanel());

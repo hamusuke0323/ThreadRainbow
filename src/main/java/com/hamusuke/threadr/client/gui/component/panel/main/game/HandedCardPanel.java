@@ -1,8 +1,8 @@
-package com.hamusuke.threadr.client.gui.component.main.game;
+package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
-import com.hamusuke.threadr.client.gui.component.ImageLabel;
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel;
+import com.hamusuke.threadr.client.gui.component.panel.ImagePanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 
 import javax.swing.*;
@@ -23,7 +23,7 @@ public class HandedCardPanel extends AbstractMainPanel {
 
     @Override
     protected JPanel createCenter() {
-        var card = this.addCenterComponent(new ImageLabel("/card.jpg", true));
+        var card = this.addCenterComponent(new ImagePanel("/card.jpg", true));
         card.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
         var show = this.addCenterComponent(new JButton("数字を見る"));
         show.setActionCommand("show");

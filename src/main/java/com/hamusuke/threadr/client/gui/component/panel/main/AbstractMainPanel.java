@@ -1,9 +1,9 @@
-package com.hamusuke.threadr.client.gui.component.main;
+package com.hamusuke.threadr.client.gui.component.panel.main;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.component.main.game.*;
-import com.hamusuke.threadr.client.gui.component.main.lobby.LobbyPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.game.*;
+import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 
 import javax.swing.*;

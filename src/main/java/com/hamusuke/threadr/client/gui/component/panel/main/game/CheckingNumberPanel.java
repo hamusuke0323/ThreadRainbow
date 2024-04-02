@@ -1,7 +1,7 @@
-package com.hamusuke.threadr.client.gui.component.main.game;
+package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
-import com.hamusuke.threadr.client.gui.component.main.AbstractMainPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel;
 import com.hamusuke.threadr.client.gui.window.MainWindow;
 
 import javax.swing.*;
