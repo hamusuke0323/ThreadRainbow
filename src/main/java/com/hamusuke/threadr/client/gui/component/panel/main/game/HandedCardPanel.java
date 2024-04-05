@@ -2,43 +2,67 @@ package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.panel.ImagePanel;
-import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel;
-import com.hamusuke.threadr.client.gui.window.MainWindow;
+import com.hamusuke.threadr.client.gui.component.panel.Panel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-import static com.hamusuke.threadr.client.gui.window.Window.addButton;
-
-public class HandedCardPanel extends AbstractMainPanel {
-    public HandedCardPanel(MainWindow parent) {
-        super(parent);
+public class HandedCardPanel extends Panel {
+    public HandedCardPanel() {
+        super(new GridBagLayout());
     }
 
     @Override
-    protected String getTitle() {
-        return "ゲーム - 配られたカードの数字を確認 " + this.client.getAddresses();
-    }
+    public void init() {
+        super.init();
 
-    @Override
-    protected JPanel createCenter() {
-        var card = this.addCenterComponent(new ImagePanel("/card.jpg", true));
+        this.client.setWindowTitle("ゲーム - 配られたカードの数字を確認 " + this.client.getAddresses());
+        var card = new ImagePanel("/card.jpg", true);
         card.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
-        var show = this.addCenterComponent(new JButton("数字を見る"));
+        var show = new JButton("数字を見る");
         show.setActionCommand("show");
         show.addActionListener(this);
-        var layout = new GridBagLayout();
-        var p = new JPanel(layout);
-        addButton(p, card, layout, 0, 0, 1, 1, 1.0D);
-        addButton(p, show, layout, 0, 1, 1, 1, 0.125D);
+        var layout = (GridBagLayout) this.getLayout();
+        addButton(this, card, layout, 0, 0, 1, 1, 1.0D);
+        addButton(this, show, layout, 0, 1, 1, 1, 0.125D);
+    }
 
-        return p;
+    @Override
+    public JMenuBar createMenuBar() {
+        var jMenuBar = new JMenuBar();
+        var menu = new JMenu("メニュー");
+
+        var disconnect = new JMenuItem("切断");
+        disconnect.setActionCommand("disconnect");
+        disconnect.addActionListener(this.client.getMainWindow());
+
+        var exit = new JMenuItem("ゲームをやめる");
+        exit.setActionCommand("exit");
+        exit.addActionListener(this.client.getMainWindow());
+        menu.add(exit);
+
+        menu.add(disconnect);
+        jMenuBar.add(menu);
+
+        var debug = new JMenu("ネットワーク");
+        /*
+        if (this.packetLog == null) {
+            this.packetLog = new JMenuItem("ログを見る");
+            this.packetLog.setActionCommand("packetLog");
+            this.packetLog.addActionListener(this);
+        }
+        debug.add(this.packetLog);
+
+         */
+        jMenuBar.add(debug);
+
+        return jMenuBar;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        this.parent.changeState(PanelState.CHECKING_NUMBER);
+        this.client.setPanel(new CheckingNumberPanel());
         this.client.spiderTable.addCardNumCol();
     }
 }

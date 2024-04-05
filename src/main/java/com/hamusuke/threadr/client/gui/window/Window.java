@@ -9,8 +9,6 @@ import java.awt.event.*;
 
 public abstract class Window extends JFrame implements ActionListener, WindowListener, ComponentListener {
     protected ThreadRainbowClient client = ThreadRainbowClient.getInstance();
-    protected Runnable onDisposed = () -> {
-    };
     @Nullable
     protected JMenuBar menu;
 
@@ -26,24 +24,6 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
         return null;
     }
 
-    public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wx, double wy) {
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = x;
-        constraints.gridy = y;
-        constraints.insets = new Insets(1, 1, 1, 1);
-        constraints.gridwidth = w;
-        constraints.gridheight = h;
-        constraints.weightx = wx;
-        constraints.weighty = wy;
-        layout.setConstraints(component, constraints);
-        owner.add(component);
-    }
-
-    public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wh) {
-        addButton(owner, component, layout, x, y, w, h, 1.0D, wh);
-    }
-
     public void init() {
         this.client = ThreadRainbowClient.getInstance();
         this.setBackground(Color.WHITE);
@@ -52,29 +32,8 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
     public void tick() {
     }
 
-    protected void onOpen() {
-    }
-
     protected void onClose() {
         this.dispose();
-    }
-
-    protected void onHide() {
-    }
-
-    protected void onDisposed() {
-        this.onDisposed.run();
-    }
-
-    @Override
-    public void dispose() {
-        this.dispose(() -> {
-        });
-    }
-
-    public void dispose(Runnable after) {
-        this.onDisposed = after;
-        super.dispose();
     }
 
     @Override
@@ -92,7 +51,6 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
 
     @Override
     public void windowClosed(WindowEvent e) {
-        this.onDisposed();
     }
 
     @Override
@@ -105,12 +63,10 @@ public abstract class Window extends JFrame implements ActionListener, WindowLis
 
     @Override
     public void windowActivated(WindowEvent e) {
-        this.onOpen();
     }
 
     @Override
     public void windowDeactivated(WindowEvent e) {
-        this.onHide();
     }
 
     @Override

@@ -1,11 +1,11 @@
 package com.hamusuke.threadr.client.network.listener.login;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.component.panel.main.AbstractMainPanel.PanelState;
+import com.hamusuke.threadr.client.gui.component.panel.LoginPanel;
+import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
-import com.hamusuke.threadr.client.gui.window.LoginWindow;
-import com.hamusuke.threadr.client.gui.window.MainWindow;
-import com.hamusuke.threadr.client.gui.window.ServerListWindow;
 import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.client.network.listener.main.ClientLobbyPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
@@ -25,16 +25,14 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
     private static final Logger LOGGER = LogManager.getLogger();
     private final ThreadRainbowClient client;
     private final Consumer<String> statusConsumer;
-    private final Runnable onJoinLobby;
     private final Connection connection;
     private boolean waitingAuthComplete;
     private int ticks;
 
-    public ClientLoginPacketListenerImpl(Connection connection, ThreadRainbowClient client, Consumer<String> statusConsumer, Runnable onJoinLobby) {
+    public ClientLoginPacketListenerImpl(Connection connection, ThreadRainbowClient client, Consumer<String> statusConsumer) {
         this.client = client;
         this.connection = connection;
         this.statusConsumer = statusConsumer;
-        this.onJoinLobby = onJoinLobby;
     }
 
     @Override
@@ -76,13 +74,9 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
         this.client.addClientSpider(this.client.clientSpider);
         this.client.chat = new Chat(this.client);
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
-        var window = new MainWindow();
-        listener.mainWindow = window;
-        window.changeState(PanelState.LOBBY);
-        this.client.setCurrentWindow(window);
+        this.client.setPanel(new LobbyPanel());
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
-        this.onJoinLobby.run();
     }
 
     @Override
@@ -99,19 +93,18 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
     public void handleEnterName(EnterNameReq packet) {
         if (!this.waitingAuthComplete) {
             this.waitingAuthComplete = true;
-            this.onJoinLobby.run();
         }
 
-        this.client.setCurrentWindow(new LoginWindow(packet.msg()));
+        var login = new LoginPanel();
+        var panel = packet.msg().isEmpty() ? login : new OkPanel(login, "エラー", packet.msg());
+        this.client.setPanel(panel);
     }
 
     @Override
     public void onDisconnected(String msg) {
-        if (this.client.getCurrentWindow() != null) {
-            this.client.getCurrentWindow().dispose();
-        }
-
-        this.client.setCurrentWindow(new ServerListWindow(msg));
+        var list = new ServerListPanel();
+        var panel = msg.isEmpty() ? list : new OkPanel(list, "エラー", msg);
+        this.client.setPanel(panel);
     }
 
     @Override

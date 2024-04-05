@@ -1,7 +1,6 @@
 package com.hamusuke.threadr.game.topic;
 
 import com.google.common.collect.ImmutableList;
-import com.hamusuke.threadr.client.gui.window.Window;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 
 import javax.swing.*;
@@ -10,6 +9,8 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import static com.hamusuke.threadr.client.gui.component.panel.Panel.addButton;
 
 public record Topic(List<String> lines, String minDescription, String maxDescription) {
     public static Topic readFrom(IntelligentByteBuf buf) {
@@ -35,16 +36,16 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
             l.setHorizontalAlignment(SwingConstants.CENTER);
             var l2 = new JLabel(this.lines.get(1));
             l2.setHorizontalAlignment(SwingConstants.CENTER);
-            Window.addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
-            Window.addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
-            Window.addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
+            addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
+            addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
+            addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
             return p;
         }
 
         var l2 = new JLabel(this.lines.get(0));
         l2.setHorizontalAlignment(SwingConstants.CENTER);
-        Window.addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
-        Window.addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
+        addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
+        addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
         return p;
     }
 
@@ -66,11 +67,11 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
             l2.setHorizontalAlignment(SwingConstants.CENTER);
             l2.setFont(l2.getFont().deriveFont(l2.getFont().getSize2D() * 2.0F));
 
-            Window.addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
-            Window.addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
-            Window.addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
+            addButton(p, l, grid, 0, 0, 1, 1, 1.0D);
+            addButton(p, l2, grid, 0, 1, 1, 1, 1.0D);
+            addButton(p, l3, grid, 0, 2, 1, 1, 1.0D);
             for (int i = 0; i < additionalComponents.size(); i++) {
-                Window.addButton(p, additionalComponents.get(i), grid, 0, 3 + i, 1, 1, 0.125D);
+                addButton(p, additionalComponents.get(i), grid, 0, 3 + i, 1, 1, 0.125D);
             }
 
             return p;
@@ -80,10 +81,10 @@ public record Topic(List<String> lines, String minDescription, String maxDescrip
         l2.setHorizontalAlignment(SwingConstants.CENTER);
         l2.setFont(l2.getFont().deriveFont(l2.getFont().getSize2D() * 2.0F));
 
-        Window.addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
-        Window.addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
+        addButton(p, l2, grid, 0, 0, 1, 1, 1.0D);
+        addButton(p, l3, grid, 0, 1, 1, 1, 1.0D);
         for (int i = 0; i < additionalComponents.size(); i++) {
-            Window.addButton(p, additionalComponents.get(i), grid, 0, 2 + i, 1, 1, 0.125D);
+            addButton(p, additionalComponents.get(i), grid, 0, 2 + i, 1, 1, 0.125D);
         }
 
         return p;

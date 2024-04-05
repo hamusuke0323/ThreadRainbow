@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.window.MainWindow;
+import com.hamusuke.threadr.client.gui.component.panel.MainWindow;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
@@ -18,7 +18,7 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
     @Override
     public void handleChangeHost(ChangeHostNotify packet) {
         super.handleChangeHost(packet);
-        this.mainWindow.onChangeHost();
+        this.client.setPanel(this.client.getPanel());
     }
 
     @Override

@@ -1,10 +1,8 @@
-package com.hamusuke.threadr.client.gui.window;
+package com.hamusuke.threadr.client.gui.component.panel;
 
-import com.hamusuke.threadr.client.gui.dialog.OkDialog;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.mojang.brigadier.StringReader;
 
-import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,31 +11,12 @@ import java.awt.event.KeyEvent;
 
 import static com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp.MAX_NAME_LENGTH;
 
-public class LoginWindow extends Window {
-    private final String msg;
+public class LoginPanel extends Panel {
     private JTextField nameField;
-
-    public LoginWindow(String msg) {
-        super("ログイン");
-        this.msg = msg;
-    }
 
     @Override
     public void init() {
         super.init();
-
-        if (!this.msg.isEmpty()) {
-            new SwingWorker<>() {
-                @Override
-                protected Object doInBackground() {
-                    new OkDialog(LoginWindow.this, "エラー", msg);
-                    return null;
-                }
-            }.execute();
-        }
-
-        this.menu = this.createMenuBar();
-        this.add(this.menu, BorderLayout.NORTH);
 
         this.nameField = new JTextField("nanashi");
         this.nameField.addKeyListener(new KeyAdapter() {
@@ -57,19 +36,16 @@ public class LoginWindow extends Window {
         login.setActionCommand("login");
         login.addActionListener(this);
         this.add(panel, BorderLayout.CENTER);
-        this.pack();
         this.setSize(this.getWidth() * 2, this.getHeight());
-        this.setLocationRelativeTo(null);
     }
 
-    @Nullable
     @Override
-    protected JMenuBar createMenuBar() {
+    public JMenuBar createMenuBar() {
         var jMenuBar = new JMenuBar();
         var menu = new JMenu("メニュー");
         var disconnect = new JMenuItem("切断");
         disconnect.setActionCommand("disconnect");
-        disconnect.addActionListener(this);
+        disconnect.addActionListener(this.client.getMainWindow());
         menu.add(disconnect);
         jMenuBar.add(menu);
         return jMenuBar;
@@ -80,22 +56,14 @@ public class LoginWindow extends Window {
     }
 
     @Override
-    protected void onClose() {
+    public void onClose() {
         this.client.disconnect();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        switch (e.getActionCommand()) {
-            case "login":
-                if (!this.nameField.getText().isEmpty()) {
-                    this.dispose();
-                    this.login(this.nameField.getText());
-                }
-                break;
-            case "disconnect":
-                this.onClose();
-                break;
+        if (!this.nameField.getText().isEmpty()) {
+            this.login(this.nameField.getText());
         }
     }
 }

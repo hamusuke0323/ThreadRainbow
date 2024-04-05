@@ -1,0 +1,93 @@
+package com.hamusuke.threadr.client.gui.component.panel;
+
+import com.hamusuke.threadr.client.ThreadRainbowClient;
+
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public abstract class Panel extends JPanel implements ActionListener, ComponentListener {
+    protected ThreadRainbowClient client;
+
+    protected Panel() {
+        this(new BorderLayout());
+    }
+
+    protected Panel(LayoutManager layout) {
+        super(layout);
+    }
+
+    public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wx, double wy) {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridx = x;
+        constraints.gridy = y;
+        constraints.insets = new Insets(1, 1, 1, 1);
+        constraints.gridwidth = w;
+        constraints.gridheight = h;
+        constraints.weightx = wx;
+        constraints.weighty = wy;
+        layout.setConstraints(component, constraints);
+        owner.add(component);
+    }
+
+    public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wh) {
+        addButton(owner, component, layout, x, y, w, h, 1.0D, wh);
+    }
+
+    public void init() {
+        this.client = ThreadRainbowClient.getInstance();
+    }
+
+    public void tick() {
+    }
+
+    @Nullable
+    public JMenuBar createMenuBar() {
+        return null;
+    }
+
+    @Nullable
+    public JPanel createSouth() {
+        return null;
+    }
+
+    protected JPanel createChatPanel() {
+        var chatBag = new GridBagLayout();
+        var chatPanel = new JPanel(chatBag);
+        addButton(chatPanel, this.client.chat.getTextArea(), chatBag, 0, 0, 1, 1, 1.0D);
+        addButton(chatPanel, this.client.chat.getField(), chatBag, 0, 1, 1, 1, 0.125D);
+        return chatPanel;
+    }
+
+    protected JScrollPane createTable() {
+        return new JScrollPane(this.client.spiderTable);
+    }
+
+    public void onRemoved() {
+    }
+
+    public void onClose() {
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+    }
+}

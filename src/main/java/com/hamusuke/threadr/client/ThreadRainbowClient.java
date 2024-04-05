@@ -5,16 +5,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.hamusuke.threadr.client.gui.MainWindow;
+import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
-import com.hamusuke.threadr.client.gui.window.ServerListWindow;
-import com.hamusuke.threadr.client.gui.window.Window;
 import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.client.network.listener.info.ClientInfoPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.login.ClientLoginPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.main.ClientCommonPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.ServerInfo;
 import com.hamusuke.threadr.network.ServerInfo.Status;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -36,6 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import javax.swing.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -56,10 +59,11 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     private Connection connection;
     @Nullable
     public ClientCommonPacketListenerImpl listener;
+    private final MainWindow mainWindow;
+    @Nullable
+    public DefaultListModel<NumberCard> model;
     @Nullable
     public LocalSpider clientSpider;
-    @Nullable
-    private Window currentWindow;
     private Thread thread;
     private int tickCount;
     public final List<AbstractClientSpider> clientSpiders = Lists.newArrayList();
@@ -90,7 +94,12 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         this.thread = Thread.currentThread();
         this.serversFile = new File("./servers.json");
         this.loadServers();
-        this.setCurrentWindow(new ServerListWindow());
+
+        this.mainWindow = new MainWindow(this);
+        this.mainWindow.setPanel(new ServerListPanel());
+        this.mainWindow.pack();
+        this.mainWindow.setLocationRelativeTo(null);
+        this.mainWindow.setVisible(true);
     }
 
     public static ThreadRainbowClient getInstance() {
@@ -183,8 +192,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
     public void onServerInfoChanged() {
         this.sendMsg(() -> {
-            if (this.currentWindow instanceof ServerListWindow w) {
-                w.onServerInfoChanged();
+            if (this.getPanel() instanceof ServerListPanel panel) {
+                panel.onServerInfoChanged();
             }
         });
     }
@@ -222,23 +231,27 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         return this.connection == null ? "" : String.format("Client Address: %s, Server Address: %s", this.connection.getChannel().localAddress(), this.connection.getChannel().remoteAddress());
     }
 
-    @Nullable
-    public Window getCurrentWindow() {
-        return this.currentWindow;
+    public void setWindowTitle(String title) {
+        this.mainWindow.setTitle(title);
     }
 
-    public void setCurrentWindow(@Nullable Window currentWindow) {
-        this.currentWindow = currentWindow;
+    public MainWindow getMainWindow() {
+        return this.mainWindow;
+    }
 
-        if (this.currentWindow == null) {
-            this.currentWindow = new ServerListWindow();
-        }
+    public Panel getPanel() {
+        return this.mainWindow.getPanel();
+    }
 
-        this.currentWindow.init();
-        this.currentWindow.setVisible(true);
+    public void setPanel(Panel panel) {
+        this.mainWindow.setPanel(panel);
     }
 
     public void stopLooping() {
+        if (this.connection != null) {
+            this.connection.disconnect("Client Exit");
+        }
+
         this.running.set(false);
     }
 
@@ -264,10 +277,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public void tick() {
         this.tickCount++;
 
-        if (this.currentWindow != null) {
-            this.currentWindow.tick();
-        }
-
+        this.mainWindow.tick();
         if (this.connection != null) {
             this.connection.tick();
             if (this.connection.isDisconnected()) {
@@ -285,13 +295,17 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         }
     }
 
-    public void connectToServer(String host, int port, Consumer<String> consumer, Runnable onJoinLobby) {
+    public void connectToServer(String host, int port, Consumer<String> consumer) {
         this.clientSpider = null;
         InetSocketAddress address = new InetSocketAddress(host, port);
         this.connection = Connection.connect(this, address);
-        this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer, onJoinLobby));
+        this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer));
         this.connection.sendPacket(new HandshakeReq(Protocol.LOGIN));
         this.connection.sendPacket(new KeyExchangeReq());
+    }
+
+    public boolean amIHost() {
+        return this.listener != null && this.clientSpider != null && this.listener.getHostId() == this.clientSpider.getId();
     }
 
     public boolean isPacketTrash(Packet<?> packet) {
