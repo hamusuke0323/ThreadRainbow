@@ -52,4 +52,9 @@ public class Chat {
     public JScrollPane getField() {
         return this.scrollField;
     }
+
+    public void clear() {
+        this.textArea.setText("");
+        this.scrollToMax();
+    }
 }

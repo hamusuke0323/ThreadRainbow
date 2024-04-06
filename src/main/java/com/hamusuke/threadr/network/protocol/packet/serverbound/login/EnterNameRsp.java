@@ -18,6 +18,6 @@ public record EnterNameRsp(String name) implements Packet<ServerLoginPacketListe
 
     @Override
     public void handle(ServerLoginPacketListener listener) {
-        listener.handleLogin(this);
+        listener.handleEnterName(this);
     }
 }

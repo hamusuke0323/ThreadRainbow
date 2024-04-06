@@ -141,7 +141,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Override
-    public void handleLogin(EnterNameRsp packet) {
+    public void handleEnterName(EnterNameRsp packet) {
         Validate.validState(this.state == State.ENTER_NAME, "Unexpected login packet");
 
         var res = this.tryLogin(packet.name());

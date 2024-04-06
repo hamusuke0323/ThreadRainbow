@@ -13,6 +13,7 @@ public class ConfirmPanel extends Panel {
     private boolean accepted;
 
     public ConfirmPanel(Panel panel, String text, Consumer<Boolean> yesNo) {
+        super(new GridBagLayout());
         this.parent = panel;
         this.text = text;
         this.yesNo = yesNo;
@@ -22,8 +23,8 @@ public class ConfirmPanel extends Panel {
     public void init() {
         super.init();
 
-        this.client.setWindowTitle("確認");
-        this.add(new JLabel(this.text), BorderLayout.NORTH);
+        var title = new JLabel("確認", SwingConstants.CENTER);
+        var label = new JLabel(this.text, SwingConstants.CENTER);
         var yes = new JButton("はい");
         yes.addActionListener(e -> {
             this.accepted = true;
@@ -34,8 +35,11 @@ public class ConfirmPanel extends Panel {
             this.accepted = false;
             this.onClose();
         });
-        this.add(yes, BorderLayout.CENTER);
-        this.add(no, BorderLayout.SOUTH);
+        var l = (GridBagLayout) getLayout();
+        addButton(this, title, l, 0, 0, 1, 1, 0.125D);
+        addButton(this, label, l, 0, 1, 1, 1, 0.125D);
+        addButton(this, yes, l, 0, 2, 1, 1, 0.125D);
+        addButton(this, no, l, 0, 3, 1, 1, 0.125D);
     }
 
     @Override

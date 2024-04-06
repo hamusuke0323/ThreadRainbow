@@ -1,10 +1,10 @@
 package com.hamusuke.threadr.client.network.listener.login;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.component.panel.LoginPanel;
-import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
 import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
+import com.hamusuke.threadr.client.gui.component.panel.pre.LoginPanel;
+import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.client.network.listener.main.ClientLobbyPacketListenerImpl;
@@ -104,6 +104,7 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
     public void onDisconnected(String msg) {
         var list = new ServerListPanel();
         var panel = msg.isEmpty() ? list : new OkPanel(list, "エラー", msg);
+        this.client.getMainWindow().reset();
         this.client.setPanel(panel);
     }
 

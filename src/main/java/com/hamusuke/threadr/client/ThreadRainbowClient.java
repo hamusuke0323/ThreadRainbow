@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.hamusuke.threadr.client.gui.MainWindow;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
-import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
+import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.network.Chat;
@@ -97,7 +97,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
         this.mainWindow = new MainWindow(this);
         this.mainWindow.setPanel(new ServerListPanel());
-        this.mainWindow.pack();
+        this.mainWindow.setSize(1280, 720);
         this.mainWindow.setLocationRelativeTo(null);
         this.mainWindow.setVisible(true);
     }

@@ -1,5 +1,7 @@
-package com.hamusuke.threadr.client.gui.component.panel;
+package com.hamusuke.threadr.client.gui.component.panel.pre;
 
+import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.LoggingInPanel;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.mojang.brigadier.StringReader;
 
@@ -13,6 +15,10 @@ import static com.hamusuke.threadr.network.protocol.packet.serverbound.login.Ent
 
 public class LoginPanel extends Panel {
     private JTextField nameField;
+
+    public LoginPanel() {
+        super(new GridBagLayout());
+    }
 
     @Override
     public void init() {
@@ -28,31 +34,33 @@ public class LoginPanel extends Panel {
             }
         });
         var login = new JButton("ログイン");
-        var layout = new GridBagLayout();
-        var panel = new JPanel(layout);
-        addButton(panel, new JLabel("名前を入力してください（英数字のみ）"), layout, 0, 0, 1, 1, 1.0D);
-        addButton(panel, this.nameField, layout, 0, 1, 1, 1, 1.0D);
-        addButton(panel, login, layout, 0, 2, 1, 1, 1.0D);
         login.setActionCommand("login");
         login.addActionListener(this);
-        this.add(panel, BorderLayout.CENTER);
-        this.setSize(this.getWidth() * 2, this.getHeight());
+
+        var cancel = new JButton("キャンセル");
+        cancel.setActionCommand("cancel");
+        cancel.addActionListener(this);
+
+        var layout = (GridBagLayout) this.getLayout();
+        addButton(this, new JLabel("名前を入力してください（英数字のみ）", SwingConstants.CENTER), layout, 0, 0, 1, 1, 1.0D);
+        addButton(this, this.nameField, layout, 0, 1, 1, 1, 0.125D);
+        addButton(this, login, layout, 0, 2, 1, 1, 0.125D);
+        addButton(this, cancel, layout, 0, 3, 1, 1, 0.125D);
     }
 
     @Override
     public JMenuBar createMenuBar() {
         var jMenuBar = new JMenuBar();
-        var menu = new JMenu("メニュー");
-        var disconnect = new JMenuItem("切断");
-        disconnect.setActionCommand("disconnect");
-        disconnect.addActionListener(this.client.getMainWindow());
-        menu.add(disconnect);
-        jMenuBar.add(menu);
+        jMenuBar.add(this.createMenuMenu());
         return jMenuBar;
     }
 
-    private void login(String name) {
-        this.client.getConnection().sendPacket(new EnterNameRsp(name.substring(0, Math.min(name.length(), 16))));
+    private void login() {
+        var name = this.nameField.getText();
+        if (!name.isEmpty()) {
+            this.client.setPanel(new LoggingInPanel());
+            this.client.getConnection().sendPacket(new EnterNameRsp(name.substring(0, Math.min(name.length(), 16))));
+        }
     }
 
     @Override
@@ -62,8 +70,13 @@ public class LoginPanel extends Panel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (!this.nameField.getText().isEmpty()) {
-            this.login(this.nameField.getText());
+        switch (e.getActionCommand()) {
+            case "login":
+                this.login();
+                break;
+            case "cancel":
+                this.onClose();
+                break;
         }
     }
 }

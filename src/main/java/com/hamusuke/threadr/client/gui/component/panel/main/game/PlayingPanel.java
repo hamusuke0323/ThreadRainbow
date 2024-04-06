@@ -2,8 +2,8 @@ package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
-import com.hamusuke.threadr.client.gui.component.panel.ImagePanel;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.misc.ImagePanel;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq.Command;
@@ -13,7 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class PlayingPanel extends Panel {
-    protected final Topic topic;
+    private final Topic topic;
 
     public PlayingPanel(Topic topic) {
         super(new GridBagLayout());
@@ -55,7 +55,6 @@ public class PlayingPanel extends Panel {
         addButton(south, this.topic.toPIPPanel(), layout, 0, 0, 1, 1, 1.0D);
         addButton(south, chatPanel, layout, 1, 0, 1, 1, 1.0D);
         addButton(south, table, layout, 2, 0, 1, 1, 0.5D, 1.0D);
-        south.setPreferredSize(new Dimension(100, this.getHeight() / 4));
         return south;
     }
 

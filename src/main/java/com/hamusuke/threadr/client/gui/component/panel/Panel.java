@@ -38,6 +38,7 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
 
     public void init() {
         this.client = ThreadRainbowClient.getInstance();
+        this.registerKeyboardAction(e -> this.onClose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     public void tick() {
@@ -46,6 +47,34 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
     @Nullable
     public JMenuBar createMenuBar() {
         return null;
+    }
+
+    protected JMenu createMenuMenu() {
+        var menu = new JMenu("メニュー");
+        var disconnect = new JMenuItem("切断");
+        disconnect.setActionCommand("disconnect");
+        disconnect.addActionListener(this.client.getMainWindow());
+        menu.add(disconnect);
+        return menu;
+    }
+
+    protected JMenu createChatMenu() {
+        var chat = new JMenu("チャット");
+        var clear = new JMenuItem("チャット欄をクリア");
+        clear.setActionCommand("clearChat");
+        clear.addActionListener(this.client.getMainWindow());
+        chat.add(clear);
+        return chat;
+    }
+
+    protected JMenu createNetworkMenu() {
+        var debug = new JMenu("ネットワーク");
+        debug.add(this.client.getMainWindow().packetLog);
+        var clearPackets = new JMenuItem("ログをクリア");
+        clearPackets.addActionListener(this.client.getMainWindow());
+        clearPackets.setActionCommand("clearPackets");
+        debug.add(clearPackets);
+        return debug;
     }
 
     @Nullable
@@ -66,6 +95,7 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
     }
 
     public void onRemoved() {
+        this.removeAll();
     }
 
     public void onClose() {

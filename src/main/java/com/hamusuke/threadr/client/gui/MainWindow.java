@@ -3,6 +3,7 @@ package com.hamusuke.threadr.client.gui;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq.Command;
 
@@ -10,18 +11,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MainWindow extends JFrame implements ActionListener, KeyListener, WindowListener, ComponentListener {
+public class MainWindow extends JFrame implements ActionListener, WindowListener, ComponentListener {
     private final ThreadRainbowClient client;
     private JMenuBar curMenuBar;
     private Panel curPanel;
     private JPanel south;
+    public final JMenuItem packetLog;
+    private final JPanel east;
 
     public MainWindow(ThreadRainbowClient client) {
         super("Thread Rainbow " + Constants.VERSION);
         this.client = client;
         this.addWindowListener(this);
         this.addComponentListener(this);
-        this.addKeyListener(this);
+
+        this.east = new JPanel(new FlowLayout());
+        var logScroll = new JScrollPane(this.client.packetLogTable);
+        logScroll.setAutoscrolls(true);
+        this.east.add(logScroll);
+
+        this.packetLog = new JMenuItem("ログを見る");
+        this.packetLog.addActionListener(this);
+        this.packetLog.setActionCommand("packetLog");
     }
 
     public void tick() {
@@ -58,12 +69,15 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener, W
             return;
         }
 
+        this.removeMenuBar();
+        this.curMenuBar = bar;
+        this.getContentPane().add(this.curMenuBar, BorderLayout.NORTH);
+    }
+
+    private void removeMenuBar() {
         if (this.curMenuBar != null) {
             this.remove(this.curMenuBar);
         }
-
-        this.curMenuBar = bar;
-        this.getContentPane().add(this.curMenuBar, BorderLayout.NORTH);
     }
 
     private void updateSouth() {
@@ -72,12 +86,53 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener, W
             return;
         }
 
+        this.removeSouth();
+        this.south = s;
+        this.south.setPreferredSize(new Dimension(100, this.getHeight() / 4));
+        this.getContentPane().add(this.south, BorderLayout.SOUTH);
+    }
+
+    private void removeSouth() {
         if (this.south != null) {
             this.remove(this.south);
         }
+    }
 
-        this.south = s;
-        this.getContentPane().add(this.south, BorderLayout.SOUTH);
+    private synchronized void showPacketLog() {
+        this.add(this.east, BorderLayout.EAST);
+        this.packetLog.setText("ログを閉じる");
+        this.packetLog.setActionCommand("hPacketLog");
+        this.revalidate();
+    }
+
+    private synchronized void hidePacketLog() {
+        this.remove(this.east);
+        this.packetLog.setText("ログを見る");
+        this.packetLog.setActionCommand("packetLog");
+        this.revalidate();
+    }
+
+    private void clearChat() {
+        if (this.client.chat != null) {
+            this.client.chat.clear();
+        }
+    }
+
+    private void clearPackets() {
+        this.client.packetLogTable.clear();
+        this.client.packetLogTable.repaint();
+    }
+
+    private void exitGame() {
+        if (this.client.listener instanceof ClientPlayPacketListener) {
+            this.client.getConnection().sendPacket(new ClientCommandReq(Command.EXIT));
+        }
+    }
+
+    public void reset() {
+        this.removeMenuBar();
+        this.removeSouth();
+        this.remove(this.east);
     }
 
     @Override
@@ -86,8 +141,20 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener, W
             case "disconnect":
                 this.client.disconnect();
                 break;
+            case "clearChat":
+                this.clearChat();
+                break;
+            case "packetLog":
+                this.showPacketLog();
+                break;
+            case "hPacketLog":
+                this.hidePacketLog();
+                break;
+            case "clearPackets":
+                this.clearPackets();
+                break;
             case "exit":
-                this.client.getConnection().sendPacket(new ClientCommandReq(Command.EXIT));
+                this.exitGame();
                 break;
             default:
                 this.curPanel.actionPerformed(e);
@@ -99,10 +166,17 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener, W
         this.curPanel.componentResized(e);
 
         var c = e.getComponent();
-        if (c == this && this.south != null) {
+        if (c != this) {
+            return;
+        }
+
+        if (this.south != null) {
             this.south.setPreferredSize(new Dimension(100, c.getHeight() / 4));
             this.south.revalidate();
         }
+
+        this.east.setPreferredSize(new Dimension(c.getWidth() / 3, c.getHeight() / 2));
+        this.east.revalidate();
     }
 
     @Override
@@ -144,20 +218,5 @@ public class MainWindow extends JFrame implements ActionListener, KeyListener, W
 
     @Override
     public void windowDeactivated(WindowEvent e) {
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            this.curPanel.onClose();
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
     }
 }

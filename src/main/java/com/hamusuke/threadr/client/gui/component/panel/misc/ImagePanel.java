@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.client.gui.component.panel;
+package com.hamusuke.threadr.client.gui.component.panel.misc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -23,7 +23,7 @@ public class SpiderTable extends JTable {
 
     @Override
     public TableCellRenderer getCellRenderer(int row, int column) {
-        return column == 0 ? new SpiderInfoRenderer() : super.getCellRenderer(row, column);
+        return this.getColumnName(column).equals("クモ") ? new SpiderInfoRenderer() : super.getCellRenderer(row, column);
     }
 
     @Override

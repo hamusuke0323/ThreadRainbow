@@ -1,5 +1,6 @@
-package com.hamusuke.threadr.client.gui.component.panel;
+package com.hamusuke.threadr.client.gui.component.panel.pre;
 
+import com.hamusuke.threadr.client.gui.component.panel.Panel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.ConfirmPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.ConnectingPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.ServerInfoPanel;

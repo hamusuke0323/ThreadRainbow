@@ -33,18 +33,9 @@ public class LobbyPanel extends Panel {
     @Override
     public JMenuBar createMenuBar() {
         var jMenuBar = new JMenuBar();
-        var menu = new JMenu("メニュー");
-
-        var disconnect = new JMenuItem("切断");
-        disconnect.setActionCommand("disconnect");
-        disconnect.addActionListener(this.client.getMainWindow());
-        menu.add(disconnect);
-        jMenuBar.add(menu);
-
-        var debug = new JMenu("ネットワーク");
-
-        jMenuBar.add(debug);
-
+        jMenuBar.add(this.createMenuMenu());
+        jMenuBar.add(this.createChatMenu());
+        jMenuBar.add(this.createNetworkMenu());
         return jMenuBar;
     }
 
@@ -56,7 +47,6 @@ public class LobbyPanel extends Panel {
         var table = this.createTable();
         addButton(south, chatPanel, layout, 0, 0, 2, 1, 1.0D);
         addButton(south, table, layout, 2, 0, 1, 1, 0.5D, 1.0D);
-        south.setPreferredSize(new Dimension(100, this.getHeight() / 4));
         return south;
     }
 

@@ -27,10 +27,6 @@ public class PacketLogTable extends JTable {
         return false;
     }
 
-    @Override
-    public void moveColumn(int column, int targetColumn) {
-    }
-
     public void addSent(Packet<?> packet) {
         MODEL.addRow(new Object[]{packet, null});
     }

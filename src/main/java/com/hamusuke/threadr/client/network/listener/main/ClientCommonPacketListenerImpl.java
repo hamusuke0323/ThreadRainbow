@@ -1,8 +1,8 @@
 package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
+import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -95,6 +95,7 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
 
         var list = new ServerListPanel();
         var panel = msg.isEmpty() ? list : new OkPanel(list, "エラー", msg);
+        this.client.getMainWindow().reset();
         this.client.setPanel(panel);
         this.client.clientSpider = null;
         this.client.spiderTable = null;

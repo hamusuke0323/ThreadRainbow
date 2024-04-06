@@ -2,8 +2,8 @@ package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
-import com.hamusuke.threadr.client.gui.component.panel.ImagePanel;
-import com.hamusuke.threadr.game.topic.Topic;
+import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.misc.ImagePanel;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq.Command;
 
@@ -11,9 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class ResultPanel extends PlayingPanel {
-    public ResultPanel(Topic topic) {
-        super(topic);
+public class ResultPanel extends Panel {
+    public ResultPanel() {
+        super(new GridBagLayout());
     }
 
     @Override

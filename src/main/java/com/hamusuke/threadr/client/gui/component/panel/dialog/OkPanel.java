@@ -6,12 +6,13 @@ import com.hamusuke.threadr.util.Util;
 import javax.swing.*;
 import java.awt.*;
 
-public class OkPanel extends com.hamusuke.threadr.client.gui.component.panel.Panel {
-    private final com.hamusuke.threadr.client.gui.component.panel.Panel parent;
+public class OkPanel extends Panel {
+    private final Panel parent;
     private final String title;
     private final String message;
 
     public OkPanel(Panel parent, String title, String nonHTMLText) {
+        super(new GridBagLayout());
         this.parent = parent;
         this.title = title;
         this.message = Util.toHTML(nonHTMLText);
@@ -21,12 +22,14 @@ public class OkPanel extends com.hamusuke.threadr.client.gui.component.panel.Pan
     public void init() {
         super.init();
 
-        this.client.setWindowTitle(this.title);
-        var label = new JLabel(this.message);
-        this.add(label, BorderLayout.CENTER);
+        var title = new JLabel(this.title, SwingConstants.CENTER);
+        var label = new JLabel(this.message, SwingConstants.CENTER);
         var ok = new JButton("OK");
         ok.addActionListener(e -> this.onClose());
-        this.add(ok, BorderLayout.SOUTH);
+        var l = (GridBagLayout) getLayout();
+        addButton(this, title, l, 0, 0, 1, 1, 0.125D);
+        addButton(this, label, l, 0, 1, 1, 1, 0.125D);
+        addButton(this, ok, l, 0, 2, 1, 1, 0.125D);
     }
 
     @Override

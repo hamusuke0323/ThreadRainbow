@@ -2,7 +2,6 @@ package com.hamusuke.threadr.client.network.listener.main;
 
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.gui.component.panel.MainWindow;
 import com.hamusuke.threadr.client.gui.component.panel.main.game.*;
 import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
@@ -24,7 +23,6 @@ import java.util.Map;
 
 public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
-    public MainWindow mainWindow;
     private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
     private Topic topic;
 
@@ -117,7 +115,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleMainGameFinish(FinishMainGameNotify packet) {
-        this.client.setPanel(new ResultPanel(this.topic));
+        this.client.setPanel(new ResultPanel());
     }
 
     @Override
@@ -139,7 +137,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
             return;
         }
 
-        this.client.setPanel(new EndPanel(this.topic));
+        this.client.setPanel(new EndPanel());
     }
 
     @Override

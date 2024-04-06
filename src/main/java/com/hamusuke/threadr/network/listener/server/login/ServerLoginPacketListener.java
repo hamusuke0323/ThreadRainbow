@@ -13,5 +13,5 @@ public interface ServerLoginPacketListener extends ServerPacketListener {
 
     void handlePing(AliveReq packet);
 
-    void handleLogin(EnterNameRsp packet);
+    void handleEnterName(EnterNameRsp packet);
 }

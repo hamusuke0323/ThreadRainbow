@@ -27,6 +27,7 @@ public class ServerInfoPanel extends Panel {
     }
 
     public ServerInfoPanel(Panel parent, Consumer<ServerInfoPanel> callback, @Nullable ServerInfo info) {
+        super(new GridBagLayout());
         this.parent = parent;
         this.callback = callback;
         this.info = info;
@@ -62,11 +63,7 @@ public class ServerInfoPanel extends Panel {
             }
         });
 
-        this.add(host, BorderLayout.NORTH);
-        this.add(port, BorderLayout.CENTER);
-
-        var l = new GridBagLayout();
-        var south = new JPanel(l);
+        var l = (GridBagLayout) getLayout();
         var yes = new JButton("OK");
         yes.addActionListener(e -> {
             if (host.getText().isEmpty() || Util.numberOnly(port.getText()).isEmpty()) {
@@ -88,9 +85,10 @@ public class ServerInfoPanel extends Panel {
             this.accepted = false;
             this.onClose();
         });
-        addButton(south, yes, l, 0, 0, 1, 1, 0.125D);
-        addButton(south, no, l, 0, 1, 1, 1, 0.125D);
-        this.add(south, BorderLayout.SOUTH);
+        addButton(this, host, l, 0, 0, 1, 1, 0.125D);
+        addButton(this, port, l, 0, 1, 1, 1, 0.125D);
+        addButton(this, yes, l, 0, 2, 1, 1, 0.125D);
+        addButton(this, no, l, 0, 3, 1, 1, 0.125D);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.hamusuke.threadr.client.gui.component.panel.main.game;
 
 import com.hamusuke.threadr.Constants;
-import com.hamusuke.threadr.client.gui.component.panel.ImagePanel;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.misc.ImagePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,33 +31,20 @@ public class HandedCardPanel extends Panel {
     @Override
     public JMenuBar createMenuBar() {
         var jMenuBar = new JMenuBar();
-        var menu = new JMenu("メニュー");
+        jMenuBar.add(this.createMenuMenu());
+        jMenuBar.add(this.createChatMenu());
+        jMenuBar.add(this.createNetworkMenu());
+        return jMenuBar;
+    }
 
-        var disconnect = new JMenuItem("切断");
-        disconnect.setActionCommand("disconnect");
-        disconnect.addActionListener(this.client.getMainWindow());
-
+    @Override
+    protected JMenu createMenuMenu() {
+        var menu = super.createMenuMenu();
         var exit = new JMenuItem("ゲームをやめる");
         exit.setActionCommand("exit");
         exit.addActionListener(this.client.getMainWindow());
-        menu.add(exit);
-
-        menu.add(disconnect);
-        jMenuBar.add(menu);
-
-        var debug = new JMenu("ネットワーク");
-        /*
-        if (this.packetLog == null) {
-            this.packetLog = new JMenuItem("ログを見る");
-            this.packetLog.setActionCommand("packetLog");
-            this.packetLog.addActionListener(this);
-        }
-        debug.add(this.packetLog);
-
-         */
-        jMenuBar.add(debug);
-
-        return jMenuBar;
+        menu.insert(exit, 0);
+        return menu;
     }
 
     @Override
