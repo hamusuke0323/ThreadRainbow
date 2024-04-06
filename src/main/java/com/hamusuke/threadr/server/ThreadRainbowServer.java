@@ -1,5 +1,8 @@
 package com.hamusuke.threadr.server;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.command.Commands;
 import com.hamusuke.threadr.game.mode.SpidersThreadV2Game;
@@ -7,10 +10,11 @@ import com.hamusuke.threadr.game.topic.TopicLoader;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.StartGameNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.RestartGameNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.network.listener.main.ServerPlayPacketListenerImpl;
+import com.hamusuke.threadr.server.room.ServerRoom;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import com.mojang.brigadier.CommandDispatcher;
@@ -23,6 +27,8 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,6 +53,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     private long lastTimeReference;
     private final AtomicBoolean loading = new AtomicBoolean();
     private final TopicLoader topicLoader = new TopicLoader();
+    private final Map<Integer, ServerRoom> rooms = Maps.newConcurrentMap();
     @Nullable
     protected SpidersThreadV2Game game;
 
@@ -113,6 +120,25 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
                 this.exit();
             }
         }
+    }
+
+    public synchronized void createRoom(ServerSpider creator, String name, String password) {
+        var room = new ServerRoom(name, password);
+        creator.currentRoom = room;
+        room.join(creator);
+        this.rooms.put(room.getId(), room);
+    }
+
+    public synchronized void removeRoom(ServerRoom room) {
+        this.rooms.remove(room.getId());
+    }
+
+    public Map<Integer, ServerRoom> getRoomMap() {
+        return ImmutableMap.copyOf(this.rooms);
+    }
+
+    public List<ServerRoom> getRooms() {
+        return ImmutableList.copyOf(this.rooms.values());
     }
 
     public void sendPacketToAll(Packet<?> packet) {
@@ -225,10 +251,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
                 LOGGER.error("Error occurred while shutting down", e);
             }
         }
-    }
-
-    public boolean isHost(@Nullable ServerSpider serverSpider) {
-        return serverSpider == null || this.getSpiderManager().isHost(serverSpider.getName());
     }
 
     public synchronized void startGame() {

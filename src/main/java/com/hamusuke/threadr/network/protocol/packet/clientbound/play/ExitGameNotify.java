@@ -21,6 +21,6 @@ public record ExitGameNotify() implements Packet<ClientPlayPacketListener> {
 
     @Override
     public Protocol nextProtocol() {
-        return Protocol.LOBBY;
+        return Protocol.ROOM;
     }
 }

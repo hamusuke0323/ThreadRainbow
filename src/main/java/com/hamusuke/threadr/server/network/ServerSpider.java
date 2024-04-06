@@ -7,6 +7,7 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.listener.main.ServerCommonPacketListenerImpl;
+import com.hamusuke.threadr.server.room.ServerRoom;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
@@ -17,10 +18,20 @@ public class ServerSpider extends Spider implements CommandSource {
     public ServerCommonPacketListenerImpl connection;
     private boolean isAuthorized;
     private ServerCard holdingCard;
+    @Nullable
+    public ServerRoom currentRoom;
 
     public ServerSpider(String name, ThreadRainbowServer server) {
         super(name);
         this.server = server;
+    }
+
+    public boolean isHost() {
+        if (this.currentRoom == null) {
+            return false;
+        }
+
+        return this.currentRoom.isHost(this);
     }
 
     public boolean isAuthorized() {

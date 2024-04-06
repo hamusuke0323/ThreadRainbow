@@ -3,7 +3,7 @@ package com.hamusuke.threadr.client.network.listener.main;
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.panel.main.game.*;
-import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.LocalCard;
@@ -142,15 +142,15 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleRestart(RestartGameNotify packet) {
-        this.client.setPanel(new LobbyPanel());
+        this.client.setPanel(new RoomPanel());
     }
 
     @Override
     public void handleExit(ExitGameNotify packet) {
         int id = this.hostId;
-        var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
+        var listener = new ClientRoomPacketListenerImpl(this.client, this.connection);
         listener.hostId = id;
-        this.client.setPanel(new LobbyPanel());
+        this.client.setPanel(new RoomPanel());
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
     }

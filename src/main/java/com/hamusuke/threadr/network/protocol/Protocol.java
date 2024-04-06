@@ -7,30 +7,37 @@ import com.hamusuke.threadr.network.listener.client.info.ClientInfoPacketListene
 import com.hamusuke.threadr.network.listener.client.login.ClientLoginPacketListener;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
+import com.hamusuke.threadr.network.listener.client.main.ClientRoomPacketListener;
 import com.hamusuke.threadr.network.listener.server.handshake.ServerHandshakePacketListener;
 import com.hamusuke.threadr.network.listener.server.info.ServerInfoPacketListener;
 import com.hamusuke.threadr.network.listener.server.login.ServerLoginPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
+import com.hamusuke.threadr.network.listener.server.main.ServerRoomPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.StartGameNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.StartGameReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.CreateRoomReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.JoinRoomReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.RoomListQueryReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.RoomListReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EncryptionSetupReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.room.StartGameReq;
 import com.hamusuke.threadr.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -56,9 +63,31 @@ public enum Protocol {
                     .add(PongRsp.class, PongRsp::new)
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
-                    .add(StartGameNotify.class, StartGameNotify::new)
+                    .add(RoomListNotify.class, RoomListNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLobbyPacketListener>()
+                    .add(DisconnectReq.class, DisconnectReq::new)
+                    .add(PingReq.class, PingReq::new)
+                    .add(RTTChangeReq.class, RTTChangeReq::new)
+                    .add(ChatReq.class, ChatReq::new)
+                    .add(CreateRoomReq.class, CreateRoomReq::new)
+                    .add(JoinRoomReq.class, JoinRoomReq::new)
+                    .add(RoomListQueryReq.class, RoomListQueryReq::new)
+                    .add(RoomListReq.class, RoomListReq::new)
+            )
+    ),
+    ROOM(1, protocol()
+            .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientRoomPacketListener>()
+                    .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
+                    .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
+                    .add(DisconnectNotify.class, DisconnectNotify::new)
+                    .add(ChatNotify.class, ChatNotify::new)
+                    .add(PongRsp.class, PongRsp::new)
+                    .add(RTTChangeNotify.class, RTTChangeNotify::new)
+                    .add(ChangeHostNotify.class, ChangeHostNotify::new)
+                    .add(StartGameNotify.class, StartGameNotify::new)
+            )
+            .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerRoomPacketListener>()
                     .add(DisconnectReq.class, DisconnectReq::new)
                     .add(PingReq.class, PingReq::new)
                     .add(RTTChangeReq.class, RTTChangeReq::new)
@@ -66,7 +95,7 @@ public enum Protocol {
                     .add(StartGameReq.class, StartGameReq::new)
             )
     ),
-    PLAY(1, protocol()
+    PLAY(2, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientPlayPacketListener>()
                     .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
                     .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
@@ -96,7 +125,7 @@ public enum Protocol {
                     .add(MoveCardReq.class, MoveCardReq::new)
             )
     ),
-    LOGIN(2, protocol()
+    LOGIN(3, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientLoginPacketListener>()
                     .add(LoginDisconnectNotify.class, LoginDisconnectNotify::new)
                     .add(KeyExchangeRsp.class, KeyExchangeRsp::new)
@@ -112,7 +141,7 @@ public enum Protocol {
                     .add(EnterNameRsp.class, EnterNameRsp::new)
             )
     ),
-    INFO(3, protocol()
+    INFO(4, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientInfoPacketListener>()
                     .add(ServerInfoRsp.class, ServerInfoRsp::new)
             )
@@ -122,7 +151,7 @@ public enum Protocol {
     );
 
     private static final int MIN = -1;
-    private static final int MAX = 3;
+    private static final int MAX = 4;
     private static final Protocol[] PROTOCOLS = new Protocol[MAX - MIN + 1];
 
     static {

@@ -3,6 +3,7 @@ package com.hamusuke.threadr.util;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.IntPredicate;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
@@ -14,8 +15,12 @@ public class Util {
     }
 
     public static String numberOnly(String s) {
+        return filterBy(s, value -> '0' <= value && value <= '9');
+    }
+
+    public static String filterBy(String s, IntPredicate intPredicate) {
         var buf = new StringBuilder();
-        s.chars().filter(value -> '0' <= value && value <= '9').forEach(value -> buf.append((char) value));
+        s.chars().filter(intPredicate).forEach(value -> buf.append((char) value));
         return buf.toString();
     }
 

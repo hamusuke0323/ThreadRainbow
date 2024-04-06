@@ -1,10 +1,12 @@
 package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
+import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.StartGameNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
 
 public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientLobbyPacketListener {
     public ClientLobbyPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
@@ -13,17 +15,19 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
     }
 
     @Override
-    public void handleChangeHost(ChangeHostNotify packet) {
-        super.handleChangeHost(packet);
-        this.client.setPanel(this.client.getPanel());
+    public void handleRoomList(RoomListNotify packet) {
+        if (this.client.getPanel() instanceof LobbyPanel panel) {
+            panel.addAll(packet.infoList());
+        }
     }
 
     @Override
-    public void handleStartGame(StartGameNotify packet) {
-        int id = this.hostId;
-        var listener = new ClientPlayPacketListenerImpl(this.client, this.connection);
-        listener.hostId = id;
-        this.connection.setListener(listener);
-        this.connection.setProtocol(packet.nextProtocol());
+    public void onDisconnected(String msg) {
+        this.client.disconnect();
+        var list = new ServerListPanel();
+        var panel = msg.isEmpty() ? list : new OkPanel(list, "エラー", msg);
+        this.client.getMainWindow().reset();
+        this.client.setPanel(panel);
+        this.client.clientSpider = null;
     }
 }

@@ -13,6 +13,7 @@ public class HostCommand {
     }
 
     private static int changeHost(CommandSource source, String name) {
+        /*
         if (source.getServer().getSpiderManager().isHost(name)) {
             source.sendError("そのクモは既にホストです");
         } else if (source.getServer().isHost(source.getSender())) {
@@ -24,6 +25,8 @@ public class HostCommand {
         } else {
             source.sendError("ホストのみこのコマンドを実行できます");
         }
+
+         */
 
         return 1;
     }

@@ -233,9 +233,12 @@ public class SpidersThreadV2Game {
         this.spiders.remove(spider);
         this.cards.removeIf(integer -> spider.getId() == integer);
         this.finishIfLastCardLeft();
+        /*
         if (this.server.isHost(spider) && !this.spiders.isEmpty()) {
             this.server.getSpiderManager().changeHost(this.spiders.get(0));
         }
+
+         */
         this.sendPacketToAllInGame(new SpiderExitGameNotify(spider));
         this.sendPacketToAllInGame(new ChatNotify(spider.getName() + " がゲームをやめました"));
     }

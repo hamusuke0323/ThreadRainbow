@@ -5,8 +5,6 @@ import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
 import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.gui.component.panel.pre.LoginPanel;
 import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
-import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
-import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.client.network.listener.main.ClientLobbyPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -70,9 +68,6 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
         this.statusConsumer.accept("ロビーに参加しています...");
         this.client.clientSpider = new LocalSpider(packet.name());
         this.client.clientSpider.setId(packet.id());
-        this.client.spiderTable = new SpiderTable(this.client);
-        this.client.addClientSpider(this.client.clientSpider);
-        this.client.chat = new Chat(this.client);
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
         this.client.setPanel(new LobbyPanel());
         this.connection.setListener(listener);

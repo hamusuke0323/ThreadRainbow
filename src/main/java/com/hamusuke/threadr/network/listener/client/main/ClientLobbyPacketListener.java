@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.network.listener.client.main;
 
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.StartGameNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
 
 public interface ClientLobbyPacketListener extends ClientCommonPacketListener {
-    void handleStartGame(StartGameNotify packet);
+    void handleRoomList(RoomListNotify packet);
 }

@@ -7,7 +7,7 @@ import com.mojang.brigadier.CommandDispatcher;
 public class StopCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("stop").executes(c -> {
-            if (c.getSource().getServer().isHost(c.getSource().getSender())) {
+            if (true/*c.getSource().getServer().isHost(c.getSource().getSender())*/) {
                 c.getSource().getServer().sendMessageToAll("サーバーを停止します");
                 c.getSource().getServer().stop(false);
             } else {

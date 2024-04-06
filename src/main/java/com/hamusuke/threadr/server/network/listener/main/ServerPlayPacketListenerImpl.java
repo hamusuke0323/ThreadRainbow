@@ -25,7 +25,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
         }
 
         var com = packet.command();
-        if (!this.server.isHost(this.spider) && com.isHostOnly()) {
+        if (!this.spider.isHost() && com.isHostOnly()) {
             this.spider.sendError("ホストのみ操作できます");
             return;
         }
@@ -39,7 +39,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
             case RESTART -> this.server.getGame().restart();
             case EXIT -> {
                 this.server.getGame().onSpiderLeft(this.spider);
-                new ServerLobbyPacketListenerImpl(this.server, this.connection, this.spider);
+                new ServerRoomPacketListenerImpl(this.server, this.connection, this.spider);
                 this.spider.sendPacket(new ExitGameNotify());
             }
         }

@@ -1,11 +1,11 @@
-package com.hamusuke.threadr.network.protocol.packet.clientbound.lobby;
+package com.hamusuke.threadr.network.protocol.packet.clientbound.room;
 
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
-import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
+import com.hamusuke.threadr.network.listener.client.main.ClientRoomPacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public record StartGameNotify() implements Packet<ClientLobbyPacketListener> {
+public record StartGameNotify() implements Packet<ClientRoomPacketListener> {
     public StartGameNotify(IntelligentByteBuf buf) {
         this();
     }
@@ -15,7 +15,7 @@ public record StartGameNotify() implements Packet<ClientLobbyPacketListener> {
     }
 
     @Override
-    public void handle(ClientLobbyPacketListener listener) {
+    public void handle(ClientRoomPacketListener listener) {
         listener.handleStartGame(this);
     }
 
