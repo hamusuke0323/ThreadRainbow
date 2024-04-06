@@ -1,18 +1,28 @@
 package com.hamusuke.threadr.client;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.io.IOException;
 
 public class MainClient {
-    public static void main(String[] args) throws IOException, FontFormatException {
+    private static final Logger LOGGER = LogManager.getLogger();
+
+    public static void main(String[] args) {
         var is = MainClient.class.getResourceAsStream("/font.otf");
         if (is != null) {
-            var font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20.0F).deriveFont(AffineTransform.getTranslateInstance(0.0D, 4.5D));
-            EventQueue.invokeLater(() -> setUIFont(new FontUIResource(font)));
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            try {
+                var font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20.0F).deriveFont(AffineTransform.getTranslateInstance(0.0D, 4.5D));
+                EventQueue.invokeLater(() -> setUIFont(new FontUIResource(font)));
+                GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            } catch (Exception e) {
+                LOGGER.warn("Error occurred while loading font", e);
+            }
+        } else {
+            LOGGER.warn("Failed to load font.otf");
         }
 
         var client = new ThreadRainbowClient();
