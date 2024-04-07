@@ -2,15 +2,13 @@ package com.hamusuke.threadr.server.network.listener.main;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.EnterPasswordReq;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.LeaveRoomReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.CreateRoomReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.JoinRoomReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.RoomListQueryReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.RoomListReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.room.ServerRoom;
@@ -31,6 +29,28 @@ public class ServerLobbyPacketListenerImpl extends ServerCommonPacketListenerImp
         var room = this.server.getRoomMap().get(packet.id());
         if (room == null) {
             this.connection.sendPacket(new JoinRoomFailNotify("部屋が見つかりませんでした\n既に削除された可能性があります"));
+            return;
+        }
+
+        if (room.hasPassword()) {
+            this.spider.sendPacket(new EnterPasswordReq(room.getId(), ""));
+            return;
+        }
+
+        this.spider.currentRoom = room;
+        room.join(this.spider);
+    }
+
+    @Override
+    public void handleEnterPassword(EnterPasswordRsp packet) {
+        var room = this.server.getRoomMap().get(packet.roomId());
+        if (room == null) {
+            this.connection.sendPacket(new JoinRoomFailNotify("部屋が見つかりませんでした\n既に削除された可能性があります"));
+            return;
+        }
+
+        if (room.hasPassword() && !room.getPassword().equals(packet.password())) {
+            this.connection.sendPacket(new EnterPasswordReq(room.getId(), "パスワードが間違っています"));
             return;
         }
 

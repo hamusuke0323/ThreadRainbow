@@ -88,10 +88,10 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     @Override
     public void handleLeaveRoomSucc(LeaveRoomSuccNotify packet) {
         this.client.getMainWindow().reset();
-        this.client.setPanel(new LobbyPanel());
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
+        this.client.setPanel(new LobbyPanel());
     }
 
     public int getHostId() {

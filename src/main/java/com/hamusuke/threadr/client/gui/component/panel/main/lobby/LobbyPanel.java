@@ -75,6 +75,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         addButton(south, add, l, 0, 4, 1, 1, 0.125D);
 
         this.add(south, BorderLayout.SOUTH);
+        this.refresh();
     }
 
     @Override

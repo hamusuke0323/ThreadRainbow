@@ -54,6 +54,6 @@ public class HandedCardPanel extends Panel {
     @Override
     public void actionPerformed(ActionEvent e) {
         this.client.setPanel(new CheckingNumberPanel());
-        this.client.spiderTable.addCardNumCol();
+        SwingUtilities.invokeLater(this.client.spiderTable::addCardNumCol);
     }
 }

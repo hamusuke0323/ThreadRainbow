@@ -69,9 +69,9 @@ public class ClientLoginPacketListenerImpl implements ClientLoginPacketListener 
         this.client.clientSpider = new LocalSpider(packet.name());
         this.client.clientSpider.setId(packet.id());
         var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
-        this.client.setPanel(new LobbyPanel());
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
+        this.client.setPanel(new LobbyPanel());
     }
 
     @Override

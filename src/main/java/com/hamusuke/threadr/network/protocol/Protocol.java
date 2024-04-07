@@ -17,6 +17,7 @@ import com.hamusuke.threadr.network.listener.server.main.ServerRoomPacketListene
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.EnterPasswordReq;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomSuccNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
@@ -26,10 +27,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNo
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.CreateRoomReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.JoinRoomReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.RoomListQueryReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.RoomListReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.*;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EncryptionSetupReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
@@ -65,6 +63,7 @@ public enum Protocol {
                     .add(RoomListNotify.class, RoomListNotify::new)
                     .add(JoinRoomSuccNotify.class, JoinRoomSuccNotify::new)
                     .add(JoinRoomFailNotify.class, JoinRoomFailNotify::new)
+                    .add(EnterPasswordReq.class, EnterPasswordReq::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLobbyPacketListener>()
                     .add(DisconnectReq.class, DisconnectReq::new)
@@ -75,6 +74,7 @@ public enum Protocol {
                     .add(JoinRoomReq.class, JoinRoomReq::new)
                     .add(RoomListQueryReq.class, RoomListQueryReq::new)
                     .add(RoomListReq.class, RoomListReq::new)
+                    .add(EnterPasswordRsp.class, EnterPasswordRsp::new)
             )
     ),
     ROOM(1, protocol()

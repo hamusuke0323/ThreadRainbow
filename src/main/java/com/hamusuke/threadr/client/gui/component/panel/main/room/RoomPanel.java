@@ -17,7 +17,7 @@ public class RoomPanel extends Panel {
         super.init();
 
         this.client.setWindowTitle("ロビー - " + this.client.getAddresses());
-        this.client.spiderTable.removeCardNumCol();
+        SwingUtilities.invokeLater(this.client.spiderTable::removeCardNumCol);
         if (this.client.amIHost()) {
             var startGame = new JButton("始める");
             startGame.setActionCommand("start");

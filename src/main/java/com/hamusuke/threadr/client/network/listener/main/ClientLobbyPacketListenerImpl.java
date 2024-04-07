@@ -1,6 +1,8 @@
 package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.EnterPasswordPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
 import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
@@ -9,9 +11,13 @@ import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.EnterPasswordReq;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomSuccNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.EnterPasswordRsp;
+
+import javax.swing.*;
 
 public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientLobbyPacketListener {
     public ClientLobbyPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
@@ -31,6 +37,7 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
         this.client.clientSpiders.clear();
         this.client.clientSpiders.add(this.clientSpider);
         this.client.spiderTable = new SpiderTable(this.client);
+        SwingUtilities.invokeLater(this.client.spiderTable::clear);
         this.client.chat = new Chat(this.client);
         this.client.setPanel(new RoomPanel());
         var listener = new ClientRoomPacketListenerImpl(this.client, this.connection);
@@ -40,7 +47,22 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
 
     @Override
     public void handleJoinRoomFail(JoinRoomFailNotify packet) {
-        this.client.setPanel(new OkPanel(this.client.getPanel(), "エラー", packet.msg()));
+        this.client.setPanel(new OkPanel(new LobbyPanel(), "エラー", packet.msg()));
+    }
+
+    @Override
+    public void handleEnterPassword(EnterPasswordReq packet) {
+        var enterPasswordPanel = new EnterPasswordPanel(p -> {
+            if (!p.isAccepted()) {
+                this.client.setPanel(new LobbyPanel());
+                return;
+            }
+
+            this.client.setPanel(new CenteredMessagePanel("部屋に参加しています..."));
+            this.connection.sendPacket(new EnterPasswordRsp(packet.roomId(), p.getPassword()));
+        });
+        var panel = packet.msg().isEmpty() ? enterPasswordPanel : new OkPanel(enterPasswordPanel, "エラー", packet.msg());
+        this.client.setPanel(panel);
     }
 
     @Override
