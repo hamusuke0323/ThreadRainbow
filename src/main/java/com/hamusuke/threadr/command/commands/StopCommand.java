@@ -7,14 +7,14 @@ import com.mojang.brigadier.CommandDispatcher;
 public class StopCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("stop").executes(c -> {
-            if (true/*c.getSource().getServer().isHost(c.getSource().getSender())*/) {
-                c.getSource().getServer().sendMessageToAll("サーバーを停止します");
+            if (c.getSource().getSender() == null) {
+                c.getSource().sendMessageToAll("サーバーを停止します");
                 c.getSource().getServer().stop(false);
+                return 1;
             } else {
-                c.getSource().sendError("ホストのみこのコマンドを実行できます");
+                c.getSource().sendError("このコマンドはサーバーコンソールからのみ実行できます");
+                return -1;
             }
-
-            return 1;
         }));
     }
 }

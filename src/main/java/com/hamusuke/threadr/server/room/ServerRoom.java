@@ -146,16 +146,22 @@ public class ServerRoom extends Room {
 
     public void changeHost(ServerSpider serverSpider) {
         this.host = serverSpider;
+        this.sendPacketToAllInRoom(new ChangeHostNotify(this.host));
     }
 
     public boolean changeHost(String name) {
         var host = this.spiders.stream().filter(s -> s.getName().equals(name)).findFirst();
-        if (host.isPresent()) {
-            this.host = host.get();
-            this.sendPacketToAllInRoom(new ChangeHostNotify(this.host));
-        }
-
+        host.ifPresent(this::changeHost);
         return host.isPresent();
+    }
+
+    public boolean doesSpiderExist(String name) {
+        return this.spiders.stream().anyMatch(s -> s.getName().equals(name));
+    }
+
+    public boolean shouldNotBeHost(String name) {
+        var host = this.spiders.stream().filter(s -> s.getName().equals(name)).findFirst();
+        return host.isPresent() && this.game != null && !this.game.getPlayingSpiders().contains(host.get());
     }
 
     public boolean isHost(String name) {

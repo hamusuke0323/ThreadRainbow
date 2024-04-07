@@ -25,6 +25,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
     private JButton search;
     private JButton join;
     private JButton refresh;
+    private int refreshTicks;
 
     @Override
     public void init() {
@@ -74,6 +75,16 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         addButton(south, add, l, 0, 4, 1, 1, 0.125D);
 
         this.add(south, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void tick() {
+        if (this.refreshTicks > 0) {
+            this.refreshTicks--;
+            if (this.refreshTicks <= 0) {
+                this.refresh.setEnabled(true);
+            }
+        }
     }
 
     @Nullable
@@ -132,6 +143,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         this.client.getConnection().sendPacket(new RoomListReq());
         this.join.setEnabled(false);
         this.refresh.setEnabled(false);
+        this.refreshTicks = 60;
     }
 
     public void addAll(List<RoomInfo> infoList) {
@@ -144,17 +156,12 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
     }
 
     public void onRoomListChanged() {
-        this.list.repaint();
-        this.list.revalidate();
-
         if (!this.search.isEnabled()) {
             this.search.setEnabled(true);
             this.search.setText("検索");
         }
 
-        if (!this.refresh.isEnabled()) {
-            this.refresh.setEnabled(true);
-        }
+        this.revalidate();
     }
 
     @Override
