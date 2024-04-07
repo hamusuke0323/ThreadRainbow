@@ -199,6 +199,7 @@ public class SpidersThreadV2Game {
         }
 
         this.failed = true;
+        this.nextStatus();
         this.sendPacketToAllInGame(new ChatNotify("失敗です！もう一度挑戦してみましょう"));
     }
 
@@ -208,6 +209,7 @@ public class SpidersThreadV2Game {
         }
 
         this.succeeded = true;
+        this.nextStatus();
         this.sendPacketToAllInGame(new ChatNotify("成功です！"));
     }
 
@@ -233,6 +235,10 @@ public class SpidersThreadV2Game {
     }
 
     public synchronized void onSpiderLeft(ServerSpider spider) {
+        if (!this.spiders.contains(spider)) {
+            return;
+        }
+
         this.spiders.remove(spider);
         this.cards.removeIf(integer -> spider.getId() == integer);
         this.finishIfLastCardLeft();
