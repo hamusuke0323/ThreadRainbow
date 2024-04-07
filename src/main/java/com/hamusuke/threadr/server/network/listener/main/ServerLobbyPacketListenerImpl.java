@@ -2,8 +2,10 @@ package com.hamusuke.threadr.server.network.listener.main;
 
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.LeaveRoomReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.CreateRoomReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.JoinRoomReq;
@@ -28,6 +30,7 @@ public class ServerLobbyPacketListenerImpl extends ServerCommonPacketListenerImp
     public void handleJoinRoom(JoinRoomReq packet) {
         var room = this.server.getRoomMap().get(packet.id());
         if (room == null) {
+            this.connection.sendPacket(new JoinRoomFailNotify("部屋が見つかりませんでした\n既に削除された可能性があります"));
             return;
         }
 
@@ -77,5 +80,9 @@ public class ServerLobbyPacketListenerImpl extends ServerCommonPacketListenerImp
     @Override
     public void handleRTTPacket(RTTChangeReq packet) {
         this.spider.setPing(packet.rtt());
+    }
+
+    @Override
+    public void handleLeaveRoom(LeaveRoomReq packet) {
     }
 }

@@ -19,7 +19,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
 
     @Override
     public void handleClientCommand(ClientCommandReq packet) {
-        if (this.server.getGame() == null) {
+        if (this.room == null || this.room.getGame() == null) {
             LOGGER.warn("Illegal command packet came from client");
             return;
         }
@@ -31,14 +31,14 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
         }
 
         switch (packet.command()) {
-            case START_TOPIC_SELECTION -> this.server.getGame().startTopicSelection();
-            case CHANGE_TOPIC -> this.server.getGame().changeTopic();
-            case DECIDE_TOPIC -> this.server.getGame().decideTopic();
-            case FINISH -> this.server.getGame().finish();
-            case UNCOVER -> this.server.getGame().uncover();
-            case RESTART -> this.server.getGame().restart();
+            case START_TOPIC_SELECTION -> this.room.getGame().startTopicSelection();
+            case CHANGE_TOPIC -> this.room.getGame().changeTopic();
+            case DECIDE_TOPIC -> this.room.getGame().decideTopic();
+            case FINISH -> this.room.getGame().finish();
+            case UNCOVER -> this.room.getGame().uncover();
+            case RESTART -> this.room.getGame().restart();
             case EXIT -> {
-                this.server.getGame().onSpiderLeft(this.spider);
+                this.room.getGame().onSpiderLeft(this.spider);
                 new ServerRoomPacketListenerImpl(this.server, this.connection, this.spider);
                 this.spider.sendPacket(new ExitGameNotify());
             }
@@ -47,20 +47,20 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
 
     @Override
     public void handleMoveCard(MoveCardReq packet) {
-        if (this.server.getGame() == null) {
+        if (this.room == null || this.room.getGame() == null) {
             LOGGER.warn("Illegal command packet came from client");
             return;
         }
 
-        this.server.getGame().moveCard(this.spider, packet.from(), packet.to());
+        this.room.getGame().moveCard(this.spider, packet.from(), packet.to());
     }
 
     @Override
     public void onDisconnected(String msg) {
         super.onDisconnected(msg);
 
-        if (this.server.getGame() != null) {
-            this.server.getGame().onSpiderLeft(this.spider);
+        if (this.room != null && this.room.getGame() != null) {
+            this.room.getGame().onSpiderLeft(this.spider);
         }
     }
 }

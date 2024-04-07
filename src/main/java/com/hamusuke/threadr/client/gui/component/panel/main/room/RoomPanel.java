@@ -40,6 +40,16 @@ public class RoomPanel extends Panel {
     }
 
     @Override
+    protected JMenu createMenuMenu() {
+        var m = super.createMenuMenu();
+        var leave = new JMenuItem("部屋から退出");
+        leave.setActionCommand("leave");
+        leave.addActionListener(this.client.getMainWindow());
+        m.insert(leave, 0);
+        return m;
+    }
+
+    @Override
     public JPanel createSouth() {
         var layout = new GridBagLayout();
         var south = new JPanel(layout);

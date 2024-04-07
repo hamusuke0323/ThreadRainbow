@@ -40,7 +40,7 @@ public class NewRoomPanel extends Panel {
                 }
             }
         });
-        var create = new JButton("作成して入る");
+        var create = new JButton("作成して参加する");
         create.addActionListener(e -> this.create());
         var cancel = new JButton("キャンセル");
         cancel.addActionListener(e -> this.onClose());

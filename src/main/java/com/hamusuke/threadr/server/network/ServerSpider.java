@@ -50,14 +50,6 @@ public class ServerSpider extends Spider implements CommandSource {
         this.connection.getConnection().sendPacket(packet, callback);
     }
 
-    public void sendPacketToOthers(Packet<?> packet) {
-        this.sendPacketToOthers(packet, null);
-    }
-
-    public void sendPacketToOthers(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> callback) {
-        this.server.getSpiderManager().sendPacketToOthers(this, packet, callback);
-    }
-
     public void takeCard(ServerCard card) {
         this.holdingCard = card;
     }
@@ -81,8 +73,8 @@ public class ServerSpider extends Spider implements CommandSource {
     public void sendMessage(String msg, boolean all) {
         this.sendPacket(new ChatNotify(String.format("<%s> %s", this.getDisplayName(), msg)));
 
-        if (all) {
-            this.sendPacketToOthers(new ChatNotify(String.format("<%s> %s", this.getDisplayName(), msg)));
+        if (all && this.currentRoom != null) {
+            this.currentRoom.sendPacketToOthersInRoom(this, new ChatNotify(String.format("<%s> %s", this.getDisplayName(), msg)));
         }
     }
 
@@ -90,8 +82,8 @@ public class ServerSpider extends Spider implements CommandSource {
     public void sendCommandFeedback(String msg, boolean all) {
         this.sendPacket(new ChatNotify(msg));
 
-        if (all) {
-            this.sendPacketToOthers(new ChatNotify(String.format("[%s]: %s", this.getDisplayName(), msg)));
+        if (all && this.currentRoom != null) {
+            this.currentRoom.sendPacketToOthersInRoom(this, new ChatNotify(String.format("[%s]: %s", this.getDisplayName(), msg)));
         }
     }
 

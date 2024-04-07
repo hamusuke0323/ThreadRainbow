@@ -17,4 +17,6 @@ public interface ClientCommonPacketListener extends PacketListener {
     void handleLeavePacket(SpiderLeaveNotify packet);
 
     void handleChangeHost(ChangeHostNotify packet);
+
+    void handleLeaveRoomSucc(LeaveRoomSuccNotify packet);
 }

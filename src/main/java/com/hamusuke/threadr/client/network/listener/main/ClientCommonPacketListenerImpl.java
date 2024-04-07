@@ -2,6 +2,7 @@ package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.OkPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
@@ -82,6 +83,15 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     @Override
     public void handleChangeHost(ChangeHostNotify packet) {
         this.hostId = packet.id();
+    }
+
+    @Override
+    public void handleLeaveRoomSucc(LeaveRoomSuccNotify packet) {
+        this.client.getMainWindow().reset();
+        this.client.setPanel(new LobbyPanel());
+        var listener = new ClientLobbyPacketListenerImpl(this.client, this.connection);
+        this.connection.setListener(listener);
+        this.connection.setProtocol(packet.nextProtocol());
     }
 
     public int getHostId() {

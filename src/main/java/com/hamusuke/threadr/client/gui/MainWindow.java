@@ -3,7 +3,9 @@ package com.hamusuke.threadr.client.gui;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.LeaveRoomReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq.Command;
 
@@ -129,10 +131,16 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         }
     }
 
+    private void leaveRoom() {
+        this.reset();
+        this.client.setPanel(new CenteredMessagePanel("部屋を出ています..."));
+        this.client.getConnection().sendPacket(new LeaveRoomReq());
+    }
+
     public void reset() {
         this.removeMenuBar();
         this.removeSouth();
-        this.remove(this.east);
+        this.hidePacketLog();
     }
 
     @Override
@@ -155,6 +163,9 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
                 break;
             case "exit":
                 this.exitGame();
+                break;
+            case "leave":
+                this.leaveRoom();
                 break;
             default:
                 this.curPanel.actionPerformed(e);

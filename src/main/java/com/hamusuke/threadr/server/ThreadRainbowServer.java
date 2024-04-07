@@ -5,22 +5,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.command.Commands;
-import com.hamusuke.threadr.game.mode.SpidersThreadV2Game;
 import com.hamusuke.threadr.game.topic.TopicLoader;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
-import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.play.RestartGameNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
 import com.hamusuke.threadr.server.network.ServerSpider;
-import com.hamusuke.threadr.server.network.listener.main.ServerPlayPacketListenerImpl;
 import com.hamusuke.threadr.server.room.ServerRoom;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,7 +37,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     private int serverPort;
     private boolean stopped;
     private int ticks;
-    private SpiderManager spiderManager;
+    private final SpiderManager spiderManager = new SpiderManager();
     @Nullable
     private KeyPair keyPair;
     private boolean waitingForNextTick;
@@ -54,8 +47,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     private final AtomicBoolean loading = new AtomicBoolean();
     private final TopicLoader topicLoader = new TopicLoader();
     private final Map<Integer, ServerRoom> rooms = Maps.newConcurrentMap();
-    @Nullable
-    protected SpidersThreadV2Game game;
 
     public ThreadRainbowServer(Thread serverThread) {
         super("Server");
@@ -63,7 +54,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         this.running.set(true);
         this.networkIo = new ServerNetworkIo(this);
         this.serverThread = serverThread;
-        this.setSpiderManager(new SpiderManager());
     }
 
     public static <S extends ThreadRainbowServer> S startServer(Function<Thread, S> factory) {
@@ -123,8 +113,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     }
 
     public synchronized void createRoom(ServerSpider creator, String name, String password) {
-        var room = new ServerRoom(name, password);
-        creator.currentRoom = room;
+        var room = new ServerRoom(this, name, password);
         room.join(creator);
         this.rooms.put(room.getId(), room);
     }
@@ -141,21 +130,9 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         return ImmutableList.copyOf(this.rooms.values());
     }
 
-    public void sendPacketToAll(Packet<?> packet) {
-        this.sendPacketToAll(packet, null);
-    }
-
-    public void sendPacketToAll(Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> callback) {
-        this.getSpiderManager().sendPacketToAll(packet, callback);
-    }
-
     public void tick() {
         this.ticks++;
         this.getNetworkIo().tick();
-
-        if (this.game != null) {
-            this.game.tick();
-        }
     }
 
     private boolean shouldKeepTicking() {
@@ -224,7 +201,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         LOGGER.info(msg);
 
         if (all) {
-            this.sendPacketToAll(new ChatNotify(String.format("[%s] %s", this.getDisplayName(), msg)));
+            this.spiderManager.sendPacketToAll(new ChatNotify(String.format("[%s] %s", this.getDisplayName(), msg)));
         }
     }
 
@@ -233,7 +210,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         LOGGER.info(msg);
 
         if (all) {
-            this.sendPacketToAll(new ChatNotify(String.format("[%s]: %s", this.getDisplayName(), msg)));
+            this.spiderManager.sendPacketToAll(new ChatNotify(String.format("[%s]: %s", this.getDisplayName(), msg)));
         }
     }
 
@@ -253,38 +230,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         }
     }
 
-    public synchronized void startGame() {
-        if (this.game != null && !this.game.getPlayingSpiders().isEmpty()) {
-            return;
-        }
-
-        this.game = new SpidersThreadV2Game(this, this.spiderManager.getSpiders());
-        this.game.getPlayingSpiders().forEach(spider -> {
-            spider.sendPacket(new ChatNotify("もうすぐでゲームが始まります！"));
-            new ServerPlayPacketListenerImpl(this, spider.connection.getConnection(), spider);
-            spider.sendPacket(new StartGameNotify());
-        });
-        this.game.start();
-    }
-
-    public synchronized void restartGame() {
-        if (this.game == null) {
-            return;
-        }
-
-        this.game = new SpidersThreadV2Game(this, this.game.getPlayingSpiders());
-        this.game.getPlayingSpiders().forEach(spider -> {
-            spider.sendPacket(new ChatNotify("もうすぐでゲームが始まります！"));
-            spider.sendPacket(new RestartGameNotify());
-        });
-        this.game.start();
-    }
-
-    @Nullable
-    public SpidersThreadV2Game getGame() {
-        return this.game;
-    }
-
     public TopicLoader getTopicLoader() {
         return this.topicLoader;
     }
@@ -296,6 +241,10 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     public void exit() {
     }
 
+    public SpiderManager getSpiderManager() {
+        return this.spiderManager;
+    }
+
     protected void generateKeyPair() {
         LOGGER.info("Generating keypair");
 
@@ -304,14 +253,6 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         } catch (Exception e) {
             throw new IllegalStateException("Failed to generate key pair", e);
         }
-    }
-
-    public SpiderManager getSpiderManager() {
-        return this.spiderManager;
-    }
-
-    public void setSpiderManager(SpiderManager spiderManager) {
-        this.spiderManager = spiderManager;
     }
 
     @Nullable

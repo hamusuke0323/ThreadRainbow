@@ -17,14 +17,13 @@ import com.hamusuke.threadr.network.listener.server.main.ServerRoomPacketListene
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomSuccNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.CreateRoomReq;
@@ -64,6 +63,8 @@ public enum Protocol {
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(RoomListNotify.class, RoomListNotify::new)
+                    .add(JoinRoomSuccNotify.class, JoinRoomSuccNotify::new)
+                    .add(JoinRoomFailNotify.class, JoinRoomFailNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLobbyPacketListener>()
                     .add(DisconnectReq.class, DisconnectReq::new)
@@ -85,6 +86,7 @@ public enum Protocol {
                     .add(PongRsp.class, PongRsp::new)
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
+                    .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
                     .add(StartGameNotify.class, StartGameNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerRoomPacketListener>()
@@ -92,6 +94,7 @@ public enum Protocol {
                     .add(PingReq.class, PingReq::new)
                     .add(RTTChangeReq.class, RTTChangeReq::new)
                     .add(ChatReq.class, ChatReq::new)
+                    .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(StartGameReq.class, StartGameReq::new)
             )
     ),
@@ -104,6 +107,7 @@ public enum Protocol {
                     .add(PongRsp.class, PongRsp::new)
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
+                    .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
                     .add(LocalCardHandedNotify.class, LocalCardHandedNotify::new)
                     .add(RemoteCardGivenNotify.class, RemoteCardGivenNotify::new)
                     .add(StartTopicSelectionNotify.class, StartTopicSelectionNotify::new)
@@ -121,6 +125,7 @@ public enum Protocol {
                     .add(PingReq.class, PingReq::new)
                     .add(RTTChangeReq.class, RTTChangeReq::new)
                     .add(ChatReq.class, ChatReq::new)
+                    .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(ClientCommandReq.class, ClientCommandReq::new)
                     .add(MoveCardReq.class, MoveCardReq::new)
             )

@@ -16,9 +16,6 @@ public abstract class Room {
         this.roomName = roomName;
     }
 
-    public void tick() {
-    }
-
     public int getId() {
         return this.id;
     }
@@ -35,5 +32,5 @@ public abstract class Room {
 
     public abstract void leave(Spider spider);
 
-    public abstract List<Spider> getSpiders();
+    public abstract List<? extends Spider> getSpiders();
 }

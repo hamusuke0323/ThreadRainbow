@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.component.panel.pre;
 
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
-import com.hamusuke.threadr.client.gui.component.panel.dialog.LoggingInPanel;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.mojang.brigadier.StringReader;
 
@@ -58,7 +58,7 @@ public class LoginPanel extends Panel {
     private void login() {
         var name = this.nameField.getText();
         if (!name.isEmpty()) {
-            this.client.setPanel(new LoggingInPanel());
+            this.client.setPanel(new CenteredMessagePanel("ログインしています..."));
             this.client.getConnection().sendPacket(new EnterNameRsp(name.substring(0, Math.min(name.length(), 16))));
         }
     }

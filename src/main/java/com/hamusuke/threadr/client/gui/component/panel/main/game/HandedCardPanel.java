@@ -43,7 +43,11 @@ public class HandedCardPanel extends Panel {
         var exit = new JMenuItem("ゲームをやめる");
         exit.setActionCommand("exit");
         exit.addActionListener(this.client.getMainWindow());
+        var leave = new JMenuItem("部屋から退出");
+        leave.setActionCommand("leave");
+        leave.addActionListener(this.client.getMainWindow());
         menu.insert(exit, 0);
+        menu.insert(leave, 1);
         return menu;
     }
 

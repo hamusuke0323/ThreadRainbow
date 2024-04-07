@@ -1,6 +1,7 @@
 package com.hamusuke.threadr.client.gui.component.panel.main.lobby;
 
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.NewRoomPanel;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.CreateRoomReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.JoinRoomReq;
@@ -55,7 +56,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         var l = new GridBagLayout();
         var south = new JPanel(l);
 
-        this.join = new JButton("入る");
+        this.join = new JButton("参加する");
         this.join.setEnabled(false);
         this.join.setActionCommand("join");
         this.join.addActionListener(this);
@@ -100,6 +101,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
                 return;
             }
 
+            this.client.setPanel(new CenteredMessagePanel("部屋を作成しています..."));
             this.client.getConnection().sendPacket(new CreateRoomReq(p.getRoomName(), p.hasPassword() ? p.getPassword() : ""));
         }));
     }
@@ -119,6 +121,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         this.getModel().clear();
         this.onRoomListChanged();
         this.search.setEnabled(false);
+        this.join.setEnabled(false);
         this.search.setText("検索中...");
         this.client.getConnection().sendPacket(new RoomListQueryReq(query.substring(0, Math.min(query.length(), Room.MAX_ROOM_NAME_LENGTH))));
     }
@@ -127,6 +130,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         this.getModel().clear();
         this.onRoomListChanged();
         this.client.getConnection().sendPacket(new RoomListReq());
+        this.join.setEnabled(false);
         this.refresh.setEnabled(false);
     }
 
@@ -173,7 +177,6 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        this.join.setEnabled(true);
-        this.refresh.setEnabled(true);
+        this.join.setEnabled(!this.list.isSelectionEmpty());
     }
 }

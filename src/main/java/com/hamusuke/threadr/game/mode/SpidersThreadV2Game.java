@@ -10,6 +10,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotif
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
+import com.hamusuke.threadr.server.room.ServerRoom;
 import com.hamusuke.threadr.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,14 +33,16 @@ public class SpidersThreadV2Game {
     protected Status status = Status.NONE;
     protected final List<ServerSpider> spiders;
     protected final ThreadRainbowServer server;
+    protected final ServerRoom room;
     protected Topic topic;
     protected final List<Integer> cards = Collections.synchronizedList(Lists.newArrayList());
     protected int uncoveredIndex;
     protected boolean failed;
     protected boolean succeeded;
 
-    public SpidersThreadV2Game(ThreadRainbowServer server, List<ServerSpider> spidersToPlay) {
+    public SpidersThreadV2Game(ThreadRainbowServer server, ServerRoom room, List<ServerSpider> spidersToPlay) {
         this.server = server;
+        this.room = room;
         this.spiders = Collections.synchronizedList(Lists.newArrayList(spidersToPlay));
     }
 
@@ -214,7 +217,7 @@ public class SpidersThreadV2Game {
         }
 
         this.nextStatus();
-        this.server.restartGame();
+        this.room.restartGame();
     }
 
     protected void nextStatus() {
@@ -233,12 +236,10 @@ public class SpidersThreadV2Game {
         this.spiders.remove(spider);
         this.cards.removeIf(integer -> spider.getId() == integer);
         this.finishIfLastCardLeft();
-        /*
-        if (this.server.isHost(spider) && !this.spiders.isEmpty()) {
-            this.server.getSpiderManager().changeHost(this.spiders.get(0));
+        if (this.room.isHost(spider) && !this.spiders.isEmpty()) {
+            this.room.changeHost(this.spiders.get(0));
         }
 
-         */
         this.sendPacketToAllInGame(new SpiderExitGameNotify(spider));
         this.sendPacketToAllInGame(new ChatNotify(spider.getName() + " がゲームをやめました"));
     }
