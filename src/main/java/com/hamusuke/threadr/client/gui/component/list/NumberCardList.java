@@ -28,7 +28,6 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
     private final boolean locked;
 
     private NumberCardList(ThreadRainbowClient client, boolean locked) {
-        super();
         this.client = client;
         this.locked = locked;
         this.setCellRenderer(null);

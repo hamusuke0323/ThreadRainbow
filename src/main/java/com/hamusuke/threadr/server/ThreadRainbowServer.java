@@ -2,12 +2,15 @@ package com.hamusuke.threadr.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.command.Commands;
 import com.hamusuke.threadr.game.topic.TopicLoader;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
+import com.hamusuke.threadr.server.gui.ThreadRainbowServerGui;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.room.ServerRoom;
 import com.hamusuke.threadr.util.Util;
@@ -18,23 +21,29 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.awt.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
-public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<ServerTask> implements AutoCloseable, CommandSource {
+public final class ThreadRainbowServer extends ReentrantThreadExecutor<ServerTask> implements AutoCloseable, CommandSource {
     private static final Logger LOGGER = LogManager.getLogger();
     private final ServerNetworkIo networkIo;
     private final AtomicBoolean running = new AtomicBoolean();
     private final Thread serverThread;
-    protected final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<>();
-    private String serverIp;
-    private int serverPort;
+    private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<>();
+    private final List<String> commandQueue = Collections.synchronizedList(Lists.newArrayList());
+    private final String serverIp;
+    private final int serverPort;
     private boolean stopped;
     private int ticks;
     private final SpiderManager spiderManager = new SpiderManager();
@@ -47,32 +56,73 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     private final AtomicBoolean loading = new AtomicBoolean();
     private final TopicLoader topicLoader = new TopicLoader();
     private final Map<Integer, ServerRoom> rooms = Maps.newConcurrentMap();
+    private final List<Runnable> tickables = Lists.newArrayList();
+    @Nullable
+    private ThreadRainbowServerGui gui;
 
-    public ThreadRainbowServer(Thread serverThread) {
+    public ThreadRainbowServer(Thread serverThread, String host, int port) {
         super("Server");
-        this.serverPort = -1;
         this.running.set(true);
         this.networkIo = new ServerNetworkIo(this);
         this.serverThread = serverThread;
+        this.serverIp = host;
+        this.serverPort = port;
     }
 
-    public static <S extends ThreadRainbowServer> S startServer(Function<Thread, S> factory) {
-        AtomicReference<S> atomicReference = new AtomicReference<>();
-        Thread thread = new Thread(() -> atomicReference.get().runServer(), "Server Thread");
+    public static ThreadRainbowServer startServer(String host, int port, boolean noGui) {
+        var atomicReference = new AtomicReference<ThreadRainbowServer>();
+        var thread = new Thread(() -> atomicReference.get().runServer(), "Server Thread");
         thread.setUncaughtExceptionHandler((t, e) -> LOGGER.error("Error occurred in server thread", e));
         if (Runtime.getRuntime().availableProcessors() > 4) {
             thread.setPriority(8);
         }
 
-        S server = factory.apply(thread);
+        var server = new ThreadRainbowServer(thread, host, port);
+        if (!noGui && !GraphicsEnvironment.isHeadless()) {
+            server.showGui();
+        }
+
         atomicReference.set(server);
         thread.start();
         return server;
     }
 
-    protected abstract boolean setupServer() throws IOException;
+    private boolean setupServer() throws IOException {
+        var thread = new Thread(this::run, "Server console handler");
+        thread.setDaemon(true);
+        thread.setUncaughtExceptionHandler((t, e) -> LOGGER.error("Caught exception", e));
+        thread.start();
+        LOGGER.info("Starting thread rainbow server version {}", Constants.VERSION);
+        InetAddress inetAddress = null;
+        if (!this.getServerIp().isEmpty()) {
+            inetAddress = InetAddress.getByName(this.getServerIp());
+        }
+        this.generateKeyPair();
+        LOGGER.info("Starting thread rainbow server on {}:{}", this.getServerIp().isEmpty() ? "*" : this.getServerIp(), this.getServerPort());
+        this.getNetworkIo().bind(inetAddress, this.getServerPort());
+        LOGGER.info("Done! Type '/stop' to stop the server!");
 
-    protected void runServer() {
+        return true;
+    }
+
+    private void run() {
+        var bufferedReader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+
+        String string;
+        try {
+            while (!this.isStopped() && this.isRunning() && (string = bufferedReader.readLine()) != null) {
+                if (string.startsWith("/")) {
+                    this.enqueueCommand(string.substring(1));
+                } else {
+                    this.sendMessageToAll(string);
+                }
+            }
+        } catch (IOException var4) {
+            LOGGER.error("Exception handling console input", var4);
+        }
+    }
+
+    void runServer() {
         try {
             this.topicLoader.loadTopics();
             Commands.registerCommands(this.dispatcher);
@@ -83,7 +133,7 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
                     long l = Util.getMeasuringTimeMs() - this.timeReference;
                     if (l > 2000L && this.timeReference - this.lastTimeReference >= 15000L) {
                         long m = l / 50L;
-                        LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", l, m);
+                        LOGGER.warn("The server is too slow! Running {}ms or {} ticks behind", l, m);
                         this.timeReference += m * 50L;
                         this.lastTimeReference = this.timeReference;
                     }
@@ -112,6 +162,12 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         }
     }
 
+    private void showGui() {
+        if (this.gui == null) {
+            this.gui = ThreadRainbowServerGui.showGuiFor(this);
+        }
+    }
+
     public synchronized void createRoom(ServerSpider creator, String name, String password) {
         var room = new ServerRoom(this, name, password);
         room.join(creator);
@@ -133,13 +189,19 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     public void tick() {
         this.ticks++;
         this.getNetworkIo().tick();
+        this.tickables.forEach(Runnable::run);
+        this.runQueuedCommands();
+    }
+
+    public void addTickable(Runnable runnable) {
+        this.tickables.add(runnable);
     }
 
     private boolean shouldKeepTicking() {
         return this.hasRunningTasks() || Util.getMeasuringTimeMs() < (this.waitingForNextTick ? this.nextTickTimestamp : this.timeReference);
     }
 
-    protected void runTasksTillTickEnd() {
+    private void runTasksTillTickEnd() {
         this.runTasks();
         this.runTasks(() -> !this.shouldKeepTicking());
     }
@@ -239,13 +301,35 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
     }
 
     public void exit() {
+        if (this.gui != null) {
+            this.gui.close();
+        }
+    }
+
+    public void enqueueCommand(String command) {
+        this.commandQueue.add(command);
+    }
+
+    public void runQueuedCommands() {
+        while (!this.commandQueue.isEmpty()) {
+            var command = this.commandQueue.remove(0);
+            this.runCommand(command);
+        }
+    }
+
+    private void runCommand(String command) {
+        try {
+            this.dispatcher.execute(command, this);
+        } catch (CommandSyntaxException e) {
+            this.sendError(e.getMessage());
+        }
     }
 
     public SpiderManager getSpiderManager() {
         return this.spiderManager;
     }
 
-    protected void generateKeyPair() {
+    private void generateKeyPair() {
         LOGGER.info("Generating keypair");
 
         try {
@@ -264,20 +348,12 @@ public abstract class ThreadRainbowServer extends ReentrantThreadExecutor<Server
         return this.serverPort;
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
-    }
-
     public boolean isStopped() {
         return this.stopped;
     }
 
     public String getServerIp() {
         return this.serverIp;
-    }
-
-    public void setServerIp(String serverIp) {
-        this.serverIp = serverIp;
     }
 
     public boolean isRunning() {

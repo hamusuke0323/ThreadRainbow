@@ -8,7 +8,6 @@ import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,7 +20,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -40,26 +38,9 @@ public class IntelligentByteBuf extends ByteBuf {
         return clazz.getEnumConstants()[this.readVariableInt()];
     }
 
-    public void writeColor(Color color) {
-        this.writeVariableInt(color.getRGB());
-    }
-
-    public Color readColor() {
-        return new Color(this.readVariableInt(), true);
-    }
-
     public <E> void writeList(Collection<E> list, BiConsumer<E, IntelligentByteBuf> writer) {
         this.writeVariableInt(list.size());
         list.forEach(t -> writer.accept(t, this));
-    }
-
-    public void writeUUID(UUID uuid) {
-        this.writeLong(uuid.getMostSignificantBits());
-        this.writeLong(uuid.getLeastSignificantBits());
-    }
-
-    public UUID readUUID() {
-        return new UUID(this.readLong(), this.readLong());
     }
 
     public <C extends Collection<E>, E> C readList(Function<IntelligentByteBuf, E> reader, Function<ArrayList<E>, C> listTransformer) {
@@ -111,7 +92,7 @@ public class IntelligentByteBuf extends ByteBuf {
         } else if (i < 0) {
             throw new DecoderException("The received encoded string buffer length is less than zero! Weird string!");
         } else {
-            String string = this.toString(this.readerIndex(), i, StandardCharsets.UTF_8);
+            var string = this.toString(this.readerIndex(), i, StandardCharsets.UTF_8);
             this.readerIndex(this.readerIndex() + i);
             if (string.length() > maxLength) {
                 throw new DecoderException("The received string length is longer than maximum allowed (" + i + " > " + maxLength + ")");
@@ -126,7 +107,7 @@ public class IntelligentByteBuf extends ByteBuf {
     }
 
     public void writeString(String string, int maxLength) {
-        byte[] bs = string.getBytes(StandardCharsets.UTF_8);
+        var bs = string.getBytes(StandardCharsets.UTF_8);
         if (bs.length > maxLength) {
             throw new EncoderException("String too big (was " + bs.length + " bytes encoded, max " + maxLength + ")");
         } else {

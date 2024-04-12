@@ -39,10 +39,10 @@ public class PacketInflater extends ByteToMessageDecoder {
                     }
                 }
 
-                byte[] bytes = new byte[byteBuf.readableBytes()];
+                var bytes = new byte[byteBuf.readableBytes()];
                 byteBuf.readBytes(bytes);
                 this.inflater.setInput(bytes);
-                byte[] bytes1 = new byte[i];
+                var bytes1 = new byte[i];
                 this.inflater.inflate(bytes1);
                 out.add(Unpooled.wrappedBuffer(bytes1));
                 this.inflater.reset();

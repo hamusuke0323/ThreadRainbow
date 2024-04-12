@@ -1,6 +1,5 @@
 package com.hamusuke.threadr.server;
 
-import com.hamusuke.threadr.server.dedicated.DedicatedServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,6 +12,7 @@ public class MainServer {
     public static void main(String[] args) throws UnknownHostException {
         var s = InetAddress.getLocalHost().getHostAddress();
         int i = 16160;
+        boolean noGui = false;
         for (var arg : args) {
             if (arg.contains(":")) {
                 var kv = arg.split(":");
@@ -23,12 +23,17 @@ public class MainServer {
                     case "port":
                         i = Integer.parseInt(kv[1]);
                 }
+            } else if (arg.contains("nogui")) {
+                noGui = true;
             }
         }
         var host = s;
         int port = i;
-        final var server = ThreadRainbowServer.startServer(thread -> new DedicatedServer(thread, host, port));
-        var thread = new Thread(() -> server.stop(true), "Server Shutdown Thread");
+        final var server = ThreadRainbowServer.startServer(host, port, noGui);
+        var thread = new Thread(() -> {
+            server.stop(true);
+            LogManager.shutdown();
+        }, "Server Shutdown Thread");
         thread.setUncaughtExceptionHandler((t, e) -> LOGGER.error("Caught exception", e));
         Runtime.getRuntime().addShutdownHook(thread);
     }

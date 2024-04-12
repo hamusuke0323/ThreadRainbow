@@ -58,7 +58,6 @@ public class ServerSpider extends Spider implements CommandSource {
         return this.holdingCard;
     }
 
-    @Nullable
     @Override
     public ServerSpider getSender() {
         return this;

@@ -4,8 +4,6 @@ import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
 
 import javax.swing.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class Chat {
     private final JTextArea textArea;
@@ -22,14 +20,11 @@ public class Chat {
         this.scrollTextArea.setAutoscrolls(true);
 
         this.field = new JTextField();
-        this.field.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == '\n' && !Chat.this.field.getText().isEmpty()) {
-                    client.getConnection().sendPacket(new ChatReq(Chat.this.field.getText()));
-                    Chat.this.field.setText("");
-                    e.consume();
-                }
+        this.field.addActionListener(e -> {
+            var s = this.field.getText();
+            if (!s.isEmpty()) {
+                client.getConnection().sendPacket(new ChatReq(s));
+                this.field.setText("");
             }
         });
         this.scrollField = new JScrollPane(this.field);

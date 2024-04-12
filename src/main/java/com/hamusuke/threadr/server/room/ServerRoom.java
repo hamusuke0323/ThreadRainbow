@@ -1,6 +1,5 @@
 package com.hamusuke.threadr.server.room;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.threadr.game.mode.SpidersThreadV2Game;
 import com.hamusuke.threadr.network.Spider;
@@ -26,6 +25,7 @@ import java.util.List;
 public class ServerRoom extends Room {
     private final ThreadRainbowServer server;
     private final List<ServerSpider> spiders = Collections.synchronizedList(Lists.newArrayList());
+    private final List<ServerSpider> spiderList;
     private final String password;
     @Nullable
     private ServerSpider host;
@@ -35,6 +35,7 @@ public class ServerRoom extends Room {
         super(roomName);
         this.server = server;
         this.password = password;
+        this.spiderList = Collections.unmodifiableList(this.spiders);
     }
 
     public RoomInfo toInfo() {
@@ -92,11 +93,17 @@ public class ServerRoom extends Room {
 
     @Override
     public List<ServerSpider> getSpiders() {
-        return ImmutableList.copyOf(this.spiders);
+        return this.spiderList;
     }
 
     public void startGame() {
-        this.game = new SpidersThreadV2Game(this.server, this, this.getSpiders());
+        var spiders = this.getSpiders();
+        if (spiders.size() > 100) {
+            this.sendPacketToAllInRoom(new ChatNotify("このゲームは100人まで遊べます"));
+            return;
+        }
+
+        this.game = new SpidersThreadV2Game(this.server, this, spiders);
         this.game.getPlayingSpiders().forEach(spider -> {
             spider.sendPacket(new ChatNotify("もうすぐでゲームが始まります！"));
             new ServerPlayPacketListenerImpl(this.server, spider.connection.getConnection(), spider);

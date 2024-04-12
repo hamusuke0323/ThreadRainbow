@@ -34,6 +34,9 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         var sl = new GridBagLayout();
         var searchPanel = new JPanel(sl);
         this.searchBox = new JTextField();
+        this.searchBox.addActionListener(e -> {
+            this.search();
+        });
         this.searchBox.setToolTipText("検索");
         this.search = new JButton("検索");
         this.search.setActionCommand("search");
@@ -126,6 +129,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
 
     private void search() {
         var query = this.searchBox.getText();
+        this.searchBox.setText("");
         if (query.isEmpty()) {
             return;
         }

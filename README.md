@@ -1,8 +1,18 @@
 # Thread Rainbow
 
-## Introduction
+## Description
 
 Thread Rainbow allows you to play a certain board game online.
+
+## Build
+
+### Client-side
+
+`gradlew buildClient`
+
+### Server-side
+
+`gradlew buildServer`
 
 ## License
 

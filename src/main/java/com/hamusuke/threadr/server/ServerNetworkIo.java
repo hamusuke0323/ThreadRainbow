@@ -66,7 +66,7 @@ public class ServerNetworkIo {
                     }
 
                     channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new PacketSplitter()).addLast("decoder", new PacketDecoder(PacketDirection.SERVERBOUND)).addLast("prepender", new PacketPrepender()).addLast("encoder", new PacketEncoder(PacketDirection.CLIENTBOUND));
-                    Connection connection = new Connection(PacketDirection.SERVERBOUND);
+                    var connection = new Connection(PacketDirection.SERVERBOUND);
                     ServerNetworkIo.this.connections.add(connection);
                     channel.pipeline().addLast(new FlowControlHandler()).addLast("packet_handler", connection);
                     connection.setListener(new ServerHandshakePacketListenerImpl(ServerNetworkIo.this.server, connection));
@@ -78,7 +78,7 @@ public class ServerNetworkIo {
     public void stop() {
         this.active.set(false);
 
-        for (ChannelFuture channelFuture : this.channels) {
+        for (var channelFuture : this.channels) {
             try {
                 channelFuture.channel().close().sync();
             } catch (InterruptedException e) {
@@ -89,7 +89,7 @@ public class ServerNetworkIo {
 
     public void tick() {
         synchronized (this.connections) {
-            for (Connection connection : this.connections) {
+            for (var connection : this.connections) {
                 if (connection.isConnected()) {
                     try {
                         connection.tick();
@@ -115,9 +115,5 @@ public class ServerNetworkIo {
 
     public ThreadRainbowServer getServer() {
         return this.server;
-    }
-
-    public List<Connection> getConnections() {
-        return this.connections;
     }
 }

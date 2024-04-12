@@ -297,7 +297,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
     public void connectToServer(String host, int port, Consumer<String> consumer) {
         this.clientSpider = null;
-        InetSocketAddress address = new InetSocketAddress(host, port);
+        var address = new InetSocketAddress(host, port);
         this.connection = Connection.connect(this, address);
         this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer));
         this.connection.sendPacket(new HandshakeReq(Protocol.LOGIN));

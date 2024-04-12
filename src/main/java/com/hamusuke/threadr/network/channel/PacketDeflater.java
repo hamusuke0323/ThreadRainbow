@@ -33,7 +33,7 @@ public class PacketDeflater extends MessageToByteEncoder<ByteBuf> {
                 LOGGER.error("Attempted to send packet over maximum protocol size: {} > {}}", i, MAXIMUM_COMPRESSED_LENGTH);
                 msg.resetReaderIndex();
             }
-            byte[] bytes = new byte[i];
+            var bytes = new byte[i];
             msg.readBytes(bytes);
             byteBuf.writeVariableInt(bytes.length);
             this.deflater.setInput(bytes, 0, i);

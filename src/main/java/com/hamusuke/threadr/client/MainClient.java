@@ -25,6 +25,11 @@ public class MainClient {
             LOGGER.warn("Failed to load font.otf");
         }
 
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+        }
+
         var client = new ThreadRainbowClient();
         client.run();
     }

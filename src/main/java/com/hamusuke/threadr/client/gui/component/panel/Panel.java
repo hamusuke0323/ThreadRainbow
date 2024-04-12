@@ -19,7 +19,7 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
     }
 
     public static void addButton(Container owner, Component component, GridBagLayout layout, int x, int y, int w, int h, double wx, double wy) {
-        GridBagConstraints constraints = new GridBagConstraints();
+        var constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = x;
         constraints.gridy = y;

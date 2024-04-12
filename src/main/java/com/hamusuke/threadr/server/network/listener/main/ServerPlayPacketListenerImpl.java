@@ -48,7 +48,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
     @Override
     public void handleMoveCard(MoveCardReq packet) {
         if (this.room == null || this.room.getGame() == null) {
-            LOGGER.warn("Illegal command packet came from client");
+            LOGGER.warn("Illegal move card packet came from client");
             return;
         }
 
