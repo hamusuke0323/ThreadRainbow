@@ -4,6 +4,17 @@
 
 Thread Rainbow allows you to play a certain board game online.
 
+## Play
+
+### Client
+
+just execute ThreadRainbow-version-client.jar file.
+
+### Server
+
+execute ThreadRainbow-version-server.jar file or
+`java -jar ThreadRainbow-version-server.jar nogui`
+
 ## Build
 
 ### Client-side
