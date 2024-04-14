@@ -4,6 +4,9 @@
 
 Thread Rainbow allows you to play a certain board game online.
 
+## Download
+[here](https://github.com/hamusuke0323/ThreadRainbow/releases)
+
 ## Play
 
 ### Client
