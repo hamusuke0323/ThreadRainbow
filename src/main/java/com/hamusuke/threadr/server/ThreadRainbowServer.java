@@ -100,7 +100,7 @@ public final class ThreadRainbowServer extends ReentrantThreadExecutor<ServerTas
         this.generateKeyPair();
         LOGGER.info("Starting thread rainbow server on {}:{}", this.getServerIp().isEmpty() ? "*" : this.getServerIp(), this.getServerPort());
         this.getNetworkIo().bind(inetAddress, this.getServerPort());
-        LOGGER.info("Done! Type '/stop' to stop the server!");
+        LOGGER.info("完了! サーバーを停止するには '/stop' と入力してエンターキーを押してください!");
 
         return true;
     }
