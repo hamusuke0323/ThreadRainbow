@@ -12,7 +12,7 @@ C/S型
 
 ## 実行
 
-### クライアント側
+- クライアント側
 
 ダウンロードした `ThreadRainbow-version-client.jar`ファイルをダブルクリックするだけです。
 
@@ -20,7 +20,7 @@ C/S型
 17がインストールされていないかもしれません。[ここから](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 ダウンロードしてインストールしてください。
 
-### サーバー側
+- サーバー側
 
 サーバーをホストしたい場合，ダウンロードした `ThreadRainbow-version-server.jar`
 ファイルをダブルクリックするか，ターミナルで `java -jar ThreadRainbow-version-server.jar nogui` を実行します。
@@ -31,17 +31,17 @@ C/S型
 
 ## プレイ
 
-### ルール
+- ルール
 
 [こちら](https://arclightgames.jp/product/705rainbow/)
 
 ## ビルド
 
-### クライアント側
+- クライアント側
 
 `gradlew buildClient`
 
-### サーバー側
+- サーバー側
 
 `gradlew buildServer`
 
