@@ -35,6 +35,9 @@ C/S型
 
 [こちら](https://arclightgames.jp/product/705rainbow/)
 
+## バグの報告
+[こちら](https://github.com/hamusuke0323/ThreadRainbow/issues)
+
 ## ビルド
 
 - クライアント側
