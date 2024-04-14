@@ -1,5 +1,7 @@
 package com.hamusuke.threadr.server;
 
+import com.hamusuke.threadr.logging.LogUtil;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,10 +25,13 @@ public class MainServer {
                     case "port":
                         i = Integer.parseInt(kv[1]);
                 }
-            } else if (arg.contains("nogui")) {
+            } else if (arg.equals("nogui")) {
                 noGui = true;
+            } else if (arg.equals("debug")) {
+                LogUtil.setLogLevel(Level.TRACE);
             }
         }
+
         var host = s;
         int port = i;
         final var server = ThreadRainbowServer.startServer(host, port, noGui);

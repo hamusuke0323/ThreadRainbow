@@ -29,7 +29,7 @@
     </Appenders>
 
     <Loggers>
-        <Root level="trace">
+        <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="logfile001"/>
             <AppenderRef ref="ServerGuiConsole"/>

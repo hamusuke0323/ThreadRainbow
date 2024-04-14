@@ -101,13 +101,14 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.nextStatus();
         this.preLineup();
         this.spiders.forEach(spider -> {
             spider.sendPacket(new ChatNotify("お題が決まりました"));
             spider.sendPacket(new ChatNotify("お題に沿って「たとえ」て小さい順に並べましょう"));
             spider.sendPacket(new StartMainGameNotify(this.cards));
         });
+
+        this.nextStatus();
     }
 
     protected void preLineup() {
@@ -214,11 +215,10 @@ public class SpidersThreadV2Game {
     }
 
     public void restart() {
-        if (this.status != Status.RESULT) {
+        if (this.status != Status.END) {
             return;
         }
 
-        this.nextStatus();
         this.room.restartGame();
     }
 

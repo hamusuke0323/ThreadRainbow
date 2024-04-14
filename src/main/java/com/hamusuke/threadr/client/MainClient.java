@@ -1,5 +1,7 @@
 package com.hamusuke.threadr.client;
 
+import com.hamusuke.threadr.logging.LogUtil;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +30,12 @@ public class MainClient {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
+        }
+
+        for (var arg : args) {
+            if (arg.equals("debug")) {
+                LogUtil.setLogLevel(Level.TRACE);
+            }
         }
 
         var client = new ThreadRainbowClient();
