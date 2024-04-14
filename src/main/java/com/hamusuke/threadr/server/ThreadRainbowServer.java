@@ -278,7 +278,7 @@ public final class ThreadRainbowServer extends ReentrantThreadExecutor<ServerTas
 
     @Override
     public String getDisplayName() {
-        return "Server";
+        return "サーバー";
     }
 
     public void stop(boolean bl) {

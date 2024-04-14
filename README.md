@@ -1,33 +1,50 @@
 # Thread Rainbow
 
-## Description
+## 説明
 
-Thread Rainbow allows you to play a certain board game online.
+このソフトはあるボードゲームのオンライン版です。
 
-## Download
-[here](https://github.com/hamusuke0323/ThreadRainbow/releases)
+C/S型
 
-## Play
+## ダウンロード
 
-### Client
+[こちら](https://github.com/hamusuke0323/ThreadRainbow/releases)
 
-just execute ThreadRainbow-version-client.jar file.
+## 実行
 
-### Server
+### クライアント側
 
-execute ThreadRainbow-version-server.jar file or
-`java -jar ThreadRainbow-version-server.jar nogui`
+ダウンロードした `ThreadRainbow-version-client.jar`ファイルをダブルクリックするだけです。
 
-## Build
+開かない場合，Java
+17がインストールされていないかもしれません。[ここから](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+ダウンロードしてインストールしてください。
 
-### Client-side
+### サーバー側
+
+サーバーをホストしたい場合，ダウンロードした `ThreadRainbow-version-server.jar`
+ファイルをダブルクリックするか，ターミナルで `java -jar ThreadRainbow-version-server.jar nogui` を実行します。
+
+開かない場合，Java
+17がインストールされていないかもしれません。[ここから](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+ダウンロードしてインストールしてください。
+
+## プレイ
+
+### ルール
+
+[こちら](https://arclightgames.jp/product/705rainbow/)
+
+## ビルド
+
+### クライアント側
 
 `gradlew buildClient`
 
-### Server-side
+### サーバー側
 
 `gradlew buildServer`
 
-## License
+## ライセンス
 
 This software is available under the MIT License, also otf-font is available under the SIL License v1.1.

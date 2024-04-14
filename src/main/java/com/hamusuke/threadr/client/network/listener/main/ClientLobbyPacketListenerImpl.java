@@ -39,6 +39,7 @@ public class ClientLobbyPacketListenerImpl extends ClientCommonPacketListenerImp
         this.client.spiderTable = new SpiderTable(this.client);
         SwingUtilities.invokeLater(this.client.spiderTable::clear);
         this.client.chat = new Chat(this.client);
+        this.client.curRoom = packet.info();
         this.client.setPanel(new RoomPanel());
         var listener = new ClientRoomPacketListenerImpl(this.client, this.connection);
         this.connection.setListener(listener);

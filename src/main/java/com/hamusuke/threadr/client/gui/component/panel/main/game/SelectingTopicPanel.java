@@ -21,7 +21,7 @@ public class SelectingTopicPanel extends Panel {
         super.init();
 
         SwingUtilities.invokeLater(this.client.spiderTable::addCardNumCol);
-        this.client.setWindowTitle("ゲーム - お題決定 " + this.client.getAddresses());
+        this.client.setWindowTitle("ゲーム - お題決定 " + this.client.getGameTitle());
 
         if (this.client.amIHost()) {
             var selectTopic = new JButton("もう一度選ぶ");

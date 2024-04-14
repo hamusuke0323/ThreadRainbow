@@ -1,7 +1,6 @@
-package com.hamusuke.threadr.client.gui.component.panel.pre;
+package com.hamusuke.threadr.client.gui.component.panel.dialog;
 
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
-import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.mojang.brigadier.StringReader;
 
@@ -42,7 +41,7 @@ public class LoginPanel extends Panel {
         cancel.addActionListener(this);
 
         var layout = (GridBagLayout) this.getLayout();
-        addButton(this, new JLabel("名前を入力してください（英数字のみ）", SwingConstants.CENTER), layout, 0, 0, 1, 1, 1.0D);
+        addButton(this, new JLabel("名前を入力してください（英数字のみ）", SwingConstants.CENTER), layout, 0, 0, 1, 1, 0.125D);
         addButton(this, this.nameField, layout, 0, 1, 1, 1, 0.125D);
         addButton(this, login, layout, 0, 2, 1, 1, 0.125D);
         addButton(this, cancel, layout, 0, 3, 1, 1, 0.125D);

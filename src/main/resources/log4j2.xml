@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project>
-<Configuration status="off" packages="com.hamusuke.threadr.logging">
+<Configuration status="WARN" packages="com.hamusuke.threadr.logging">
     <Properties>
         <Property name="format1">[%-6p][%d{HH:mm:ss.SSS}/%t][%c{1}]: %m%n</Property>
         <Property name="logfile">./log/latest.log</Property>

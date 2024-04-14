@@ -31,6 +31,7 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
     public void init() {
         super.init();
 
+        this.client.setWindowTitle("ロビー - " + this.client.getGameTitle());
         var sl = new GridBagLayout();
         var searchPanel = new JPanel(sl);
         this.searchBox = new JTextField();

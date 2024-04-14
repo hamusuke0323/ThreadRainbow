@@ -20,7 +20,7 @@ public class EndPanel extends Panel {
     public void init() {
         super.init();
 
-        this.client.setWindowTitle("ゲーム - 終了 " + this.client.getAddresses());
+        this.client.setWindowTitle("ゲーム - 終了 " + this.client.getGameTitle());
         var image = new ImagePanel("/zero.jpg");
         image.setMaximumSize(new Dimension(Constants.CARD_WIDTH, Integer.MAX_VALUE));
         image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));

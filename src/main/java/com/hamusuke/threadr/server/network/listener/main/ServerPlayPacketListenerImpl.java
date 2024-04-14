@@ -39,8 +39,8 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
             case RESTART -> this.room.getGame().restart();
             case EXIT -> {
                 this.room.getGame().onSpiderLeft(this.spider);
-                new ServerRoomPacketListenerImpl(this.server, this.connection, this.spider);
                 this.spider.sendPacket(new ExitGameNotify());
+                new ServerRoomPacketListenerImpl(this.server, this.connection, this.spider);
             }
         }
     }

@@ -15,9 +15,7 @@ public class Chat {
         this.textArea = new JTextArea();
         this.textArea.setLineWrap(true);
         this.textArea.setEditable(false);
-        this.textArea.setAutoscrolls(true);
         this.scrollTextArea = new JScrollPane(this.textArea);
-        this.scrollTextArea.setAutoscrolls(true);
 
         this.field = new JTextField();
         this.field.addActionListener(e -> {

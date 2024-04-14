@@ -15,9 +15,9 @@ import com.hamusuke.threadr.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -29,7 +29,7 @@ public class SpidersThreadV2Game {
         return ImmutableList.copyOf(list);
     });
     protected final Set<Byte> givenNum = Sets.newHashSet();
-    protected final Random random = new Random();
+    protected final SecureRandom random = new SecureRandom();
     protected Status status = Status.NONE;
     protected final List<ServerSpider> spiders;
     protected final ThreadRainbowServer server;
@@ -51,6 +51,7 @@ public class SpidersThreadV2Game {
 
     public void start() {
         if (this.status == Status.NONE) {
+            this.sendPacketToAllInGame(new ChatNotify("ゲームを開始します"));
             this.nextStatus();
             this.giveOutCards();
         }
@@ -69,6 +70,7 @@ public class SpidersThreadV2Game {
             spider.sendPacket(new LocalCardHandedNotify(num));
         });
         this.spiders.forEach(spider -> this.sendPacketToOthersInGame(spider, new RemoteCardGivenNotify(spider)));
+        this.sendPacketToAllInGame(new ChatNotify("カードを配りました"));
         this.nextStatus();
     }
 
@@ -80,6 +82,7 @@ public class SpidersThreadV2Game {
         this.nextStatus();
         this.chooseRandomTopic();
         this.sendPacketToAllInGame(new StartTopicSelectionNotify(this.topic));
+        this.sendPacketToAllInGame(new ChatNotify("ホストはお題を再度選ぶこともできます"));
     }
 
     public void changeTopic() {
@@ -150,6 +153,8 @@ public class SpidersThreadV2Game {
 
         this.nextStatus();
         this.sendPacketToAllInGame(new FinishMainGameNotify());
+        this.sendPacketToAllInGame(new ChatNotify("完成！"));
+        this.sendPacketToAllInGame(new ChatNotify("ホストはカードをめくってください"));
     }
 
     public void uncover() {

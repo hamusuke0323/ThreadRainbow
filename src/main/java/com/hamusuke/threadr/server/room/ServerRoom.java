@@ -46,7 +46,7 @@ public class ServerRoom extends Room {
     public synchronized void join(Spider spider) {
         var serverSpider = (ServerSpider) spider;
         serverSpider.currentRoom = this;
-        serverSpider.sendPacket(new JoinRoomSuccNotify());
+        serverSpider.sendPacket(new JoinRoomSuccNotify(this.toInfo()));
         new ServerRoomPacketListenerImpl(this.server, serverSpider.connection.connection, serverSpider);
 
         this.sendPacketToAllInRoom(new SpiderJoinNotify(serverSpider));
@@ -105,9 +105,8 @@ public class ServerRoom extends Room {
 
         this.game = new SpidersThreadV2Game(this.server, this, spiders);
         this.game.getPlayingSpiders().forEach(spider -> {
-            spider.sendPacket(new ChatNotify("もうすぐでゲームが始まります！"));
-            new ServerPlayPacketListenerImpl(this.server, spider.connection.getConnection(), spider);
             spider.sendPacket(new StartGameNotify());
+            new ServerPlayPacketListenerImpl(this.server, spider.connection.getConnection(), spider);
         });
         this.game.start();
     }
@@ -118,10 +117,7 @@ public class ServerRoom extends Room {
         }
 
         this.game = new SpidersThreadV2Game(this.server, this, this.game.getPlayingSpiders());
-        this.game.getPlayingSpiders().forEach(spider -> {
-            spider.sendPacket(new ChatNotify("もうすぐでゲームが始まります！"));
-            spider.sendPacket(new RestartGameNotify());
-        });
+        this.game.sendPacketToAllInGame(new RestartGameNotify());
         this.game.start();
     }
 

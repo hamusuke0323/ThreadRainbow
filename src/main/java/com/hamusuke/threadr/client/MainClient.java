@@ -18,7 +18,7 @@ public class MainClient {
         if (is != null) {
             try {
                 var font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20.0F).deriveFont(AffineTransform.getTranslateInstance(0.0D, 4.5D));
-                EventQueue.invokeLater(() -> setUIFont(new FontUIResource(font)));
+                SwingUtilities.invokeLater(() -> setUIFont(new FontUIResource(font)));
                 GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
             } catch (Exception e) {
                 LOGGER.warn("Error occurred while loading font", e);

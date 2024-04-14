@@ -4,15 +4,16 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
+import com.hamusuke.threadr.room.RoomInfo;
 
-public record JoinRoomSuccNotify() implements Packet<ClientLobbyPacketListener> {
+public record JoinRoomSuccNotify(RoomInfo info) implements Packet<ClientLobbyPacketListener> {
     public JoinRoomSuccNotify(IntelligentByteBuf buf) {
-        this();
+        this(new RoomInfo(buf));
     }
 
     @Override
     public void write(IntelligentByteBuf buf) {
-
+        this.info.writeTo(buf);
     }
 
     @Override

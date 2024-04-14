@@ -1,6 +1,5 @@
-package com.hamusuke.threadr.client.gui.component.panel.pre;
+package com.hamusuke.threadr.client.gui.component.panel;
 
-import com.hamusuke.threadr.client.gui.component.panel.Panel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.ConfirmPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.ConnectingPanel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.ServerInfoPanel;
@@ -27,6 +26,7 @@ public class ServerListPanel extends Panel implements ListSelectionListener {
     public void init() {
         super.init();
 
+        this.client.setWindowTitle(this.client.getGameTitle());
         var model = new DefaultListModel<ServerInfo>();
         model.addAll(this.client.getServers());
         this.list = new JList<>(model);
@@ -153,8 +153,13 @@ public class ServerListPanel extends Panel implements ListSelectionListener {
     }
 
     public void onServerInfoChanged() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(this::onServerInfoChanged);
+            return;
+        }
+
         this.list.repaint();
-        this.list.revalidate();
+        this.repaint();
     }
 
     @Override

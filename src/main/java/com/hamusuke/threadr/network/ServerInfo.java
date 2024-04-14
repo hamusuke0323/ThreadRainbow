@@ -24,7 +24,7 @@ public class ServerInfo {
             case CONNECTING -> Util.toHTML(String.format("%s:%d\n%s", this.address, this.port, "応答確認中"));
             case MISMATCH_PROTOCOL_VERSION ->
                     Util.toHTML(String.format("%s:%d (%dms)\n%s", this.address, this.port, this.ping, "接続できません。プロトコルのバージョンが違います"));
-            case OK -> String.format("%s:%d (%dms)", this.address, this.port, this.ping);
+            case OK -> Util.toHTML(String.format("%s:%d (%dms)\nOK", this.address, this.port, this.ping));
             case FAILED -> Util.toHTML(String.format("%s:%d\n%s", this.address, this.port, "サーバーに接続できません"));
         };
     }

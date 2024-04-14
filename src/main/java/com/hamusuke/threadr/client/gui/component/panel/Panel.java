@@ -70,6 +70,7 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
     protected JMenu createNetworkMenu() {
         var debug = new JMenu("ネットワーク");
         debug.add(this.client.getMainWindow().packetLog);
+        debug.add(this.client.getMainWindow().autoScroll);
         var clearPackets = new JMenuItem("ログをクリア");
         clearPackets.addActionListener(this.client.getMainWindow());
         clearPackets.setActionCommand("clearPackets");

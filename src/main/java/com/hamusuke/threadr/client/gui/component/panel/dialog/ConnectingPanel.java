@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.component.panel.dialog;
 
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
-import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
+import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -5,9 +5,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.MainWindow;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
-import com.hamusuke.threadr.client.gui.component.panel.pre.ServerListPanel;
+import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.network.Chat;
@@ -32,6 +33,7 @@ import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.Handsh
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
+import com.hamusuke.threadr.room.RoomInfo;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import org.apache.logging.log4j.LogManager;
@@ -69,6 +71,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public final List<AbstractClientSpider> clientSpiders = Lists.newArrayList();
     public SpiderTable spiderTable;
     public Chat chat;
+    @Nullable
+    public RoomInfo curRoom;
     public final PacketLogTable packetLogTable = new PacketLogTable();
     private final List<String> packetFilters = Collections.synchronizedList(Lists.newArrayList(
             AliveReq.class.getSimpleName(),
@@ -175,11 +179,11 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
     public void checkServerInfo(ServerInfo info) {
         CompletableFuture.runAsync(() -> {
+            info.status = Status.CONNECTING;
+            this.onServerInfoChanged();
             var address = new InetSocketAddress(info.address, info.port);
             var connection = Connection.connect(this, address);
             connection.setListener(new ClientInfoPacketListenerImpl(this, connection, info));
-            info.status = Status.CONNECTING;
-            this.onServerInfoChanged();
             connection.sendPacket(new HandshakeReq(Protocol.INFO));
             connection.sendPacket(new ServerInfoReq(Util.getMeasuringTimeMs()));
             this.infoConnections.add(connection);
@@ -191,11 +195,9 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     }
 
     public void onServerInfoChanged() {
-        this.sendMsg(() -> {
-            if (this.getPanel() instanceof ServerListPanel panel) {
-                panel.onServerInfoChanged();
-            }
-        });
+        if (this.getPanel() instanceof ServerListPanel panel) {
+            panel.onServerInfoChanged();
+        }
     }
 
     public void run() {
@@ -227,8 +229,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
         }
     }
 
-    public String getAddresses() {
-        return this.connection == null ? "" : String.format("Client Address: %s, Server Address: %s", this.connection.getChannel().localAddress(), this.connection.getChannel().remoteAddress());
+    public String getGameTitle() {
+        return "Thread Rainbow " + Constants.VERSION;
     }
 
     public void setWindowTitle(String title) {
@@ -277,7 +279,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public void tick() {
         this.tickCount++;
 
-        this.mainWindow.tick();
+        SwingUtilities.invokeLater(this.mainWindow::tick);
         if (this.connection != null) {
             this.connection.tick();
             if (this.connection.isDisconnected()) {

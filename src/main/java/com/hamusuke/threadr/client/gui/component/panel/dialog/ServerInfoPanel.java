@@ -37,6 +37,7 @@ public class ServerInfoPanel extends Panel {
     public void init() {
         super.init();
 
+        var hostTitle = new JLabel("サーバーアドレス", SwingConstants.CENTER);
         var host = new JTextField();
         host.setName("host");
         if (this.info == null) {
@@ -50,6 +51,7 @@ public class ServerInfoPanel extends Panel {
         }
         host.setToolTipText("host ip/name");
 
+        var portTitle = new JLabel("ポート番号", SwingConstants.CENTER);
         var port = new JTextField();
         port.setName("port");
         port.setText(this.info == null ? "16160" : this.info.port + "");
@@ -85,10 +87,12 @@ public class ServerInfoPanel extends Panel {
             this.accepted = false;
             this.onClose();
         });
-        addButton(this, host, l, 0, 0, 1, 1, 0.125D);
-        addButton(this, port, l, 0, 1, 1, 1, 0.125D);
-        addButton(this, yes, l, 0, 2, 1, 1, 0.125D);
-        addButton(this, no, l, 0, 3, 1, 1, 0.125D);
+        addButton(this, hostTitle, l, 0, 0, 1, 1, 0.125D);
+        addButton(this, host, l, 0, 1, 1, 1, 0.125D);
+        addButton(this, portTitle, l, 0, 2, 1, 1, 0.125D);
+        addButton(this, port, l, 0, 3, 1, 1, 0.125D);
+        addButton(this, yes, l, 0, 4, 1, 1, 0.125D);
+        addButton(this, no, l, 0, 5, 1, 1, 0.125D);
     }
 
     @Override

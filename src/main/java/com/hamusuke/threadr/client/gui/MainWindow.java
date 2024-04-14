@@ -19,7 +19,8 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
     private Panel curPanel;
     private JPanel south;
     public final JMenuItem packetLog;
-    private final JPanel east;
+    public final JCheckBoxMenuItem autoScroll;
+    public final JScrollPane logScroll;
 
     public MainWindow(ThreadRainbowClient client) {
         super("Thread Rainbow " + Constants.VERSION);
@@ -27,10 +28,11 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         this.addWindowListener(this);
         this.addComponentListener(this);
 
-        this.east = new JPanel(new FlowLayout());
-        var logScroll = new JScrollPane(this.client.packetLogTable);
-        logScroll.setAutoscrolls(true);
-        this.east.add(logScroll);
+        this.logScroll = new JScrollPane(this.client.packetLogTable);
+
+        this.autoScroll = new JCheckBoxMenuItem("オートスクロール");
+        this.autoScroll.setState(true);
+        this.autoScroll.addActionListener(e -> this.onPacketLog());
 
         this.packetLog = new JMenuItem("ログを見る");
         this.packetLog.addActionListener(this);
@@ -39,6 +41,23 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
 
     public void tick() {
         this.curPanel.tick();
+    }
+
+    public void onPacketLog() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(this::onPacketLog);
+            return;
+        }
+
+        if (!this.autoScroll.getState()) {
+            this.revalidate();
+            this.repaint();
+            return;
+        }
+
+        this.logScroll.getVerticalScrollBar().setValue(this.logScroll.getVerticalScrollBar().getValue() + 10);
+        this.revalidate();
+        this.repaint();
     }
 
     public void setPanel(Panel panel) {
@@ -101,14 +120,14 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
     }
 
     private synchronized void showPacketLog() {
-        this.add(this.east, BorderLayout.EAST);
+        this.add(this.logScroll, BorderLayout.EAST);
         this.packetLog.setText("ログを閉じる");
         this.packetLog.setActionCommand("hPacketLog");
         this.revalidate();
     }
 
     private synchronized void hidePacketLog() {
-        this.remove(this.east);
+        this.remove(this.logScroll);
         this.packetLog.setText("ログを見る");
         this.packetLog.setActionCommand("packetLog");
         this.revalidate();
@@ -120,9 +139,11 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         }
     }
 
-    private void clearPackets() {
+    private void clearPacketLogs() {
         this.client.packetLogTable.clear();
-        this.client.packetLogTable.repaint();
+        this.logScroll.getVerticalScrollBar().setValue(0);
+        this.revalidate();
+        this.repaint();
     }
 
     private void exitGame() {
@@ -132,15 +153,21 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
     }
 
     private void leaveRoom() {
-        this.reset();
+        this.reset(false);
         this.client.setPanel(new CenteredMessagePanel("部屋を出ています..."));
         this.client.getConnection().sendPacket(new LeaveRoomReq());
     }
 
     public void reset() {
+        this.reset(true);
+    }
+
+    public void reset(boolean hidePacketLog) {
         this.removeMenuBar();
         this.removeSouth();
-        this.hidePacketLog();
+        if (hidePacketLog) {
+            this.hidePacketLog();
+        }
     }
 
     @Override
@@ -159,7 +186,7 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
                 this.hidePacketLog();
                 break;
             case "clearPackets":
-                this.clearPackets();
+                this.clearPacketLogs();
                 break;
             case "exit":
                 this.exitGame();
@@ -186,8 +213,9 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
             this.south.revalidate();
         }
 
-        this.east.setPreferredSize(new Dimension(c.getWidth() / 3, c.getHeight() / 2));
-        this.east.revalidate();
+        if (this.autoScroll.getState()) {
+            this.logScroll.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
+        }
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.hamusuke.threadr.network.protocol.packet.serverbound.room.StartGameRe
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Objects;
 
 public class RoomPanel extends Panel {
     public RoomPanel() {
@@ -16,7 +17,7 @@ public class RoomPanel extends Panel {
     public void init() {
         super.init();
 
-        this.client.setWindowTitle("ロビー - " + this.client.getAddresses());
+        this.client.setWindowTitle(Objects.requireNonNull(this.client.curRoom).roomName() + " - " + this.client.getGameTitle());
         SwingUtilities.invokeLater(this.client.spiderTable::removeCardNumCol);
         if (this.client.amIHost()) {
             var startGame = new JButton("始める");

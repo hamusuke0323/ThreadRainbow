@@ -17,7 +17,7 @@ public class HandedCardPanel extends Panel {
     public void init() {
         super.init();
 
-        this.client.setWindowTitle("ゲーム - 配られたカードの数字を確認 " + this.client.getAddresses());
+        this.client.setWindowTitle("ゲーム - 配られたカードの数字を確認 " + this.client.getGameTitle());
         var card = new ImagePanel("/card.jpg", true);
         card.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
         var show = new JButton("数字を見る");
