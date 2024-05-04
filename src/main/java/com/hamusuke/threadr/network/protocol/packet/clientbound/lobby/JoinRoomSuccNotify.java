@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.network.protocol.packet.clientbound.lobby;
 
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
-import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
+import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.room.RoomInfo;

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.hamusuke.threadr'
-version = '4.0.2'
+version = '4.1.0'
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'

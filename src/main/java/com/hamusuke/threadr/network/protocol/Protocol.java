@@ -4,23 +4,20 @@ import com.google.common.collect.Lists;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.PacketListener;
 import com.hamusuke.threadr.network.listener.client.info.ClientInfoPacketListener;
+import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.client.login.ClientLoginPacketListener;
-import com.hamusuke.threadr.network.listener.client.main.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
 import com.hamusuke.threadr.network.listener.client.main.ClientRoomPacketListener;
 import com.hamusuke.threadr.network.listener.server.handshake.ServerHandshakePacketListener;
 import com.hamusuke.threadr.network.listener.server.info.ServerInfoPacketListener;
+import com.hamusuke.threadr.network.listener.server.lobby.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.server.login.ServerLoginPacketListener;
-import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.listener.server.main.ServerRoomPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.EnterPasswordReq;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomSuccNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
@@ -53,23 +50,16 @@ public enum Protocol {
     ),
     LOBBY(0, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientLobbyPacketListener>()
-                    .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
-                    .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
-                    .add(DisconnectNotify.class, DisconnectNotify::new)
-                    .add(ChatNotify.class, ChatNotify::new)
-                    .add(PongRsp.class, PongRsp::new)
-                    .add(RTTChangeNotify.class, RTTChangeNotify::new)
-                    .add(ChangeHostNotify.class, ChangeHostNotify::new)
+                    .add(LobbyDisconnectNotify.class, LobbyDisconnectNotify::new)
+                    .add(LobbyPongRsp.class, LobbyPongRsp::new)
                     .add(RoomListNotify.class, RoomListNotify::new)
                     .add(JoinRoomSuccNotify.class, JoinRoomSuccNotify::new)
                     .add(JoinRoomFailNotify.class, JoinRoomFailNotify::new)
                     .add(EnterPasswordReq.class, EnterPasswordReq::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerLobbyPacketListener>()
-                    .add(DisconnectReq.class, DisconnectReq::new)
-                    .add(PingReq.class, PingReq::new)
-                    .add(RTTChangeReq.class, RTTChangeReq::new)
-                    .add(ChatReq.class, ChatReq::new)
+                    .add(LobbyDisconnectReq.class, LobbyDisconnectReq::new)
+                    .add(LobbyPingReq.class, LobbyPingReq::new)
                     .add(CreateRoomReq.class, CreateRoomReq::new)
                     .add(JoinRoomReq.class, JoinRoomReq::new)
                     .add(RoomListQueryReq.class, RoomListQueryReq::new)

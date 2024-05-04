@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.network.protocol.packet.serverbound.lobby;
 
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
-import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
+import com.hamusuke.threadr.network.listener.server.lobby.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
 public record CreateRoomReq(String roomName, String password) implements Packet<ServerLobbyPacketListener> {

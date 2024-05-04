@@ -20,7 +20,7 @@ public class ServerRoomPacketListenerImpl extends ServerCommonPacketListenerImpl
         }
 
         if (this.room == null) {
-            var msg = "あなたはどこの部屋に入っていません。\n不正なパケットを受信しました。";
+            var msg = "あなたはどこの部屋にも入っていません。\n不正なパケットを受信しました。";
             this.connection.sendPacket(new DisconnectNotify(msg), future -> this.connection.disconnect(msg));
         } else {
             this.room.startGame();

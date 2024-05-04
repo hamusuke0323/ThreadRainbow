@@ -1,13 +1,11 @@
-package com.hamusuke.threadr.server.network.listener.main;
+package com.hamusuke.threadr.server.network.listener.lobby;
 
 import com.hamusuke.threadr.network.channel.Connection;
-import com.hamusuke.threadr.network.listener.server.main.ServerLobbyPacketListener;
+import com.hamusuke.threadr.network.listener.server.lobby.ServerLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.EnterPasswordReq;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomFailNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.LobbyPongRsp;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.RoomListNotify;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.LeaveRoomReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
@@ -17,11 +15,28 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 
-public class ServerLobbyPacketListenerImpl extends ServerCommonPacketListenerImpl implements ServerLobbyPacketListener {
+public class ServerLobbyPacketListenerImpl implements ServerLobbyPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
+    private final ThreadRainbowServer server;
+    private final Connection connection;
+    private final ServerSpider spider;
 
     public ServerLobbyPacketListenerImpl(ThreadRainbowServer server, Connection connection, ServerSpider spider) {
-        super(server, connection, spider);
+        this.server = server;
+        this.connection = connection;
+        connection.setListener(this);
+        this.spider = spider;
+        this.spider.connection = this;
+    }
+
+    @Override
+    public void handleDisconnect(LobbyDisconnectReq packet) {
+        this.connection.disconnect("");
+    }
+
+    @Override
+    public void handlePing(LobbyPingReq packet) {
+        this.connection.sendPacket(new LobbyPongRsp());
     }
 
     @Override
@@ -94,15 +109,7 @@ public class ServerLobbyPacketListenerImpl extends ServerCommonPacketListenerImp
     }
 
     @Override
-    public void handleChatPacket(ChatReq packet) {
-    }
-
-    @Override
-    public void handleRTTPacket(RTTChangeReq packet) {
-        this.spider.setPing(packet.rtt());
-    }
-
-    @Override
-    public void handleLeaveRoom(LeaveRoomReq packet) {
+    public Connection getConnection() {
+        return this.connection;
     }
 }

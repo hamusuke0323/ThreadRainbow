@@ -3,10 +3,10 @@ package com.hamusuke.threadr.server.network;
 import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.game.card.ServerCard;
 import com.hamusuke.threadr.network.Spider;
+import com.hamusuke.threadr.network.listener.server.ServerPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
-import com.hamusuke.threadr.server.network.listener.main.ServerCommonPacketListenerImpl;
 import com.hamusuke.threadr.server.room.ServerRoom;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class ServerSpider extends Spider implements CommandSource {
     public final ThreadRainbowServer server;
-    public ServerCommonPacketListenerImpl connection;
+    public ServerPacketListener connection;
     private boolean isAuthorized;
     private ServerCard holdingCard;
     @Nullable

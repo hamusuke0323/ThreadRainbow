@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.hamusuke.threadr.network.channel.*;
 import com.hamusuke.threadr.network.protocol.PacketDirection;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.DisconnectNotify;
 import com.hamusuke.threadr.server.network.listener.handshake.ServerHandshakePacketListenerImpl;
 import com.hamusuke.threadr.util.Lazy;
+import com.hamusuke.threadr.util.Util;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -94,9 +94,9 @@ public class ServerNetworkIo {
                     try {
                         connection.tick();
                     } catch (Exception e) {
-                        LOGGER.warn("Failed to handle packet for {}", connection.getAddress(), e);
+                        LOGGER.warn("Failed to handle packet for " + connection.getAddress(), e);
                         var msg = "パケットの処理に失敗しました\n" + e;
-                        connection.sendPacket(new DisconnectNotify(msg), future -> connection.disconnect(msg));
+                        connection.sendPacket(Util.toDisconnectPacket(connection.getPacketListener(), msg), future -> connection.disconnect(msg));
                         connection.disableAutoRead();
                     }
                 }

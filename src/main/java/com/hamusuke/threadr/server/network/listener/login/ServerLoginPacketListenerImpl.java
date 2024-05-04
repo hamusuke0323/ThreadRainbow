@@ -10,7 +10,7 @@ import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameR
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.network.ServerSpider;
-import com.hamusuke.threadr.server.network.listener.main.ServerLobbyPacketListenerImpl;
+import com.hamusuke.threadr.server.network.listener.lobby.ServerLobbyPacketListenerImpl;
 import com.mojang.brigadier.StringReader;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;

@@ -21,16 +21,20 @@ import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.ServerInfo;
 import com.hamusuke.threadr.network.ServerInfo.Status;
 import com.hamusuke.threadr.network.channel.Connection;
+import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.PongRsp;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.RTTChangeNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.LobbyPongRsp;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.AliveRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyDisconnectReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyPingReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 import com.hamusuke.threadr.room.RoomInfo;
@@ -77,6 +81,8 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     private final List<String> packetFilters = Collections.synchronizedList(Lists.newArrayList(
             AliveReq.class.getSimpleName(),
             AliveRsp.class.getSimpleName(),
+            LobbyPingReq.class.getSimpleName(),
+            LobbyPongRsp.class.getSimpleName(),
             PingReq.class.getSimpleName(),
             PongRsp.class.getSimpleName(),
             RTTChangeReq.class.getSimpleName(),
@@ -341,6 +347,11 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
     public void disconnect() {
         if (this.connection == null) {
+            return;
+        }
+
+        if (this.connection.getPacketListener() instanceof ClientLobbyPacketListener) {
+            this.connection.sendPacket(new LobbyDisconnectReq(), future -> this.connection.disconnect(""));
             return;
         }
 

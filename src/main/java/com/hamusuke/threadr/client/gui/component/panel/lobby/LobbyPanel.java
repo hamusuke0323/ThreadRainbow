@@ -1,4 +1,4 @@
-package com.hamusuke.threadr.client.gui.component.panel.main.lobby;
+package com.hamusuke.threadr.client.gui.component.panel.lobby;
 
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;

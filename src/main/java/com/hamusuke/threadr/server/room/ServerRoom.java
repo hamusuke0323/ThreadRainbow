@@ -47,7 +47,7 @@ public class ServerRoom extends Room {
         var serverSpider = (ServerSpider) spider;
         serverSpider.currentRoom = this;
         serverSpider.sendPacket(new JoinRoomSuccNotify(this.toInfo()));
-        new ServerRoomPacketListenerImpl(this.server, serverSpider.connection.connection, serverSpider);
+        new ServerRoomPacketListenerImpl(this.server, serverSpider.connection.getConnection(), serverSpider);
 
         this.sendPacketToAllInRoom(new SpiderJoinNotify(serverSpider));
         this.spiders.forEach(s -> serverSpider.sendPacket(new SpiderJoinNotify(s)));
@@ -58,7 +58,7 @@ public class ServerRoom extends Room {
         }
 
         this.sendPacketToAllInRoom(new ChangeHostNotify(this.host));
-        this.sendPacketToAllInRoom(new ChatNotify("%s[%s] が部屋に参加しました".formatted(serverSpider.getDisplayName(), serverSpider.connection.connection.getAddress())));
+        this.sendPacketToAllInRoom(new ChatNotify("%s[%s] が部屋に参加しました".formatted(serverSpider.getDisplayName(), serverSpider.connection.getConnection().getAddress())));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ServerRoom extends Room {
             this.sendPacketToAllInRoom(new ChangeHostNotify(this.host));
         }
 
-        this.sendPacketToAllInRoom(new ChatNotify("%s[%s] が部屋から退出しました".formatted(serverSpider.getDisplayName(), serverSpider.connection.connection.getAddress())));
+        this.sendPacketToAllInRoom(new ChatNotify("%s[%s] が部屋から退出しました".formatted(serverSpider.getDisplayName(), serverSpider.connection.getConnection().getAddress())));
     }
 
     @Override
