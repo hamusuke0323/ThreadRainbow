@@ -2,7 +2,7 @@
 
 ## 説明
 
-このソフトはあるボードゲームのオンライン版です。
+このソフトはある人気ボードゲームのオンライン版です。
 
 C/S型
 
@@ -34,6 +34,9 @@ C/S型
 - ルール
 
 [こちら](https://arclightgames.jp/product/705rainbow/)
+
+## バグの報告
+[こちら](https://github.com/hamusuke0323/ThreadRainbow/issues)
 
 ## ビルド
 
