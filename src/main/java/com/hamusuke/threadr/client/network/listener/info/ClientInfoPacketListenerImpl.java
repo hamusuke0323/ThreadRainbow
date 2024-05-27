@@ -6,7 +6,9 @@ import com.hamusuke.threadr.network.ServerInfo;
 import com.hamusuke.threadr.network.ServerInfo.Status;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.info.ClientInfoPacketListener;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.info.InfoHandshakeDoneNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
 import com.hamusuke.threadr.util.Util;
 
 public class ClientInfoPacketListenerImpl implements ClientInfoPacketListener {
@@ -53,5 +55,10 @@ public class ClientInfoPacketListenerImpl implements ClientInfoPacketListener {
         this.target.ping = (int) (Util.getMeasuringTimeMs() - packet.clientTimeEcho());
         this.target.status = this.target.protocolVersion == Constants.PROTOCOL_VERSION ? Status.OK : Status.MISMATCH_PROTOCOL_VERSION;
         this.connection.disconnect("Success");
+    }
+
+    @Override
+    public void handleHandshakeDone(InfoHandshakeDoneNotify packet) {
+        this.connection.sendPacket(new ServerInfoReq(Util.getMeasuringTimeMs()));
     }
 }

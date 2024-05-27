@@ -16,6 +16,7 @@ import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListene
 import com.hamusuke.threadr.network.listener.server.main.ServerRoomPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.info.InfoHandshakeDoneNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoRsp;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
@@ -37,6 +38,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import javax.annotation.Nullable;
+import java.sql.ClientInfoStatus;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +141,7 @@ public enum Protocol {
     INFO(4, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientInfoPacketListener>()
                     .add(ServerInfoRsp.class, ServerInfoRsp::new)
+                    .add(InfoHandshakeDoneNotify.class, InfoHandshakeDoneNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerInfoPacketListener>()
                     .add(ServerInfoReq.class, ServerInfoReq::new)

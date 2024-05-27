@@ -191,7 +191,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             var connection = Connection.connect(this, address);
             connection.setListener(new ClientInfoPacketListenerImpl(this, connection, info));
             connection.sendPacket(new HandshakeReq(Protocol.INFO));
-            connection.sendPacket(new ServerInfoReq(Util.getMeasuringTimeMs()));
             this.infoConnections.add(connection);
         }, this).exceptionally(throwable -> {
             info.status = Status.FAILED;

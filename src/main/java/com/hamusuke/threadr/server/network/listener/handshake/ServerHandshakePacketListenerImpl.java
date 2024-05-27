@@ -3,6 +3,7 @@ package com.hamusuke.threadr.server.network.listener.handshake;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.handshake.ServerHandshakePacketListener;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.info.InfoHandshakeDoneNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.LoginDisconnectNotify;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
@@ -38,6 +39,7 @@ public class ServerHandshakePacketListenerImpl implements ServerHandshakePacketL
             case INFO:
                 this.connection.setProtocol(packet.nextProtocol());
                 this.connection.setListener(new ServerInfoPacketListenerImpl(this.connection));
+                this.connection.sendPacket(new InfoHandshakeDoneNotify());
                 break;
             default:
                 throw new UnsupportedOperationException("Invalid intention " + packet.intendedProtocol());
