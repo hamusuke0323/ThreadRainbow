@@ -10,6 +10,7 @@ import com.hamusuke.threadr.command.Commands;
 import com.hamusuke.threadr.game.topic.TopicLoader;
 import com.hamusuke.threadr.network.encryption.NetworkEncryptionUtil;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
+import com.hamusuke.threadr.room.Room;
 import com.hamusuke.threadr.server.gui.ThreadRainbowServerGui;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.room.ServerRoom;
@@ -190,6 +191,7 @@ public final class ThreadRainbowServer extends ReentrantThreadExecutor<ServerTas
         this.ticks++;
         this.getNetworkIo().tick();
         this.tickables.forEach(Runnable::run);
+        this.rooms.values().forEach(Room::tick);
         this.runQueuedCommands();
     }
 

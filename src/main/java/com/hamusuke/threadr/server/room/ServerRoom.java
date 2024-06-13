@@ -38,6 +38,12 @@ public class ServerRoom extends Room {
         this.spiderList = Collections.unmodifiableList(this.spiders);
     }
 
+    @Override
+    public void tick() {
+        this.game.tick();
+        super.tick();
+    }
+
     public RoomInfo toInfo() {
         return new RoomInfo(this.id, this.roomName, this.host == null ? "" : this.host.getDisplayName(), this.getSpiders().size(), this.hasPassword());
     }

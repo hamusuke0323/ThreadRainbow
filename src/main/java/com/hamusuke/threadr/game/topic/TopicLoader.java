@@ -28,6 +28,10 @@ public class TopicLoader {
         }
     }
 
+    public List<Topic> copied() {
+        return Lists.newArrayList(this.topics);
+    }
+
     public List<Topic> getTopics() {
         return ImmutableList.copyOf(this.topics);
     }

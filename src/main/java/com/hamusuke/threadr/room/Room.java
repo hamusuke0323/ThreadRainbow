@@ -16,6 +16,9 @@ public abstract class Room {
         this.roomName = roomName;
     }
 
+    public void tick() {
+    }
+
     public int getId() {
         return this.id;
     }
