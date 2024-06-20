@@ -1,5 +1,6 @@
-package com.hamusuke.threadr.game.card;
+package com.hamusuke.threadr.server.game.card;
 
+import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.server.network.ServerSpider;
 

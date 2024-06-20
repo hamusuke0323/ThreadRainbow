@@ -15,8 +15,8 @@ import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.client.network.listener.info.ClientInfoPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.login.ClientLoginPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.main.ClientCommonPacketListenerImpl;
-import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.client.room.ClientRoom;
 import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.ServerInfo;
 import com.hamusuke.threadr.network.ServerInfo.Status;
@@ -24,20 +24,17 @@ import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.PongRsp;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.PingReq;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.RTTChangeNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.LobbyPongRsp;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.AliveRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PongRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyDisconnectReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyPingReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
-import com.hamusuke.threadr.room.RoomInfo;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
 import org.apache.logging.log4j.LogManager;
@@ -72,22 +69,20 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public LocalSpider clientSpider;
     private Thread thread;
     private int tickCount;
-    public final List<AbstractClientSpider> clientSpiders = Lists.newArrayList();
     public SpiderTable spiderTable;
     public Chat chat;
-    @Nullable
-    public RoomInfo curRoom;
-    public final PacketLogTable packetLogTable = new PacketLogTable();
     private final List<String> packetFilters = Collections.synchronizedList(Lists.newArrayList(
             AliveReq.class.getSimpleName(),
             AliveRsp.class.getSimpleName(),
             LobbyPingReq.class.getSimpleName(),
             LobbyPongRsp.class.getSimpleName(),
-            PingReq.class.getSimpleName(),
             PongRsp.class.getSimpleName(),
-            RTTChangeReq.class.getSimpleName(),
+            PingReq.class.getSimpleName(),
             RTTChangeNotify.class.getSimpleName()
     ));
+    public final PacketLogTable packetLogTable = new PacketLogTable();
+    @Nullable
+    public ClientRoom curRoom;
     private final File serversFile;
     private final List<ServerInfo> servers = Collections.synchronizedList(Lists.newArrayList());
     private final List<Connection> infoConnections = Collections.synchronizedList(Lists.newArrayList());
@@ -294,12 +289,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
 
         this.infoConnections.forEach(Connection::tick);
         this.infoConnections.removeIf(Connection::isDisconnected);
-    }
-
-    public void addClientSpider(AbstractClientSpider clientSpider) {
-        synchronized (this.clientSpiders) {
-            this.clientSpiders.add(clientSpider);
-        }
     }
 
     public void connectToServer(String host, int port, Consumer<String> consumer) {

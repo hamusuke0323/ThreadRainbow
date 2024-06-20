@@ -19,27 +19,27 @@ public class HostCommand {
         }
 
         var sender = source.getSender();
-        if (sender.currentRoom == null || !sender.isHost()) {
+        if (sender.curRoom == null || !sender.isHost()) {
             source.sendError("ホストのみこのコマンドを実行できます");
             return -1;
         }
 
-        if (sender.currentRoom.isHost(name)) {
+        if (sender.curRoom.isHost(name)) {
             source.sendError("そのクモは既にホストです");
             return -1;
         }
 
-        if (!sender.currentRoom.doesSpiderExist(name)) {
+        if (!sender.curRoom.doesSpiderExist(name)) {
             source.sendError("クモが見つかりませんでした");
             return -1;
         }
 
-        if (sender.currentRoom.shouldNotBeHost(name)) {
+        if (sender.curRoom.shouldNotBeHost(name)) {
             source.sendError("このクモは現在ゲームに参加していません\nゲームが進行できなくなる恐れがあります");
             return -1;
         }
 
-        if (sender.currentRoom.changeHost(name)) {
+        if (sender.curRoom.changeHost(name)) {
             source.sendFeedback("ホストを " + name + " に変更しました");
             return 1;
         }

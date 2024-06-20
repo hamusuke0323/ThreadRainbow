@@ -2,6 +2,7 @@ package com.hamusuke.threadr.command;
 
 import com.hamusuke.threadr.command.commands.HostCommand;
 import com.hamusuke.threadr.command.commands.StopCommand;
+import com.hamusuke.threadr.command.commands.TopicCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -11,6 +12,7 @@ public class Commands {
     public static void registerCommands(CommandDispatcher<CommandSource> dispatcher) {
         StopCommand.register(dispatcher);
         HostCommand.register(dispatcher);
+        TopicCommand.register(dispatcher);
     }
 
     public static LiteralArgumentBuilder<CommandSource> literal(String name) {

@@ -33,8 +33,12 @@ public class SpiderTable extends JTable {
 
     public void update() {
         this.clear();
-        synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.forEach(spider -> {
+        if (this.client.curRoom == null) {
+            return;
+        }
+
+        synchronized (this.client.curRoom.getSpiders()) {
+            this.client.curRoom.getSpiders().forEach(spider -> {
                 if (MODEL.getColumnCount() == 2) {
                     var num = "???";
                     if (spider instanceof LocalSpider local) {

@@ -1,6 +1,7 @@
-package com.hamusuke.threadr.game.card;
+package com.hamusuke.threadr.client.game.card;
 
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
+import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.Spider;
 
 public class RemoteCard implements NumberCard {

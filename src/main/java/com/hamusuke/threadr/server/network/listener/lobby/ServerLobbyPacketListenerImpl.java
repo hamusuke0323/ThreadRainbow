@@ -52,7 +52,7 @@ public class ServerLobbyPacketListenerImpl implements ServerLobbyPacketListener 
             return;
         }
 
-        this.spider.currentRoom = room;
+        this.spider.curRoom = room;
         room.join(this.spider);
     }
 
@@ -69,7 +69,7 @@ public class ServerLobbyPacketListenerImpl implements ServerLobbyPacketListener 
             return;
         }
 
-        this.spider.currentRoom = room;
+        this.spider.curRoom = room;
         room.join(this.spider);
     }
 

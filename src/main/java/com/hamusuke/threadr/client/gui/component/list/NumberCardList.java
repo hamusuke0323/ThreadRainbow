@@ -2,7 +2,7 @@ package com.hamusuke.threadr.client.gui.component.list;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.game.card.LocalCard;
+import com.hamusuke.threadr.client.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
 

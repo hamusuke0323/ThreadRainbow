@@ -11,6 +11,7 @@ import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.network.Chat;
 import com.hamusuke.threadr.client.network.listener.main.ClientRoomPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
+import com.hamusuke.threadr.client.room.ClientRoom;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
@@ -62,12 +63,11 @@ public class ClientLobbyPacketListenerImpl implements ClientLobbyPacketListener 
 
     @Override
     public void handleJoinRoomSucc(JoinRoomSuccNotify packet) {
-        this.client.clientSpiders.clear();
-        this.client.clientSpiders.add(this.clientSpider);
+        this.client.curRoom = ClientRoom.fromRoomInfo(packet.info());
+        this.client.curRoom.join(this.clientSpider);
         this.client.spiderTable = new SpiderTable(this.client);
         SwingUtilities.invokeLater(this.client.spiderTable::clear);
         this.client.chat = new Chat(this.client);
-        this.client.curRoom = packet.info();
         this.client.setPanel(new RoomPanel());
         var listener = new ClientRoomPacketListenerImpl(this.client, this.connection);
         this.connection.setListener(listener);

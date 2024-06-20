@@ -6,7 +6,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 public interface ClientCommonPacketListener extends PacketListener {
     void handleChatPacket(ChatNotify packet);
 
-    void handlePongPacket(PongRsp packet);
+    void handlePingPacket(PingReq packet);
 
     void handleDisconnectPacket(DisconnectNotify packet);
 

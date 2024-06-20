@@ -22,7 +22,10 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.*;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.LeaveRoomReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PongRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.*;
@@ -38,7 +41,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import javax.annotation.Nullable;
-import java.sql.ClientInfoStatus;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +77,7 @@ public enum Protocol {
                     .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
                     .add(DisconnectNotify.class, DisconnectNotify::new)
                     .add(ChatNotify.class, ChatNotify::new)
-                    .add(PongRsp.class, PongRsp::new)
+                    .add(PingReq.class, PingReq::new)
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
@@ -83,8 +85,7 @@ public enum Protocol {
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerRoomPacketListener>()
                     .add(DisconnectReq.class, DisconnectReq::new)
-                    .add(PingReq.class, PingReq::new)
-                    .add(RTTChangeReq.class, RTTChangeReq::new)
+                    .add(PongRsp.class, PongRsp::new)
                     .add(ChatReq.class, ChatReq::new)
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(StartGameReq.class, StartGameReq::new)
@@ -96,7 +97,7 @@ public enum Protocol {
                     .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
                     .add(DisconnectNotify.class, DisconnectNotify::new)
                     .add(ChatNotify.class, ChatNotify::new)
-                    .add(PongRsp.class, PongRsp::new)
+                    .add(PingReq.class, PingReq::new)
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
@@ -114,8 +115,7 @@ public enum Protocol {
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     .add(DisconnectReq.class, DisconnectReq::new)
-                    .add(PingReq.class, PingReq::new)
-                    .add(RTTChangeReq.class, RTTChangeReq::new)
+                    .add(PongRsp.class, PongRsp::new)
                     .add(ChatReq.class, ChatReq::new)
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(ClientCommandReq.class, ClientCommandReq::new)

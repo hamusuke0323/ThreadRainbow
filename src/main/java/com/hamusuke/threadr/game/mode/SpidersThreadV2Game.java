@@ -3,12 +3,13 @@ package com.hamusuke.threadr.game.mode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.hamusuke.threadr.game.card.ServerCard;
 import com.hamusuke.threadr.game.topic.Topic;
+import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
+import com.hamusuke.threadr.server.game.card.ServerCard;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.room.ServerRoom;
 import com.hamusuke.threadr.util.Util;
@@ -95,8 +96,19 @@ public class SpidersThreadV2Game {
     }
 
     protected void chooseRandomTopic() {
-        var topics = this.server.getTopicLoader().getTopics();
-        this.topic = Util.chooseRandom(topics, this.random);
+        var topics = this.room.getTopicList().getTopicEntries();
+        this.topic = Util.chooseRandom(topics.stream().map(TopicEntry::topic).toList(), this.random);
+    }
+
+    public boolean setTopic(int topicId) {
+        var topics = this.room.getTopics();
+        if (!topics.containsKey(topicId)) {
+            return false;
+        }
+
+        this.topic = topics.get(topicId).topic();
+        this.sendPacketToAllInGame(new TopicChangeNotify(this.topic));
+        return true;
     }
 
     public void decideTopic() {
@@ -245,6 +257,11 @@ public class SpidersThreadV2Game {
         }
 
         this.spiders.remove(spider);
+        if (this.spiders.isEmpty()) {
+            this.room.endGame();
+            return;
+        }
+
         this.cards.removeIf(integer -> spider.getId() == integer);
         this.finishIfLastCardLeft();
         if (this.room.isHost(spider) && !this.spiders.isEmpty()) {

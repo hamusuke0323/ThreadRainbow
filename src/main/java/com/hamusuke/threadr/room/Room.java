@@ -1,5 +1,6 @@
 package com.hamusuke.threadr.room;
 
+import com.hamusuke.threadr.game.topic.TopicList;
 import com.hamusuke.threadr.network.Spider;
 
 import java.util.List;
@@ -11,9 +12,11 @@ public abstract class Room {
     private static final AtomicInteger ROOM_ID_INCREMENTER = new AtomicInteger();
     protected int id = ROOM_ID_INCREMENTER.getAndIncrement();
     protected final String roomName;
+    protected final TopicList topicList;
 
-    protected Room(String roomName) {
+    protected Room(String roomName, TopicList topicList) {
         this.roomName = roomName;
+        this.topicList = topicList;
     }
 
     public void tick() {
@@ -36,4 +39,8 @@ public abstract class Room {
     public abstract void leave(Spider spider);
 
     public abstract List<? extends Spider> getSpiders();
+
+    public TopicList getTopicList() {
+        return this.topicList;
+    }
 }

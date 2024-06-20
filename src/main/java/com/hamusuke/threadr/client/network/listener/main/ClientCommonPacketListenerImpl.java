@@ -7,12 +7,11 @@ import com.hamusuke.threadr.client.gui.component.panel.lobby.LobbyPanel;
 import com.hamusuke.threadr.client.network.listener.lobby.ClientLobbyPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
+import com.hamusuke.threadr.client.room.ClientRoom;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientCommonPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PingReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RTTChangeReq;
-import com.hamusuke.threadr.util.Util;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PongRsp;
 
 import javax.swing.*;
 
@@ -21,10 +20,11 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     protected final ThreadRainbowClient client;
     protected LocalSpider clientSpider;
     protected int tickCount;
-    protected int hostId;
+    protected final ClientRoom curRoom;
 
-    protected ClientCommonPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
+    protected ClientCommonPacketListenerImpl(ThreadRainbowClient client, ClientRoom room, Connection connection) {
         this.client = client;
+        this.curRoom = room;
         this.client.listener = this;
         this.connection = connection;
     }
@@ -32,9 +32,6 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     @Override
     public void tick() {
         this.tickCount++;
-        if (this.tickCount % 20 == 0) {
-            this.connection.sendPacket(new PingReq(Util.getMeasuringTimeMs()));
-        }
     }
 
     @Override
@@ -43,20 +40,20 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     }
 
     @Override
-    public void handlePongPacket(PongRsp packet) {
+    public void handlePingPacket(PingReq packet) {
         if (!this.client.isSameThread()) {
             this.client.executeSync(() -> packet.handle(this));
         }
 
-        this.connection.sendPacket(new RTTChangeReq((int) (Util.getMeasuringTimeMs() - packet.clientTime())));
+        this.connection.sendPacket(new PongRsp(packet.serverTime()));
     }
 
     @Override
     public void handleRTTPacket(RTTChangeNotify packet) {
-        synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.stream().filter(p -> p.getId() == packet.spiderId()).forEach(spider -> {
-                spider.setPing(packet.rtt());
-            });
+        synchronized (this.curRoom.getSpiders()) {
+            this.curRoom.getSpiders().stream()
+                    .filter(p -> p.getId() == packet.spiderId())
+                    .forEach(spider -> spider.setPing(packet.rtt()));
         }
 
         SwingUtilities.invokeLater(this.client.spiderTable::update);
@@ -71,19 +68,22 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     public void handleJoinPacket(SpiderJoinNotify packet) {
         var spider = new RemoteSpider(packet.name());
         spider.setId(packet.id());
-        this.client.addClientSpider(spider);
+        this.curRoom.join(spider);
     }
 
     @Override
     public void handleLeavePacket(SpiderLeaveNotify packet) {
-        synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.removeIf(p -> p.getId() == packet.id());
-        }
+        this.curRoom.leave(packet.id());
     }
 
     @Override
     public void handleChangeHost(ChangeHostNotify packet) {
-        this.hostId = packet.id();
+        synchronized (this.curRoom.getSpiders()) {
+            this.curRoom.getSpiders().stream()
+                    .filter(p -> p.getId() == packet.id())
+                    .findFirst()
+                    .ifPresent(this.curRoom::setHost);
+        }
     }
 
     @Override
@@ -96,12 +96,11 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     }
 
     public int getHostId() {
-        return this.hostId;
+        return this.curRoom.getHostId();
     }
 
     @Override
     public void onDisconnected(String msg) {
-        this.client.clientSpiders.clear();
         this.client.disconnect();
 
         var list = new ServerListPanel();
@@ -111,6 +110,8 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
         this.client.clientSpider = null;
         this.client.spiderTable = null;
         this.client.chat = null;
+        this.client.curRoom = null;
+        this.client.model = null;
     }
 
     public ThreadRainbowClient getClient() {

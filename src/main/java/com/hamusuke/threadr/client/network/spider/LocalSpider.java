@@ -1,6 +1,6 @@
 package com.hamusuke.threadr.client.network.spider;
 
-import com.hamusuke.threadr.game.card.LocalCard;
+import com.hamusuke.threadr.client.game.card.LocalCard;
 
 public class LocalSpider extends AbstractClientSpider {
     private LocalCard localCard;

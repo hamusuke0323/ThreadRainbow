@@ -17,7 +17,7 @@ public class RoomPanel extends Panel {
     public void init() {
         super.init();
 
-        this.client.setWindowTitle(Objects.requireNonNull(this.client.curRoom).roomName() + " - " + this.client.getGameTitle());
+        this.client.setWindowTitle(Objects.requireNonNull(this.client.curRoom).getRoomName() + " - " + this.client.getGameTitle());
         SwingUtilities.invokeLater(this.client.spiderTable::removeCardNumCol);
         if (this.client.amIHost()) {
             var startGame = new JButton("始める");

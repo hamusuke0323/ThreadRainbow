@@ -2,13 +2,13 @@ package com.hamusuke.threadr.client.network.listener.main;
 
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.game.card.LocalCard;
+import com.hamusuke.threadr.client.game.card.RemoteCard;
 import com.hamusuke.threadr.client.gui.component.panel.main.game.*;
 import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
-import com.hamusuke.threadr.game.card.LocalCard;
 import com.hamusuke.threadr.game.card.NumberCard;
-import com.hamusuke.threadr.game.card.RemoteCard;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
@@ -27,7 +27,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     private Topic topic;
 
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
-        super(client, connection);
+        super(client, client.curRoom, connection);
         this.clientSpider = client.clientSpider;
     }
 
@@ -48,16 +48,19 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleRemoteCard(RemoteCardGivenNotify packet) {
-        synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.stream().filter(s -> s.getId() == packet.id()).findFirst().ifPresent(s -> {
-                if (s instanceof LocalSpider) {
-                    LOGGER.warn("Remote card came on me, should never happen!");
-                } else if (s instanceof RemoteSpider spider) {
-                    var card = new RemoteCard(spider);
-                    spider.haveRemoteCard(card);
-                    this.cardMap.put(spider.getId(), card);
-                }
-            });
+        synchronized (this.curRoom.getSpiders()) {
+            this.curRoom.getSpiders().stream()
+                    .filter(s -> s.getId() == packet.id())
+                    .findFirst()
+                    .ifPresent(s -> {
+                        if (s instanceof LocalSpider) {
+                            LOGGER.warn("Remote card came on me, should never happen!");
+                        } else if (s instanceof RemoteSpider spider) {
+                            var card = new RemoteCard(spider);
+                            spider.haveRemoteCard(card);
+                            this.cardMap.put(spider.getId(), card);
+                        }
+                    });
         }
     }
 
@@ -120,15 +123,18 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleUncoverCard(UncoverCardNotify packet) {
-        synchronized (this.client.clientSpiders) {
-            this.client.clientSpiders.stream().filter(s -> s.getId() == packet.id()).findFirst().ifPresent(s -> {
-                if (s instanceof RemoteSpider r) {
-                    r.getRemoteCard().setNumber(packet.num());
-                    r.getRemoteCard().uncover();
-                } else if (s instanceof LocalSpider l) {
-                    l.getLocalCard().uncover();
-                }
-            });
+        synchronized (this.curRoom.getSpiders()) {
+            this.curRoom.getSpiders().stream()
+                    .filter(s -> s.getId() == packet.id())
+                    .findFirst()
+                    .ifPresent(s -> {
+                        if (s instanceof RemoteSpider r) {
+                            r.getRemoteCard().setNumber(packet.num());
+                            r.getRemoteCard().uncover();
+                        } else if (s instanceof LocalSpider l) {
+                            l.getLocalCard().uncover();
+                        }
+                    });
         }
 
         this.client.getPanel().repaint();
@@ -147,9 +153,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleExit(ExitGameNotify packet) {
-        int id = this.hostId;
         var listener = new ClientRoomPacketListenerImpl(this.client, this.connection);
-        listener.hostId = id;
         this.client.setPanel(new RoomPanel());
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());

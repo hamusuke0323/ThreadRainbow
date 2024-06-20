@@ -1,6 +1,6 @@
 package com.hamusuke.threadr.client.network.spider;
 
-import com.hamusuke.threadr.game.card.RemoteCard;
+import com.hamusuke.threadr.client.game.card.RemoteCard;
 
 public class RemoteSpider extends AbstractClientSpider {
     private RemoteCard remoteCard;

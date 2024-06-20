@@ -8,7 +8,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNo
 
 public class ClientRoomPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientRoomPacketListener {
     public ClientRoomPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
-        super(client, connection);
+        super(client, client.curRoom, connection);
         this.clientSpider = client.clientSpider;
     }
 
@@ -20,9 +20,7 @@ public class ClientRoomPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartGame(StartGameNotify packet) {
-        int id = this.hostId;
         var listener = new ClientPlayPacketListenerImpl(this.client, this.connection);
-        listener.hostId = id;
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
     }
