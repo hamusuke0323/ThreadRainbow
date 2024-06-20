@@ -83,7 +83,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 } catch (ChannelException ignored) {
                 }
 
-                channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new PacketSplitter()).addLast("decoder", new PacketDecoder(PacketDirection.CLIENTBOUND)).addLast("prepender", new PacketPrepender()).addLast("encoder", new PacketEncoder(PacketDirection.SERVERBOUND)).addLast(new FlowControlHandler()).addLast("packet_handler", connection);
+                channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new PacketSplitter()).addLast("decoder", new PacketDecoder(PacketDirection.CLIENTBOUND, connection.logger)).addLast("prepender", new PacketPrepender()).addLast("encoder", new PacketEncoder(PacketDirection.SERVERBOUND, connection.logger)).addLast(new FlowControlHandler()).addLast("packet_handler", connection);
             }
         }).channel(clazz).connect(address.getAddress(), address.getPort()).syncUninterruptibly();
         return connection;
@@ -152,7 +152,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 this.disableAutoRead();
             }
 
-            this.logger.receive(msg);
             handle(msg, this.packetListener);
         }
     }
@@ -232,7 +231,6 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         }
 
         var channelFuture = this.channel.writeAndFlush(packet);
-        this.logger.send(packet);
         if (callback != null) {
             channelFuture.addListener(callback);
         }

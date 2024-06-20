@@ -1,5 +1,7 @@
 package com.hamusuke.threadr.network.channel;
 
+import com.hamusuke.threadr.network.PacketLogger;
+import com.hamusuke.threadr.network.PacketLogger.PacketDetails;
 import com.hamusuke.threadr.network.protocol.PacketDirection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,9 +15,11 @@ import java.util.List;
 public class PacketDecoder extends ByteToMessageDecoder {
     private static final Logger LOGGER = LogManager.getLogger();
     private final PacketDirection direction;
+    private final PacketLogger logger;
 
-    public PacketDecoder(PacketDirection direction) {
+    public PacketDecoder(PacketDirection direction, PacketLogger logger) {
         this.direction = direction;
+        this.logger = logger;
     }
 
     @Override
@@ -32,6 +36,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
                     LOGGER.warn("Packet " + packet.getClass().getSimpleName() + " was larger than expected, found " + buf.readableBytes());
                 } else {
                     out.add(packet);
+                    this.logger.receive(new PacketDetails(packet, i));
                 }
             }
         }

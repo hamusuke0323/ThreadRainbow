@@ -1,6 +1,6 @@
 package com.hamusuke.threadr.client.gui.component.table;
 
-import com.hamusuke.threadr.network.protocol.packet.Packet;
+import com.hamusuke.threadr.network.PacketLogger.PacketDetails;
 import com.hamusuke.threadr.util.PacketUtil;
 import com.hamusuke.threadr.util.Util;
 
@@ -11,7 +11,7 @@ import java.awt.*;
 public class PacketInfoRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        if (!(value instanceof Packet<?> packet)) {
+        if (!(value instanceof PacketDetails details)) {
             if (column == 0) {
                 var l = new JLabel("←");
                 l.setHorizontalAlignment(RIGHT);
@@ -21,9 +21,10 @@ public class PacketInfoRenderer extends DefaultTableCellRenderer {
             return new JLabel("→");
         }
 
-        var l = new JLabel(packet.getClass().getSimpleName());
-        var details = PacketUtil.getPacketDetails(packet);
-        l.setToolTipText(Util.toHTML(details));
+        var byteStr = "(%s)".formatted(PacketUtil.convertBytes(details.size()));
+        var l = new JLabel(details.packet().getClass().getSimpleName() + byteStr);
+        var packetDetails = PacketUtil.getPacketDetails(details.packet(), byteStr);
+        l.setToolTipText(Util.toHTML(packetDetails));
 
         return l;
     }

@@ -2,6 +2,7 @@ package com.hamusuke.threadr.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.hamusuke.threadr.network.PacketLogger;
 import com.hamusuke.threadr.network.channel.*;
 import com.hamusuke.threadr.network.protocol.PacketDirection;
 import com.hamusuke.threadr.server.network.listener.handshake.ServerHandshakePacketListenerImpl;
@@ -65,7 +66,7 @@ public class ServerNetworkIo {
                     } catch (ChannelException ignored) {
                     }
 
-                    channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new PacketSplitter()).addLast("decoder", new PacketDecoder(PacketDirection.SERVERBOUND)).addLast("prepender", new PacketPrepender()).addLast("encoder", new PacketEncoder(PacketDirection.CLIENTBOUND));
+                    channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new PacketSplitter()).addLast("decoder", new PacketDecoder(PacketDirection.SERVERBOUND, PacketLogger.EMPTY)).addLast("prepender", new PacketPrepender()).addLast("encoder", new PacketEncoder(PacketDirection.CLIENTBOUND, PacketLogger.EMPTY));
                     var connection = new Connection(PacketDirection.SERVERBOUND);
                     ServerNetworkIo.this.connections.add(connection);
                     channel.pipeline().addLast(new FlowControlHandler()).addLast("packet_handler", connection);

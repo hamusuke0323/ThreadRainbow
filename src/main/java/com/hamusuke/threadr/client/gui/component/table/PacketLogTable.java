@@ -1,7 +1,7 @@
 package com.hamusuke.threadr.client.gui.component.table;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.network.protocol.packet.Packet;
+import com.hamusuke.threadr.network.PacketLogger.PacketDetails;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -29,22 +29,22 @@ public class PacketLogTable extends JTable {
         return false;
     }
 
-    public void addSent(Packet<?> packet) {
+    public void addSent(PacketDetails details) {
         if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> this.addSent(packet));
+            SwingUtilities.invokeLater(() -> this.addSent(details));
         } else {
-            MODEL.addRow(new Object[]{packet, null});
+            MODEL.addRow(new Object[]{details, null});
             this.clearOverflowed();
             var client = ThreadRainbowClient.getInstance();
             client.getMainWindow().onPacketLog();
         }
     }
 
-    public void addReceived(Packet<?> packet) {
+    public void addReceived(PacketDetails details) {
         if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> this.addReceived(packet));
+            SwingUtilities.invokeLater(() -> this.addReceived(details));
         } else {
-            MODEL.addRow(new Object[]{null, packet});
+            MODEL.addRow(new Object[]{null, details});
             this.clearOverflowed();
             var client = ThreadRainbowClient.getInstance();
             client.getMainWindow().onPacketLog();
