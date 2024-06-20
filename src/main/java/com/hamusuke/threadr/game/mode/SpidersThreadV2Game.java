@@ -3,7 +3,6 @@ package com.hamusuke.threadr.game.mode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
@@ -35,7 +34,7 @@ public class SpidersThreadV2Game {
     protected final List<ServerSpider> spiders;
     protected final ThreadRainbowServer server;
     protected final ServerRoom room;
-    protected Topic topic;
+    protected TopicEntry topic;
     protected final List<Integer> cards = Collections.synchronizedList(Lists.newArrayList());
     protected int uncoveredIndex;
     protected boolean failed;
@@ -82,7 +81,7 @@ public class SpidersThreadV2Game {
 
         this.nextStatus();
         this.chooseRandomTopic();
-        this.sendPacketToAllInGame(new StartTopicSelectionNotify(this.topic));
+        this.sendPacketToAllInGame(new StartTopicSelectionNotify(this.topic.id()));
         this.sendPacketToAllInGame(new ChatNotify("ホストはお題を再度選ぶこともできます"));
     }
 
@@ -92,12 +91,12 @@ public class SpidersThreadV2Game {
         }
 
         this.chooseRandomTopic();
-        this.sendPacketToAllInGame(new TopicChangeNotify(this.topic));
+        this.sendPacketToAllInGame(new TopicChangeNotify(this.topic.id()));
     }
 
     protected void chooseRandomTopic() {
         var topics = this.room.getTopicList().getTopicEntries();
-        this.topic = Util.chooseRandom(topics.stream().map(TopicEntry::topic).toList(), this.random);
+        this.topic = Util.chooseRandom(topics, this.random);
     }
 
     public boolean setTopic(int topicId) {
@@ -106,8 +105,8 @@ public class SpidersThreadV2Game {
             return false;
         }
 
-        this.topic = topics.get(topicId).topic();
-        this.sendPacketToAllInGame(new TopicChangeNotify(this.topic));
+        this.topic = topics.get(topicId);
+        this.sendPacketToAllInGame(new TopicChangeNotify(this.topic.id()));
         return true;
     }
 

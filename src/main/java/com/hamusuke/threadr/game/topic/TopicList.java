@@ -1,6 +1,7 @@
 package com.hamusuke.threadr.game.topic;
 
 import com.google.common.collect.Maps;
+import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,5 +30,13 @@ public abstract class TopicList {
     }
 
     public record TopicEntry(int id, Topic topic) {
+        public static TopicEntry from(IntelligentByteBuf buf) {
+            return new TopicEntry(buf.readVariableInt(), Topic.readFrom(buf));
+        }
+
+        public void writeTo(IntelligentByteBuf buf) {
+            buf.writeVariableInt(this.id);
+            this.topic.writeTo(buf);
+        }
     }
 }

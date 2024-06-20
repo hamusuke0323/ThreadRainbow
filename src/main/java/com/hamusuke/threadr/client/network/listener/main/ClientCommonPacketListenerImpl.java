@@ -35,6 +35,11 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     }
 
     @Override
+    public void handleGetAllTopics(GetAllTopicsRsp packet) {
+        this.curRoom.getTopicList().syncWithServer(packet.topicEntries());
+    }
+
+    @Override
     public void handleChatPacket(ChatNotify packet) {
         this.client.chat.addMessage(packet.msg());
     }

@@ -41,6 +41,11 @@ public class ClientRoom extends Room {
     }
 
     @Override
+    public ClientTopicList getTopicList() {
+        return (ClientTopicList) this.topicList;
+    }
+
+    @Override
     public List<AbstractClientSpider> getSpiders() {
         return this.clientSpiderList;
     }

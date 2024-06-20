@@ -15,6 +15,7 @@ import com.hamusuke.threadr.client.room.ClientRoom;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.GetAllTopicsReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.EnterPasswordRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyPingReq;
 
@@ -72,6 +73,7 @@ public class ClientLobbyPacketListenerImpl implements ClientLobbyPacketListener 
         var listener = new ClientRoomPacketListenerImpl(this.client, this.connection);
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
+        this.connection.sendPacket(new GetAllTopicsReq());
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.NumberCard;
-import com.hamusuke.threadr.game.topic.Topic;
+import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
-    private Topic topic;
+    private TopicEntry topicEntry;
 
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         super(client, client.curRoom, connection);
@@ -66,17 +66,24 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartTopicSelection(StartTopicSelectionNotify packet) {
-        this.setTopic(packet.firstTopic());
+        this.setTopic(packet.firstTopicId());
     }
 
     @Override
     public void handleSelectTopic(TopicChangeNotify packet) {
-        this.setTopic(packet.topic());
+        this.setTopic(packet.topicId());
     }
 
-    private void setTopic(Topic topic) {
-        this.topic = topic;
-        this.client.setPanel(new SelectingTopicPanel(this.topic));
+    private void setTopic(int topicId) {
+        this.topicEntry = this.curRoom.getTopicList().getTopics().get(topicId);
+        if (this.topicEntry == null) {
+            LOGGER.warn("Probably the client could not synchronize topics with the server!");
+            LOGGER.warn("Trying to send sync packet...");
+            // TODO
+            return;
+        }
+
+        this.client.setPanel(new SelectingTopicPanel(this.topicEntry.topic()));
     }
 
     @Override
@@ -92,7 +99,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
             this.client.model.addElement(card);
         });
 
-        this.client.setPanel(new PlayingPanel(this.topic));
+        this.client.setPanel(new PlayingPanel(this.topicEntry.topic()));
     }
 
     @Override

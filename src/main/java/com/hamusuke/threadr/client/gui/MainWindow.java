@@ -216,6 +216,9 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         if (this.autoScroll.getState()) {
             this.logScroll.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
         }
+
+        var logSize = new Dimension(c.getWidth() / 3, 100);
+        this.logScroll.setPreferredSize(logSize);
     }
 
     @Override

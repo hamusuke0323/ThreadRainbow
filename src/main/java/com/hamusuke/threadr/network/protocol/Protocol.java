@@ -22,10 +22,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.ChatReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.LeaveRoomReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PongRsp;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.info.ServerInfoReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.*;
@@ -73,6 +70,7 @@ public enum Protocol {
     ),
     ROOM(1, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientRoomPacketListener>()
+                    // common
                     .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
                     .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
                     .add(DisconnectNotify.class, DisconnectNotify::new)
@@ -81,18 +79,26 @@ public enum Protocol {
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
+                    .add(GetAllTopicsRsp.class, GetAllTopicsRsp::new)
+
+                    // room
                     .add(StartGameNotify.class, StartGameNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerRoomPacketListener>()
+                    // common
                     .add(DisconnectReq.class, DisconnectReq::new)
                     .add(PongRsp.class, PongRsp::new)
                     .add(ChatReq.class, ChatReq::new)
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
+                    .add(GetAllTopicsReq.class, GetAllTopicsReq::new)
+
+                    // room
                     .add(StartGameReq.class, StartGameReq::new)
             )
     ),
     PLAY(2, protocol()
             .addDirection(PacketDirection.CLIENTBOUND, new PacketSet<ClientPlayPacketListener>()
+                    // common
                     .add(SpiderJoinNotify.class, SpiderJoinNotify::new)
                     .add(SpiderLeaveNotify.class, SpiderLeaveNotify::new)
                     .add(DisconnectNotify.class, DisconnectNotify::new)
@@ -101,6 +107,9 @@ public enum Protocol {
                     .add(RTTChangeNotify.class, RTTChangeNotify::new)
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
+                    .add(GetAllTopicsRsp.class, GetAllTopicsRsp::new)
+
+                    // play
                     .add(LocalCardHandedNotify.class, LocalCardHandedNotify::new)
                     .add(RemoteCardGivenNotify.class, RemoteCardGivenNotify::new)
                     .add(StartTopicSelectionNotify.class, StartTopicSelectionNotify::new)
@@ -114,10 +123,14 @@ public enum Protocol {
                     .add(SpiderExitGameNotify.class, SpiderExitGameNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
+                    // common
                     .add(DisconnectReq.class, DisconnectReq::new)
                     .add(PongRsp.class, PongRsp::new)
                     .add(ChatReq.class, ChatReq::new)
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
+                    .add(GetAllTopicsReq.class, GetAllTopicsReq::new)
+
+                    // play
                     .add(ClientCommandReq.class, ClientCommandReq::new)
                     .add(MoveCardReq.class, MoveCardReq::new)
             )

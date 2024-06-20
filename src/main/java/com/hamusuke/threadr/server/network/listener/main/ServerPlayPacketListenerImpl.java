@@ -19,7 +19,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
 
     @Override
     public void handleClientCommand(ClientCommandReq packet) {
-        if (this.room == null || this.room.getGame() == null) {
+        if (this.room.getGame() == null) {
             LOGGER.warn("Illegal command packet came from client");
             return;
         }
@@ -47,7 +47,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
 
     @Override
     public void handleMoveCard(MoveCardReq packet) {
-        if (this.room == null || this.room.getGame() == null) {
+        if (this.room.getGame() == null) {
             LOGGER.warn("Illegal move card packet came from client");
             return;
         }
@@ -59,7 +59,7 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
     public void onDisconnected(String msg) {
         super.onDisconnected(msg);
 
-        if (this.room != null && this.room.getGame() != null) {
+        if (this.room.getGame() != null) {
             this.room.getGame().onSpiderLeft(this.spider);
         }
     }
