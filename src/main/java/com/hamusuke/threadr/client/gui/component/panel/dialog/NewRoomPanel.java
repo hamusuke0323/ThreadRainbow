@@ -28,6 +28,15 @@ public class NewRoomPanel extends Panel {
 
         var nameTitle = new JLabel("部屋の名前（%s文字まで）".formatted(Room.MAX_ROOM_NAME_LENGTH), SwingConstants.CENTER);
         this.name = new JTextField(String.format("%sの部屋", this.client.clientSpider.getName()));
+        this.name.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (name.getText().length() >= Room.MAX_ROOM_NAME_LENGTH) {
+                    e.consume();
+                }
+            }
+        });
+
         this.makePassword = new JCheckBox("パスワードあり");
         this.makePassword.addActionListener(e -> this.password.setEnabled(this.makePassword.isSelected()));
         this.password = new JTextField("password");
@@ -35,7 +44,7 @@ public class NewRoomPanel extends Panel {
         this.password.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (password.getText().length() > Room.MAX_ROOM_PASSWD_LENGTH || Character.isSpaceChar(e.getKeyChar())) {
+                if (password.getText().length() >= Room.MAX_ROOM_PASSWD_LENGTH || Character.isSpaceChar(e.getKeyChar())) {
                     e.consume();
                 }
             }
