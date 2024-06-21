@@ -9,20 +9,25 @@ import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.GetTopicRsp;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.common.GetTopicReq;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
+import java.util.List;
 import java.util.Map;
 
 public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final TopicEntry EMPTY = new TopicEntry(-1, new Topic(List.of("お題のデータをサーバーに問い合わせています..."), "-", "-"));
     private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
     private TopicEntry topicEntry;
 
@@ -75,15 +80,26 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     private void setTopic(int topicId) {
-        this.topicEntry = this.curRoom.getTopicList().getTopics().get(topicId);
-        if (this.topicEntry == null) {
+        var e = this.curRoom.getTopicList().getTopics().get(topicId);
+        if (e == null) {
             LOGGER.warn("Probably the client could not synchronize topics with the server!");
             LOGGER.warn("Trying to send sync packet...");
-            // TODO
-            return;
+            this.connection.sendPacket(new GetTopicReq(topicId));
+            e = EMPTY;
         }
 
+        this.setTopic(e);
+    }
+
+    private void setTopic(TopicEntry e) {
+        this.topicEntry = e;
         this.client.setPanel(new SelectingTopicPanel(this.topicEntry.topic()));
+    }
+
+    @Override
+    public void handleGetTopic(GetTopicRsp packet) {
+        super.handleGetTopic(packet);
+        this.setTopic(packet.topicEntry());
     }
 
     @Override

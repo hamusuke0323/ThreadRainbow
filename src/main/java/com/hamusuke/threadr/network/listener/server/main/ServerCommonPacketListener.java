@@ -13,4 +13,6 @@ public interface ServerCommonPacketListener extends ServerPacketListener {
     void handleLeaveRoom(LeaveRoomReq packet);
 
     void handleGetAllTopics(GetAllTopicsReq packet);
+
+    void handleGetTopic(GetTopicReq packet);
 }

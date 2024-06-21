@@ -14,6 +14,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PongRsp;
 
 import javax.swing.*;
+import java.util.Collections;
 
 public abstract class ClientCommonPacketListenerImpl implements ClientCommonPacketListener {
     protected final Connection connection;
@@ -37,6 +38,11 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     @Override
     public void handleGetAllTopics(GetAllTopicsRsp packet) {
         this.curRoom.getTopicList().syncWithServer(packet.topicEntries());
+    }
+
+    @Override
+    public void handleGetTopic(GetTopicRsp packet) {
+        this.curRoom.getTopicList().syncWithServer(Collections.singletonList(packet.topicEntry()));
     }
 
     @Override

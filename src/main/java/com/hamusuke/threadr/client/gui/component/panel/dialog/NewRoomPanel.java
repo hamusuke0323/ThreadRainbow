@@ -35,7 +35,7 @@ public class NewRoomPanel extends Panel {
         this.password.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (Character.isSpaceChar(e.getKeyChar())) {
+                if (password.getText().length() > Room.MAX_ROOM_PASSWD_LENGTH || Character.isSpaceChar(e.getKeyChar())) {
                     e.consume();
                 }
             }

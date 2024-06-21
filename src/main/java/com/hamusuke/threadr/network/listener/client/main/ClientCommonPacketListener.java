@@ -21,4 +21,6 @@ public interface ClientCommonPacketListener extends PacketListener {
     void handleLeaveRoomSucc(LeaveRoomSuccNotify packet);
 
     void handleGetAllTopics(GetAllTopicsRsp packet);
+
+    void handleGetTopic(GetTopicRsp packet);
 }

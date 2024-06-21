@@ -60,6 +60,17 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
     }
 
     @Override
+    public void handleGetTopic(GetTopicReq packet) {
+        var e = this.room.getTopicList().getTopics().get(packet.topicId());
+        if (e == null) {
+            LOGGER.warn("Invalid topic id received from client: {}", packet.topicId());
+            return;
+        }
+
+        this.connection.sendPacket(new GetTopicRsp(e));
+    }
+
+    @Override
     public void handleLeaveRoom(LeaveRoomReq packet) {
         this.room.leave(this.spider);
         this.spider.sendPacket(new LeaveRoomSuccNotify());

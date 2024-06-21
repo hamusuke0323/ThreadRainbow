@@ -80,6 +80,7 @@ public enum Protocol {
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
                     .add(GetAllTopicsRsp.class, GetAllTopicsRsp::new)
+                    .add(GetTopicRsp.class, GetTopicRsp::new)
 
                     // room
                     .add(StartGameNotify.class, StartGameNotify::new)
@@ -91,6 +92,7 @@ public enum Protocol {
                     .add(ChatReq.class, ChatReq::new)
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(GetAllTopicsReq.class, GetAllTopicsReq::new)
+                    .add(GetTopicReq.class, GetTopicReq::new)
 
                     // room
                     .add(StartGameReq.class, StartGameReq::new)
@@ -108,6 +110,7 @@ public enum Protocol {
                     .add(ChangeHostNotify.class, ChangeHostNotify::new)
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
                     .add(GetAllTopicsRsp.class, GetAllTopicsRsp::new)
+                    .add(GetTopicRsp.class, GetTopicRsp::new)
 
                     // play
                     .add(LocalCardHandedNotify.class, LocalCardHandedNotify::new)
@@ -129,6 +132,7 @@ public enum Protocol {
                     .add(ChatReq.class, ChatReq::new)
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(GetAllTopicsReq.class, GetAllTopicsReq::new)
+                    .add(GetTopicReq.class, GetTopicReq::new)
 
                     // play
                     .add(ClientCommandReq.class, ClientCommandReq::new)
