@@ -24,16 +24,9 @@ import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.lobby.ClientLobbyPacketListener;
 import com.hamusuke.threadr.network.protocol.Protocol;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.PingReq;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.RTTChangeNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.LobbyPongRsp;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.login.AliveRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.DisconnectReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.common.PongRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyDisconnectReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.lobby.LobbyPingReq;
-import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
 import com.hamusuke.threadr.util.Util;
 import com.hamusuke.threadr.util.thread.ReentrantThreadExecutor;
@@ -51,6 +44,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+
+import static com.hamusuke.threadr.util.PacketUtil.LOOP_PACKETS;
 
 public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -71,15 +66,6 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     private int tickCount;
     public SpiderTable spiderTable;
     public Chat chat;
-    private final List<String> packetFilters = Collections.synchronizedList(Lists.newArrayList(
-            AliveReq.class.getSimpleName(),
-            AliveRsp.class.getSimpleName(),
-            LobbyPingReq.class.getSimpleName(),
-            LobbyPongRsp.class.getSimpleName(),
-            PongRsp.class.getSimpleName(),
-            PingReq.class.getSimpleName(),
-            RTTChangeNotify.class.getSimpleName()
-    ));
     public final PacketLogTable packetLogTable = new PacketLogTable();
     @Nullable
     public ClientRoom curRoom;
@@ -305,7 +291,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     }
 
     public boolean isPacketTrash(Packet<?> packet) {
-        return this.packetFilters.contains(packet.getClass().getSimpleName());
+        return LOOP_PACKETS.contains(packet.getClass().getSimpleName());
     }
 
     @Override

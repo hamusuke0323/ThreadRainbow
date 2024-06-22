@@ -9,7 +9,6 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.util.List;
 
 public class PacketDecoder extends ByteToMessageDecoder {
@@ -30,14 +29,15 @@ public class PacketDecoder extends ByteToMessageDecoder {
             int j = buf.readVariableInt();
             var packet = ctx.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().createPacket(this.direction, j, buf);
             if (packet == null) {
-                throw new IOException("Bad packet id: " + j);
+                LOGGER.warn("Bad packet id: {}", j);
+                return;
+            }
+
+            if (buf.readableBytes() > 0) {
+                LOGGER.warn("Packet {} was larger than expected, found {}", packet.getClass().getSimpleName(), buf.readableBytes());
             } else {
-                if (buf.readableBytes() > 0) {
-                    LOGGER.warn("Packet " + packet.getClass().getSimpleName() + " was larger than expected, found " + buf.readableBytes());
-                } else {
-                    out.add(packet);
-                    this.logger.receive(new PacketDetails(packet, i));
-                }
+                out.add(packet);
+                this.logger.receive(new PacketDetails(packet, i));
             }
         }
     }

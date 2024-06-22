@@ -7,10 +7,11 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
+    private static final Logger LOGGER = LogManager.getLogger();
     private final PacketDirection direction;
     private final PacketLogger logger;
 
@@ -28,19 +29,20 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
             var integer = protocol.getPacketId(this.direction, msg);
 
             if (integer == null) {
-                throw new IOException("Can't serialize unregistered packet: " + msg.getClass().getName());
-            } else {
-                var buf = new IntelligentByteBuf(out);
-                buf.writeVariableInt(integer);
-                int i = buf.writerIndex();
-                msg.write(buf);
-                int j = buf.writerIndex() - i;
-                if (j > PacketInflater.MAXIMUM_UNCOMPRESSED_LENGTH) {
-                    throw new IllegalArgumentException("Packet too big (is " + j + ", should be less than " + PacketInflater.MAXIMUM_UNCOMPRESSED_LENGTH + "): " + msg);
-                }
-
-                this.logger.send(new PacketDetails(msg, buf.readableBytes()));
+                LOGGER.warn("Can't serialize unregistered packet: {}", msg.getClass().getName());
+                return;
             }
+
+            var buf = new IntelligentByteBuf(out);
+            buf.writeVariableInt(integer);
+            int i = buf.writerIndex();
+            msg.write(buf);
+            int j = buf.writerIndex() - i;
+            if (j > PacketInflater.MAXIMUM_UNCOMPRESSED_LENGTH) {
+                throw new IllegalArgumentException("Packet too big (is " + j + ", should be less than " + PacketInflater.MAXIMUM_UNCOMPRESSED_LENGTH + "): " + msg);
+            }
+
+            this.logger.send(new PacketDetails(msg, buf.readableBytes()));
         }
     }
 }
