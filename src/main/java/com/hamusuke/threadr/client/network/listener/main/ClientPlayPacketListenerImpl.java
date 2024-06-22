@@ -30,6 +30,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     private static final TopicEntry EMPTY = new TopicEntry(-1, new Topic(List.of("お題のデータをサーバーに問い合わせています..."), "-", "-"));
     private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
     private TopicEntry topicEntry;
+    private int unknownTopicId = -1;
 
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         super(client, client.curRoom, connection);
@@ -85,6 +86,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
             LOGGER.warn("Probably the client could not synchronize topics with the server!");
             LOGGER.warn("Trying to send sync packet...");
             this.connection.sendPacket(new GetTopicReq(topicId));
+            this.unknownTopicId = topicId;
             e = EMPTY;
         }
 
@@ -92,6 +94,10 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     }
 
     private void setTopic(TopicEntry e) {
+        if (e != EMPTY) {
+            this.unknownTopicId = -1;
+        }
+
         this.topicEntry = e;
         this.client.setPanel(new SelectingTopicPanel(this.topicEntry.topic()));
     }
@@ -99,7 +105,11 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     @Override
     public void handleGetTopic(GetTopicRsp packet) {
         super.handleGetTopic(packet);
-        this.setTopic(packet.topicEntry());
+
+        if (this.unknownTopicId >= 0) {
+            this.unknownTopicId = -1;
+            this.setTopic(packet.topicEntry());
+        }
     }
 
     @Override

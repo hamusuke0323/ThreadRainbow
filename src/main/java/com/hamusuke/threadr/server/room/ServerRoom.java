@@ -6,10 +6,7 @@ import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.SpiderJoinNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.common.SpiderLeaveNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomSuccNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.ExitGameNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.RestartGameNotify;
@@ -111,14 +108,28 @@ public class ServerRoom extends Room {
     }
 
     public synchronized TopicEntry addCustomTopic(Topic topic) {
-        return this.getTopicList().addTopic(topic);
+        var e = this.getTopicList().addTopic(topic);
+        this.sendPacketToAllInRoom(new NewTopicAddNotify(e));
+        return e;
     }
 
     @Nullable
     public synchronized Topic removeTopic(int topicId) {
-        return this.getTopicList().removeTopicEntry(topicId)
+        var removed = this.getTopicList().removeTopicEntry(topicId)
                 .map(TopicEntry::topic)
                 .orElse(null);
+
+        if (removed != null) {
+            this.sendPacketToAllInRoom(new RemoveTopicNotify(Collections.singletonList(topicId)));
+        }
+
+        return removed;
+    }
+
+    public synchronized void removeTopics(List<Integer> topicIds) {
+        topicIds = topicIds.stream().distinct().toList();
+        topicIds.forEach(this.getTopicList()::removeTopicEntry);
+        this.sendPacketToAllInRoom(new RemoveTopicNotify(topicIds));
     }
 
     public Map<Integer, TopicEntry> getTopics() {

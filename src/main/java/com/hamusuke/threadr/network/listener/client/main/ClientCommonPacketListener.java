@@ -23,4 +23,8 @@ public interface ClientCommonPacketListener extends PacketListener {
     void handleGetAllTopics(GetAllTopicsRsp packet);
 
     void handleGetTopic(GetTopicRsp packet);
+
+    void handleNewTopicAdd(NewTopicAddNotify packet);
+
+    void handleRemoveTopic(RemoveTopicNotify packet);
 }

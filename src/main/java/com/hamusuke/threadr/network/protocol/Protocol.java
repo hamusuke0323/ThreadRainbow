@@ -81,6 +81,8 @@ public enum Protocol {
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
                     .add(GetAllTopicsRsp.class, GetAllTopicsRsp::new)
                     .add(GetTopicRsp.class, GetTopicRsp::new)
+                    .add(NewTopicAddNotify.class, NewTopicAddNotify::new)
+                    .add(RemoveTopicNotify.class, RemoveTopicNotify::new)
 
                     // room
                     .add(StartGameNotify.class, StartGameNotify::new)
@@ -111,6 +113,8 @@ public enum Protocol {
                     .add(LeaveRoomSuccNotify.class, LeaveRoomSuccNotify::new)
                     .add(GetAllTopicsRsp.class, GetAllTopicsRsp::new)
                     .add(GetTopicRsp.class, GetTopicRsp::new)
+                    .add(NewTopicAddNotify.class, NewTopicAddNotify::new)
+                    .add(RemoveTopicNotify.class, RemoveTopicNotify::new)
 
                     // play
                     .add(LocalCardHandedNotify.class, LocalCardHandedNotify::new)
