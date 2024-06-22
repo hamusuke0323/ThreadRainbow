@@ -1,5 +1,6 @@
 package com.hamusuke.threadr.command.commands;
 
+import com.google.common.collect.Lists;
 import com.hamusuke.threadr.command.CommandSource;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.mojang.brigadier.CommandDispatcher;
@@ -41,10 +42,21 @@ public class TopicCommand {
         var main = StringArgumentType.getString(ctx, "main");
         var minDesc = StringArgumentType.getString(ctx, "minDesc");
         var maxDesc = StringArgumentType.getString(ctx, "maxDesc");
+
+        sub = sub.trim().substring(0, Math.min(sub.length(), Topic.MAX_TEXT_LENGTH));
+        main = main.trim().substring(0, Math.min(main.length(), Topic.MAX_TEXT_LENGTH));
+        minDesc = minDesc.trim().substring(0, Math.min(minDesc.length(), Topic.MAX_TEXT_LENGTH));
+        maxDesc = maxDesc.trim().substring(0, Math.min(maxDesc.length(), Topic.MAX_TEXT_LENGTH));
+
         var source = ctx.getSource();
         var sender = source.getSender();
 
         if (invalidate(ctx)) {
+            return 0;
+        }
+
+        if (invalidateTexts(Lists.newArrayList(sub, main, minDesc, maxDesc))) {
+            sender.sendError("文字列は空にできません");
             return 0;
         }
 
@@ -59,9 +71,19 @@ public class TopicCommand {
         var main = StringArgumentType.getString(ctx, "main");
         var minDesc = StringArgumentType.getString(ctx, "minDesc");
         var maxDesc = StringArgumentType.getString(ctx, "maxDesc");
+
+        main = main.trim().substring(0, Math.min(main.length(), Topic.MAX_TEXT_LENGTH));
+        minDesc = minDesc.trim().substring(0, Math.min(minDesc.length(), Topic.MAX_TEXT_LENGTH));
+        maxDesc = maxDesc.trim().substring(0, Math.min(maxDesc.length(), Topic.MAX_TEXT_LENGTH));
+
         var sender = ctx.getSource().getSender();
 
         if (invalidate(ctx)) {
+            return 0;
+        }
+
+        if (invalidateTexts(Lists.newArrayList(main, minDesc, maxDesc))) {
+            sender.sendError("文字列は空にできません");
             return 0;
         }
 
@@ -110,6 +132,10 @@ public class TopicCommand {
 
         ctx.getSource().sendError("お題が見つかりませんでした");
         return 0;
+    }
+
+    private static boolean invalidateTexts(List<String> texts) {
+        return texts.stream().anyMatch(s -> s.isEmpty() || s.isBlank());
     }
 
     private static boolean invalidate(CommandContext<CommandSource> ctx) {

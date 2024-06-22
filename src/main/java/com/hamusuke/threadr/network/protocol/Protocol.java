@@ -95,6 +95,8 @@ public enum Protocol {
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(GetAllTopicsReq.class, GetAllTopicsReq::new)
                     .add(GetTopicReq.class, GetTopicReq::new)
+                    .add(CreateTopicReq.class, CreateTopicReq::new)
+                    .add(RemoveTopicReq.class, RemoveTopicReq::new)
 
                     // room
                     .add(StartGameReq.class, StartGameReq::new)
@@ -137,6 +139,8 @@ public enum Protocol {
                     .add(LeaveRoomReq.class, LeaveRoomReq::new)
                     .add(GetAllTopicsReq.class, GetAllTopicsReq::new)
                     .add(GetTopicReq.class, GetTopicReq::new)
+                    .add(CreateTopicReq.class, CreateTopicReq::new)
+                    .add(RemoveTopicReq.class, RemoveTopicReq::new)
 
                     // play
                     .add(ClientCommandReq.class, ClientCommandReq::new)

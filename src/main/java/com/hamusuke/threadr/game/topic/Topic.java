@@ -13,6 +13,8 @@ import java.util.Objects;
 import static com.hamusuke.threadr.client.gui.component.panel.Panel.addButton;
 
 public record Topic(List<String> lines, String minDescription, String maxDescription) {
+    public static final int MAX_TEXT_LENGTH = 64;
+
     public static Topic readFrom(IntelligentByteBuf buf) {
         return new Topic(buf.readList(IntelligentByteBuf::readString, ImmutableList::copyOf), buf.readString(), buf.readString());
     }

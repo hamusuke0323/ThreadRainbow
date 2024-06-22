@@ -15,4 +15,8 @@ public interface ServerCommonPacketListener extends ServerPacketListener {
     void handleGetAllTopics(GetAllTopicsReq packet);
 
     void handleGetTopic(GetTopicReq packet);
+
+    void handleCreateTopic(CreateTopicReq packet);
+
+    void handleRemoveTopic(RemoveTopicReq packet);
 }

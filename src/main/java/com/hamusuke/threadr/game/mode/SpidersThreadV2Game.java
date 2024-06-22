@@ -79,8 +79,11 @@ public class SpidersThreadV2Game {
             return;
         }
 
+        if (this.chooseRandomTopic()) {
+            return;
+        }
+
         this.nextStatus();
-        this.chooseRandomTopic();
         this.sendPacketToAllInGame(new StartTopicSelectionNotify(this.topic.id()));
         this.sendPacketToAllInGame(new ChatNotify("ホストはお題を再度選ぶこともできます"));
     }
@@ -90,16 +93,30 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.chooseRandomTopic();
+        if (this.chooseRandomTopic()) {
+            return;
+        }
+
         this.sendPacketToAllInGame(new TopicChangeNotify(this.topic.id()));
     }
 
-    protected void chooseRandomTopic() {
+    protected boolean chooseRandomTopic() {
         var topics = this.room.getTopicList().getTopicEntries();
+        if (topics.isEmpty()) {
+            this.sendPacketToAllInGame(new ChatNotify("この部屋で利用可能なお題がありません"));
+            this.sendPacketToAllInGame(new ChatNotify("ホストはお題を作成できます"));
+            return true;
+        }
+
         this.topic = Util.chooseRandom(topics, this.random);
+        return false;
     }
 
     public boolean setTopic(int topicId) {
+        if (this.status != Status.SELECTING_TOPIC) {
+            return true;
+        }
+
         var topics = this.room.getTopics();
         if (!topics.containsKey(topicId)) {
             return false;

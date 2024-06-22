@@ -45,7 +45,7 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         this.topicList.addActionListener(this);
         this.topicList.setActionCommand("topicList");
 
-        this.topicListPanel = new TopicListPanel(this.client.topics);
+        this.topicListPanel = new TopicListPanel(this.client, this.client.topics);
     }
 
     public void tick() {

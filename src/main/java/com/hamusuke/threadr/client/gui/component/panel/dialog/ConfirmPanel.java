@@ -12,9 +12,9 @@ public class ConfirmPanel extends Panel {
     private final Consumer<Boolean> yesNo;
     private boolean accepted;
 
-    public ConfirmPanel(Panel panel, String text, Consumer<Boolean> yesNo) {
+    public ConfirmPanel(Panel parent, String text, Consumer<Boolean> yesNo) {
         super(new GridBagLayout());
-        this.parent = panel;
+        this.parent = parent;
         this.text = text;
         this.yesNo = yesNo;
     }

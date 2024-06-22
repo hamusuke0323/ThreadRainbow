@@ -105,6 +105,12 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
                     .findFirst()
                     .ifPresent(this.curRoom::setHost);
         }
+
+        if (this.client.amIHost()) {
+            this.client.getMainWindow().topicListPanel.showButtons();
+        } else {
+            this.client.getMainWindow().topicListPanel.hideButtons();
+        }
     }
 
     @Override

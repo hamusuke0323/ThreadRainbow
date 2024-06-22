@@ -71,6 +71,26 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
     }
 
     @Override
+    public void handleCreateTopic(CreateTopicReq packet) {
+        if (!this.spider.isHost()) {
+            this.spider.sendError("ホストのみお題を作成できます");
+            return;
+        }
+
+        this.room.addCustomTopic(packet.topic());
+    }
+
+    @Override
+    public void handleRemoveTopic(RemoveTopicReq packet) {
+        if (!this.spider.isHost()) {
+            this.spider.sendError("ホストのみお題を削除できます");
+            return;
+        }
+
+        this.room.removeTopics(packet.topicIds());
+    }
+
+    @Override
     public void handleLeaveRoom(LeaveRoomReq packet) {
         this.room.leave(this.spider);
         this.spider.sendPacket(new LeaveRoomSuccNotify());
