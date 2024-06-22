@@ -78,6 +78,12 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
         return debug;
     }
 
+    protected JMenu createTopicMenu() {
+        var m = new JMenu("お題");
+        m.add(this.client.getMainWindow().topicList);
+        return m;
+    }
+
     @Nullable
     public JPanel createSouth() {
         return null;

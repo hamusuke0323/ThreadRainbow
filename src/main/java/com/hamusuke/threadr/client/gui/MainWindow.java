@@ -2,6 +2,7 @@ package com.hamusuke.threadr.client.gui;
 
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.component.list.TopicListPanel;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
 import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
@@ -21,6 +22,8 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
     public final JMenuItem packetLog;
     public final JCheckBoxMenuItem autoScroll;
     public final JScrollPane logScroll;
+    public final JMenuItem topicList;
+    public final TopicListPanel topicListPanel;
 
     public MainWindow(ThreadRainbowClient client) {
         super("Thread Rainbow " + Constants.VERSION);
@@ -37,6 +40,12 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         this.packetLog = new JMenuItem("ログを見る");
         this.packetLog.addActionListener(this);
         this.packetLog.setActionCommand("packetLog");
+
+        this.topicList = new JMenuItem("お題リストを見る");
+        this.topicList.addActionListener(this);
+        this.topicList.setActionCommand("topicList");
+
+        this.topicListPanel = new TopicListPanel(this.client.topics);
     }
 
     public void tick() {
@@ -133,6 +142,20 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         this.revalidate();
     }
 
+    private synchronized void showTopicList() {
+        this.add(this.topicListPanel, BorderLayout.WEST);
+        this.topicList.setText("お題リストを閉じる");
+        this.topicList.setActionCommand("hTopicList");
+        this.revalidate();
+    }
+
+    private synchronized void hideTopicList() {
+        this.remove(this.topicListPanel);
+        this.topicList.setText("お題リストを見る");
+        this.topicList.setActionCommand("topicList");
+        this.revalidate();
+    }
+
     private void clearChat() {
         if (this.client.chat != null) {
             this.client.chat.clear();
@@ -168,6 +191,7 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
         if (hidePacketLog) {
             this.hidePacketLog();
         }
+        this.hideTopicList();
     }
 
     @Override
@@ -184,6 +208,12 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
                 break;
             case "hPacketLog":
                 this.hidePacketLog();
+                break;
+            case "topicList":
+                this.showTopicList();
+                break;
+            case "hTopicList":
+                this.hideTopicList();
                 break;
             case "clearPackets":
                 this.clearPacketLogs();
@@ -217,8 +247,10 @@ public class MainWindow extends JFrame implements ActionListener, WindowListener
             this.logScroll.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
         }
 
-        var logSize = new Dimension(c.getWidth() / 3, 100);
+        var logSize = new Dimension(c.getWidth() / 4, 100);
         this.logScroll.setPreferredSize(logSize);
+
+        this.topicListPanel.topicScroll.setPreferredSize(new Dimension(c.getWidth() / 4, 100));
     }
 
     @Override

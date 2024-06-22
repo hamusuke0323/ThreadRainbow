@@ -34,6 +34,7 @@ public class HandedCardPanel extends Panel {
         jMenuBar.add(this.createMenuMenu());
         jMenuBar.add(this.createChatMenu());
         jMenuBar.add(this.createNetworkMenu());
+        jMenuBar.add(this.createTopicMenu());
         return jMenuBar;
     }
 

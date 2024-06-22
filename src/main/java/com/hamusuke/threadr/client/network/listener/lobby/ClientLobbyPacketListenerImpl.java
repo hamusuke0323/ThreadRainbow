@@ -64,7 +64,7 @@ public class ClientLobbyPacketListenerImpl implements ClientLobbyPacketListener 
 
     @Override
     public void handleJoinRoomSucc(JoinRoomSuccNotify packet) {
-        this.client.curRoom = ClientRoom.fromRoomInfo(packet.info());
+        this.client.curRoom = ClientRoom.fromRoomInfo(this.client, packet.info());
         this.client.curRoom.join(this.clientSpider);
         this.client.spiderTable = new SpiderTable(this.client);
         SwingUtilities.invokeLater(this.client.spiderTable::clear);

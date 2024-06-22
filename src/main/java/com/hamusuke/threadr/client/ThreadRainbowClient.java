@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.gui.MainWindow;
+import com.hamusuke.threadr.client.gui.component.list.JTopicList;
 import com.hamusuke.threadr.client.gui.component.panel.Panel;
 import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
@@ -72,6 +73,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     private final File serversFile;
     private final List<ServerInfo> servers = Collections.synchronizedList(Lists.newArrayList());
     private final List<Connection> infoConnections = Collections.synchronizedList(Lists.newArrayList());
+    public final JTopicList topics = new JTopicList();
 
     ThreadRainbowClient() {
         super("Client");

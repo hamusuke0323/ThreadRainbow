@@ -1,6 +1,7 @@
 package com.hamusuke.threadr.client.room;
 
 import com.google.common.collect.Lists;
+import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.game.topic.ClientTopicList;
 import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.network.Spider;
@@ -17,13 +18,13 @@ public class ClientRoom extends Room {
     @Nullable
     private AbstractClientSpider host;
 
-    public ClientRoom(String roomName) {
-        super(roomName, new ClientTopicList());
+    public ClientRoom(ThreadRainbowClient client, String roomName) {
+        super(roomName, new ClientTopicList(client));
         this.clientSpiderList = Collections.unmodifiableList(this.clientSpiders);
     }
 
-    public static ClientRoom fromRoomInfo(RoomInfo info) {
-        return new ClientRoom(info.roomName());
+    public static ClientRoom fromRoomInfo(ThreadRainbowClient client, RoomInfo info) {
+        return new ClientRoom(client, info.roomName());
     }
 
     @Override

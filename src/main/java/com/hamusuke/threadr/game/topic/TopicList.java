@@ -3,10 +3,7 @@ package com.hamusuke.threadr.game.topic;
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class TopicList {
     private final Map<Integer, TopicEntry> topics = Maps.newConcurrentMap();
@@ -37,6 +34,31 @@ public abstract class TopicList {
         public void writeTo(IntelligentByteBuf buf) {
             buf.writeVariableInt(this.id);
             this.topic.writeTo(buf);
+        }
+
+        public String toPrettyString() {
+            return "ID: %d\n%s\n1 %s %s 100"
+                    .formatted(
+                            this.id,
+                            this.topic.lines().stream()
+                                    .reduce((s, s2) -> s + "\n" + s2)
+                                    .orElse(""),
+                            this.topic.minDescription(),
+                            this.topic.maxDescription()
+                    );
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TopicEntry entry = (TopicEntry) o;
+            return id == entry.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(id);
         }
     }
 }
