@@ -1,5 +1,6 @@
 package com.hamusuke.threadr.server.gui;
 
+import com.hamusuke.threadr.network.Spider;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 
 import javax.swing.*;
@@ -16,13 +17,11 @@ public class SpiderList extends JList<String> {
 
     public void tick() {
         if (this.tickCount++ % 20 == 0) {
-            var vector = new Vector<String>();
-
-            for (int i = 0; i < this.server.getSpiderManager().getSpiders().size(); i++) {
-                vector.add(this.server.getSpiderManager().getSpiders().get(i).getName());
-            }
-
-            this.setListData(vector);
+            this.setListData(
+                    new Vector<>(
+                            this.server.getSpiderManager().getSpiders().stream()
+                                    .map(Spider::getName)
+                                    .toList()));
         }
     }
 }

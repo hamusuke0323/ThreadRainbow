@@ -27,15 +27,6 @@ public class JTopicList extends JList<TopicEntry> {
         });
     }
 
-    public void addTopic(TopicEntry entry) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> this.addTopic(entry));
-            return;
-        }
-
-        MODEL.addElement(entry);
-    }
-
     public void addTopics(List<TopicEntry> entries) {
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(() -> this.addTopics(entries));

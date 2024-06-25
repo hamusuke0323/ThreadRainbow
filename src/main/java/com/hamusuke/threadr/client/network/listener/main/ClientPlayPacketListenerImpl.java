@@ -31,6 +31,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
     private TopicEntry topicEntry;
     private int unknownTopicId = -1;
+    private boolean selectingTopic;
 
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         super(client, client.curRoom, connection);
@@ -41,6 +42,12 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     public void handleChangeHost(ChangeHostNotify packet) {
         super.handleChangeHost(packet);
         this.client.setPanel(this.client.getPanel());
+
+        if (this.selectingTopic && this.client.amIHost()) {
+            this.client.getMainWindow().topicListPanel.showChooseBtn();
+        } else {
+            this.client.getMainWindow().topicListPanel.hideChooseBtn();
+        }
     }
 
     @Override
@@ -72,7 +79,12 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartTopicSelection(StartTopicSelectionNotify packet) {
+        this.selectingTopic = true;
         this.setTopic(packet.firstTopicId());
+
+        if (this.client.amIHost()) {
+            this.client.getMainWindow().topicListPanel.showChooseBtn();
+        }
     }
 
     @Override
@@ -114,6 +126,9 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartMainGame(StartMainGameNotify packet) {
+        this.selectingTopic = false;
+        this.client.getMainWindow().topicListPanel.hideChooseBtn();
+
         this.client.model = new DefaultListModel<>();
         packet.cards().forEach(i -> {
             var card = this.getCardById(i);

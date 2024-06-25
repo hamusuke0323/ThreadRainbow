@@ -9,6 +9,7 @@ import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.CreateTopicReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.RemoveTopicReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ChooseTopicReq;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,15 +21,14 @@ import static com.hamusuke.threadr.client.gui.component.panel.Panel.addButton;
 
 public class TopicListPanel extends JPanel implements ActionListener {
     private final ThreadRainbowClient client;
-    private final JTopicList topicList;
     public final JScrollPane topicScroll;
     private final JButton mkTopic;
     private final JButton rmTopic;
+    private final JButton chooseBtn;
 
     public TopicListPanel(ThreadRainbowClient client, JTopicList topicList) {
         super(new GridBagLayout());
         this.client = client;
-        this.topicList = topicList;
         var grid = (GridBagLayout) this.getLayout();
         this.topicScroll = new JScrollPane(topicList);
 
@@ -42,6 +42,11 @@ public class TopicListPanel extends JPanel implements ActionListener {
         this.rmTopic.addActionListener(this);
         this.rmTopic.setActionCommand("rmTopic");
 
+        this.chooseBtn = new JButton("お題をこれにする");
+        this.chooseBtn.setEnabled(false);
+        this.chooseBtn.addActionListener(this);
+        this.chooseBtn.setActionCommand("chooseTopic");
+
         addButton(this, this.topicScroll, grid, 0, 0, 1, 1, 1.0D);
     }
 
@@ -53,8 +58,8 @@ public class TopicListPanel extends JPanel implements ActionListener {
         this.mkTopic.setEnabled(true);
         this.rmTopic.setEnabled(true);
         var grid = (GridBagLayout) this.getLayout();
-        addButton(this, this.mkTopic, grid, 0, 1, 1, 1, 0.125D);
-        addButton(this, this.rmTopic, grid, 0, 2, 1, 1, 0.125D);
+        addButton(this, this.mkTopic, grid, 0, 2, 1, 1, 0.125D);
+        addButton(this, this.rmTopic, grid, 0, 3, 1, 1, 0.125D);
         this.revalidate();
     }
 
@@ -64,6 +69,46 @@ public class TopicListPanel extends JPanel implements ActionListener {
         this.remove(this.mkTopic);
         this.remove(this.rmTopic);
         this.revalidate();
+    }
+
+    public void showChooseBtn() {
+        if (!this.client.amIHost() || this.chooseBtn.isEnabled()) {
+            return;
+        }
+
+        this.chooseBtn.setEnabled(true);
+        var grid = (GridBagLayout) this.getLayout();
+        addButton(this, this.chooseBtn, grid, 0, 1, 1, 1, 0.125D);
+        this.revalidate();
+    }
+
+    public void hideChooseBtn() {
+        this.chooseBtn.setEnabled(false);
+        this.remove(this.chooseBtn);
+        this.revalidate();
+    }
+
+    private void chooseTopic() {
+        if (this.client.topics.getSelectedValuesList().isEmpty()) {
+            this.hideButtons();
+            this.hideChooseBtn();
+            this.client.setPanel(new OkPanel(this.client.getPanel(), "エラー", "お題が選択されていません") {
+                @Override
+                public void onClose() {
+                    super.onClose();
+                    TopicListPanel.this.showButtons();
+                    TopicListPanel.this.showChooseBtn();
+                }
+            });
+            return;
+        }
+
+        if (this.client.getConnection() == null) {
+            return;
+        }
+
+        var e = this.client.topics.getSelectedValuesList().get(0);
+        this.client.getConnection().sendPacket(new ChooseTopicReq(e.id()));
     }
 
     private void createTopic() {
@@ -113,6 +158,9 @@ public class TopicListPanel extends JPanel implements ActionListener {
                 break;
             case "rmTopic":
                 this.removeTopic();
+                break;
+            case "chooseTopic":
+                this.chooseTopic();
                 break;
         }
     }

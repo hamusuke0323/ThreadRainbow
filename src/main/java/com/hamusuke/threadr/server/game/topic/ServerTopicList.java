@@ -9,13 +9,13 @@ import java.util.function.Supplier;
 
 public class ServerTopicList extends TopicList {
     private final AtomicInteger idIncrementer = new AtomicInteger();
-    private final Supplier<Integer> incrementedId = idIncrementer::incrementAndGet;
+    private final Supplier<Integer> incrementedId = this.idIncrementer::incrementAndGet;
 
     public ServerTopicList(List<Topic> initialTopics) {
-        initialTopics.forEach(topic -> this.addTopicEntry(new TopicEntry(incrementedId.get(), topic)));
+        initialTopics.forEach(topic -> this.addTopicEntry(new TopicEntry(this.incrementedId.get(), topic)));
     }
 
     public TopicEntry addTopic(Topic topic) {
-        return this.addTopicEntry(new TopicEntry(incrementedId.get(), topic));
+        return this.addTopicEntry(new TopicEntry(this.incrementedId.get(), topic));
     }
 }

@@ -3,6 +3,7 @@ package com.hamusuke.threadr.server.network.listener.main;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.server.main.ServerPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.ExitGameNotify;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ChooseTopicReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
@@ -53,6 +54,21 @@ public class ServerPlayPacketListenerImpl extends ServerCommonPacketListenerImpl
         }
 
         this.room.getGame().moveCard(this.spider, packet.from(), packet.to());
+    }
+
+    @Override
+    public void handleChooseTopic(ChooseTopicReq packet) {
+        if (this.room.getGame() == null) {
+            this.spider.sendError("ゲームが始まっていません");
+            return;
+        }
+
+        if (!this.spider.isHost()) {
+            this.spider.sendError("ホストのみお題を選択できます");
+            return;
+        }
+
+        this.room.getGame().setTopic(packet.topicId());
     }
 
     @Override

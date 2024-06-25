@@ -30,6 +30,7 @@ import com.hamusuke.threadr.network.protocol.packet.serverbound.login.AliveReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EncryptionSetupReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.EnterNameRsp;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchangeReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ChooseTopicReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.room.StartGameReq;
@@ -145,6 +146,7 @@ public enum Protocol {
                     // play
                     .add(ClientCommandReq.class, ClientCommandReq::new)
                     .add(MoveCardReq.class, MoveCardReq::new)
+                    .add(ChooseTopicReq.class, ChooseTopicReq::new)
             )
     ),
     LOGIN(3, protocol()
