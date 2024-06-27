@@ -1,8 +1,6 @@
 package com.hamusuke.threadr.network.channel;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.hamusuke.threadr.client.ThreadRainbowClient;
-import com.hamusuke.threadr.client.network.ClientPacketLogger;
 import com.hamusuke.threadr.network.PacketLogger;
 import com.hamusuke.threadr.network.encryption.PacketDecryptor;
 import com.hamusuke.threadr.network.encryption.PacketEncryptor;
@@ -63,8 +61,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         this.logger = logger;
     }
 
-    public static Connection connect(ThreadRainbowClient client, InetSocketAddress address) {
-        final var connection = new Connection(PacketDirection.CLIENTBOUND, new ClientPacketLogger(client));
+    public static Connection connect(PacketLogger logger, InetSocketAddress address) {
+        final var connection = new Connection(PacketDirection.CLIENTBOUND, logger);
         Class<? extends SocketChannel> clazz;
         Lazy<? extends EventLoopGroup> lazy;
         if (Epoll.isAvailable()) {

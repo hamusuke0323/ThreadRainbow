@@ -13,6 +13,7 @@ import com.hamusuke.threadr.client.gui.component.panel.ServerListPanel;
 import com.hamusuke.threadr.client.gui.component.table.PacketLogTable;
 import com.hamusuke.threadr.client.gui.component.table.SpiderTable;
 import com.hamusuke.threadr.client.network.Chat;
+import com.hamusuke.threadr.client.network.ClientPacketLogger;
 import com.hamusuke.threadr.client.network.listener.info.ClientInfoPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.login.ClientLoginPacketListenerImpl;
 import com.hamusuke.threadr.client.network.listener.main.ClientCommonPacketListenerImpl;
@@ -171,7 +172,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
             info.status = Status.CONNECTING;
             this.onServerInfoChanged();
             var address = new InetSocketAddress(info.address, info.port);
-            var connection = Connection.connect(this, address);
+            var connection = Connection.connect(new ClientPacketLogger(this), address);
             connection.setListener(new ClientInfoPacketListenerImpl(this, connection, info));
             connection.sendPacket(new HandshakeReq(Protocol.INFO));
             this.infoConnections.add(connection);
@@ -282,7 +283,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     public void connectToServer(String host, int port, Consumer<String> consumer) {
         this.clientSpider = null;
         var address = new InetSocketAddress(host, port);
-        this.connection = Connection.connect(this, address);
+        this.connection = Connection.connect(new ClientPacketLogger(this), address);
         this.connection.setListener(new ClientLoginPacketListenerImpl(this.connection, this, consumer));
         this.connection.sendPacket(new HandshakeReq(Protocol.LOGIN));
         this.connection.sendPacket(new KeyExchangeReq());
