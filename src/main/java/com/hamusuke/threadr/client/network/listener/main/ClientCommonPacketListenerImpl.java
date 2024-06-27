@@ -123,10 +123,6 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
         this.client.setPanel(new LobbyPanel());
     }
 
-    public int getHostId() {
-        return this.curRoom.getHostId();
-    }
-
     @Override
     public void onDisconnected(String msg) {
         this.client.disconnect();

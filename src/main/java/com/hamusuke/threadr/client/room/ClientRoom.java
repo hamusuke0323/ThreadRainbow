@@ -59,8 +59,4 @@ public class ClientRoom extends Room {
     public void setHost(@Nullable AbstractClientSpider abstractClientSpider) {
         this.host = abstractClientSpider;
     }
-
-    public int getHostId() {
-        return this.host != null ? this.host.getId() : -1;
-    }
 }

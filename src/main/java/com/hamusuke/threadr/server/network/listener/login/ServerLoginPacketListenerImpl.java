@@ -34,7 +34,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     private ServerSpider serverSpider;
 
     public ServerLoginPacketListenerImpl(ThreadRainbowServer server, Connection connection) {
-        this.state = State.HELLO;
+        this.state = State.KEY_EX;
         this.server = server;
         this.connection = connection;
         RANDOM.nextBytes(this.nonce);
@@ -56,9 +56,9 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         }
 
         this.ticks++;
-        if ((this.state == State.HELLO || this.state == State.KEY) && this.ticks == TIMEOUT_TICKS) {
+        if ((this.state == State.KEY_EX || this.state == State.ENCRYPTION) && this.ticks == TIMEOUT_TICKS) {
             LOGGER.info("Login is too slow");
-            this.disconnect();
+            this.disconnect("Login is too slow");
         }
     }
 
@@ -67,11 +67,15 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         return this.connection;
     }
 
-    public void disconnect() {
+    private void disconnect() {
+        this.disconnect("");
+    }
+
+    private void disconnect(String msg) {
         try {
             LOGGER.info("Disconnecting {}", this.getConnectionInfo());
-            this.connection.sendPacket(new LoginDisconnectNotify(""));
-            this.connection.disconnect("");
+            this.connection.sendPacket(new LoginDisconnectNotify(msg));
+            this.connection.disconnect(msg);
         } catch (Exception e) {
             LOGGER.error("Error while disconnecting spider", e);
         }
@@ -105,18 +109,30 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
     @Override
     public void handleKeyEx(KeyExchangeReq packet) {
-        Validate.validState(this.state == State.HELLO, "Unexpected hello packet");
-        if (this.state != State.HELLO) {
+        Validate.validState(this.state == State.KEY_EX, "Unexpected key exchange packet");
+        if (this.state != State.KEY_EX) {
             this.disconnect();
+            return;
         }
 
-        this.state = State.KEY;
+        if (this.server.getKeyPair() == null) {
+            this.disconnect("Internal server error");
+            return;
+        }
+
+        this.state = State.ENCRYPTION;
         this.connection.sendPacket(new KeyExchangeRsp(this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
     }
 
     @Override
     public void handleEncryption(EncryptionSetupReq packet) {
-        Validate.validState(this.state == State.KEY, "Unexpected key packet");
+        Validate.validState(this.state == State.ENCRYPTION, "Unexpected encryption packet");
+
+        if (this.server.getKeyPair() == null) {
+            this.disconnect("Internal server error");
+            return;
+        }
+
         var privateKey = this.server.getKeyPair().getPrivate();
 
         try {
@@ -142,7 +158,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
     @Override
     public void handleEnterName(EnterNameRsp packet) {
-        Validate.validState(this.state == State.ENTER_NAME, "Unexpected login packet");
+        Validate.validState(this.state == State.ENTER_NAME, "Unexpected enter name packet");
 
         var res = this.tryLogin(packet.name());
         switch (res) {
@@ -169,8 +185,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     private enum State {
-        HELLO,
-        KEY,
+        KEY_EX,
+        ENCRYPTION,
         ENTER_NAME,
         READY,
         ACCEPTED

@@ -290,7 +290,7 @@ public class ThreadRainbowClient extends ReentrantThreadExecutor<Runnable> {
     }
 
     public boolean amIHost() {
-        return this.listener != null && this.clientSpider != null && this.listener.getHostId() == this.clientSpider.getId();
+        return this.curRoom != null && this.clientSpider != null && this.curRoom.getHost() == this.clientSpider;
     }
 
     public boolean isPacketTrash(Packet<?> packet) {
