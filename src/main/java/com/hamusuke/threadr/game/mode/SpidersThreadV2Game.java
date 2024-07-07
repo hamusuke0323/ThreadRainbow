@@ -2,13 +2,12 @@ package com.hamusuke.threadr.game.mode;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.hamusuke.threadr.game.card.Cards;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
-import com.hamusuke.threadr.server.game.card.ServerCard;
 import com.hamusuke.threadr.server.network.ServerSpider;
 import com.hamusuke.threadr.server.room.ServerRoom;
 import com.hamusuke.threadr.util.Util;
@@ -18,37 +17,31 @@ import org.apache.logging.log4j.Logger;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.IntStream;
 
-public class SpidersThreadV2Game {
+public class SpidersThreadV2Game implements Game {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final List<Byte> ALL_CARDS = Util.make(() -> {
-        var list = Lists.<Byte>newArrayList();
-        IntStream.rangeClosed(1, 100).forEach(value -> list.add((byte) value));
-        return ImmutableList.copyOf(list);
-    });
-    protected final Set<Byte> givenNum = Sets.newHashSet();
     protected final SecureRandom random = new SecureRandom();
     protected Status status = Status.NONE;
     protected final List<ServerSpider> spiders;
     protected final ThreadRainbowServer server;
     protected final ServerRoom room;
     protected TopicEntry topic;
-    protected final List<Integer> cards = Collections.synchronizedList(Lists.newArrayList());
-    protected int uncoveredIndex;
     protected boolean failed;
     protected boolean succeeded;
+    protected final Cards cards;
 
     public SpidersThreadV2Game(ThreadRainbowServer server, ServerRoom room, List<ServerSpider> spidersToPlay) {
         this.server = server;
         this.room = room;
         this.spiders = Collections.synchronizedList(Lists.newArrayList(spidersToPlay));
+        this.cards = new Cards(room.getDeck());
     }
 
+    @Override
     public void tick() {
     }
 
+    @Override
     public void start() {
         if (this.status == Status.NONE) {
             this.sendPacketToAllInGame(new ChatNotify("ゲームを開始します"));
@@ -62,13 +55,8 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.spiders.forEach(spider -> {
-            var remaining = ALL_CARDS.stream().filter(integer -> !this.givenNum.contains(integer)).toList();
-            byte num = Util.chooseRandom(remaining, this.random);
-            this.givenNum.add(num);
-            spider.takeCard(new ServerCard(spider, num));
-            spider.sendPacket(new LocalCardHandedNotify(num));
-        });
+        this.cards.giveOutCards(this.spiders);
+        this.spiders.forEach(spider -> spider.sendPacket(new LocalCardHandedNotify(spider.getHoldingCard().num())));
         this.spiders.forEach(spider -> this.sendPacketToOthersInGame(spider, new RemoteCardGivenNotify(spider)));
         this.sendPacketToAllInGame(new ChatNotify("カードを配りました"));
         this.nextStatus();
@@ -112,6 +100,7 @@ public class SpidersThreadV2Game {
         return false;
     }
 
+    @Override
     public boolean setTopic(int topicId) {
         if (this.status != Status.SELECTING_TOPIC) {
             return true;
@@ -132,19 +121,13 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.preLineup();
         this.spiders.forEach(spider -> {
             spider.sendPacket(new ChatNotify("お題が決まりました"));
             spider.sendPacket(new ChatNotify("お題に沿って「たとえ」て小さい順に並べましょう"));
-            spider.sendPacket(new StartMainGameNotify(this.cards));
+            spider.sendPacket(new StartMainGameNotify(this.cards.getCards()));
         });
 
         this.nextStatus();
-    }
-
-    protected void preLineup() {
-        this.cards.clear();
-        this.spiders.forEach(spider -> this.cards.add(spider.getId()));
     }
 
     public synchronized void moveCard(ServerSpider operator, int from, int to) {
@@ -158,15 +141,7 @@ public class SpidersThreadV2Game {
         }
 
         try {
-            var v = this.cards.get(from);
-            if (to < from) {
-                this.cards.remove(from);
-                this.cards.add(to, v);
-            } else {
-                this.cards.add(to + 1, v);
-                this.cards.remove(from);
-            }
-
+            this.cards.moveCard(from, to);
             this.sendPacketToAllInGame(new CardMoveNotify(from, to));
         } catch (IndexOutOfBoundsException e) {
             LOGGER.warn("The card moved wrongly!", e);
@@ -194,36 +169,42 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        if (this.uncoveredIndex >= this.cards.size()) {
-            LOGGER.warn("Uncovering unknown card: {}", this.uncoveredIndex);
+        var uncCard = this.cards.uncover();
+        if (uncCard == null) {
             return;
         }
 
-        int cur = this.uncoveredIndex;
-        int ownerId = this.cards.get(this.uncoveredIndex++);
-        int prevId = cur > 0 ? this.cards.get(cur - 1) : -1;
         ServerSpider owner = null;
         ServerSpider prev = null;
         for (ServerSpider spider : this.spiders) {
-            if (spider.getId() == ownerId) {
+            if (spider.getId() == uncCard.ownerId()) {
                 owner = spider;
-            } else if (spider.getId() == prevId) {
+            } else if (spider.getId() == uncCard.prevId()) {
                 prev = spider;
+            }
+
+            if (owner != null && (uncCard.isFirstCard() || prev != null)) {
+                break;
             }
         }
 
-        if (cur > 0) {
+        if (!uncCard.isFirstCard()) {
             if (owner != null && prev != null && owner.getHoldingCard().getNumber() < prev.getHoldingCard().getNumber()) {
                 this.fail();
             }
         }
 
-        boolean last = this.cards.size() <= this.uncoveredIndex;
         if (owner != null) {
-            this.sendPacketToAllInGame(new UncoverCardNotify(owner.getId(), owner.getHoldingCard().getNumber(), last));
+            this.sendPacketToAllInGame(new UncoverCardNotify(owner.getId(), owner.getHoldingCard().getNumber()));
         }
-        if (last && !this.failed) {
-            this.succeed();
+
+        if (uncCard.last()) {
+            if (!this.failed) {
+                this.succeed();
+            } else {
+                this.nextStatus();
+                this.sendPacketToAllInGame(new GameEndNotify());
+            }
         }
     }
 
@@ -233,7 +214,6 @@ public class SpidersThreadV2Game {
         }
 
         this.failed = true;
-        this.nextStatus();
         this.sendPacketToAllInGame(new ChatNotify("失敗です！もう一度挑戦してみましょう"));
     }
 
@@ -244,15 +224,21 @@ public class SpidersThreadV2Game {
 
         this.succeeded = true;
         this.nextStatus();
+        this.sendPacketToAllInGame(new GameEndNotify());
         this.sendPacketToAllInGame(new ChatNotify("成功です！"));
     }
 
+    @Override
     public void restart() {
         if (this.status != Status.END) {
             return;
         }
 
-        this.room.restartGame();
+        this.status = Status.NONE;
+        this.failed = this.succeeded = false;
+        this.room.getDeck().returnAllCards();
+        this.sendPacketToAllInGame(new RestartGameNotify());
+        this.start();
     }
 
     protected void nextStatus() {
@@ -263,10 +249,12 @@ public class SpidersThreadV2Game {
         this.status = this.status.next();
     }
 
+    @Override
     public List<ServerSpider> getPlayingSpiders() {
         return ImmutableList.copyOf(this.spiders);
     }
 
+    @Override
     public synchronized void onSpiderLeft(ServerSpider spider) {
         if (!this.spiders.contains(spider)) {
             return;
@@ -278,7 +266,7 @@ public class SpidersThreadV2Game {
             return;
         }
 
-        this.cards.removeIf(integer -> spider.getId() == integer);
+        this.cards.remove(spider);
         this.finishIfLastCardLeft();
         if (this.room.isHost(spider) && !this.spiders.isEmpty()) {
             this.room.changeHost(this.spiders.get(0));
@@ -289,16 +277,16 @@ public class SpidersThreadV2Game {
     }
 
     private void finishIfLastCardLeft() {
-        if (this.status != Status.RESULT || this.cards.size() > this.uncoveredIndex || this.succeeded) {
+        if (this.status != Status.RESULT || this.cards.hasCoveredCards() || this.succeeded) {
             return;
         }
 
-        this.sendPacketToAllInGame(new UncoverCardNotify(-1, (byte) -1, true));
         if (!this.failed) {
             this.succeed();
         }
     }
 
+    @Override
     public void sendPacketToAllInGame(Packet<?> packet) {
         this.spiders.forEach(spider -> spider.sendPacket(packet));
     }

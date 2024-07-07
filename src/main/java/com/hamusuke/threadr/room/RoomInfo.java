@@ -4,7 +4,6 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.util.Util;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public record RoomInfo(int id, String roomName, String hostName, int population, boolean hasPassword) {
@@ -20,10 +19,10 @@ public record RoomInfo(int id, String roomName, String hostName, int population,
         buf.writeBoolean(this.hasPassword);
     }
 
-    public JPanel toPanel() {
+    public JPanel toPanel(Color selectionForeground) {
         var label = new JLabel(Util.toHTML(String.format("%s\nホスト: %s\n%d人\n%s", this.roomName, this.hostName, this.population, this.hasPassword ? "パスワードあり" : "パスワードなし")), SwingConstants.CENTER);
+        label.setForeground(selectionForeground);
         var panel = new JPanel();
-        panel.setBorder(new LineBorder(Color.BLACK, 1));
         panel.add(label);
         return panel;
     }

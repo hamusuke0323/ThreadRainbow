@@ -9,8 +9,17 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class WaitingHostPanel extends Panel {
+    private final String buttonText;
+    private final Command command;
+
     public WaitingHostPanel() {
+        this("お題を選ぶ", Command.START_TOPIC_SELECTION);
+    }
+
+    public WaitingHostPanel(String buttonText, Command command) {
         super(new FlowLayout());
+        this.buttonText = buttonText;
+        this.command = command;
     }
 
     @Override
@@ -18,8 +27,7 @@ public class WaitingHostPanel extends Panel {
         super.init();
 
         if (this.client.amIHost()) {
-            var selectTopic = new JButton("お題を選ぶ");
-            selectTopic.setActionCommand("select");
+            var selectTopic = new JButton(this.buttonText);
             selectTopic.addActionListener(this);
             this.add(selectTopic);
         } else {
@@ -30,6 +38,6 @@ public class WaitingHostPanel extends Panel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        this.client.getConnection().sendPacket(new ClientCommandReq(Command.START_TOPIC_SELECTION));
+        this.client.getConnection().sendPacket(new ClientCommandReq(this.command));
     }
 }

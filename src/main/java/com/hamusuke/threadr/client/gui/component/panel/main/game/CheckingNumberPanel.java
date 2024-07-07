@@ -16,7 +16,7 @@ public class CheckingNumberPanel extends Panel {
     public void init() {
         super.init();
 
-        var cardNum = new JLabel(this.client.clientSpider.getLocalCard().getNumber() + "", SwingConstants.CENTER);
+        var cardNum = new JLabel(this.client.clientSpider.getClientCard().getNumber() + "", SwingConstants.CENTER);
         cardNum.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
 
         var ack = new JButton("OK!");

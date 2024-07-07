@@ -19,9 +19,10 @@ public class JTopicList extends JList<TopicEntry> {
         this.setDragEnabled(false);
         this.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             var label = new JLabel(Util.toHTML(value.toPrettyString()));
+            label.setForeground(isSelected ? this.getSelectionForeground() : Color.BLACK);
             var panel = new JPanel();
             panel.setBackground(isSelected ? this.getSelectionBackground() : Color.WHITE);
-            panel.setBorder(new LineBorder(Color.BLACK, 1));
+            panel.setBorder(new LineBorder(isSelected ? this.getSelectionForeground() : this.getSelectionBackground(), 1));
             panel.add(label);
             return panel;
         });

@@ -1,6 +1,9 @@
 package com.hamusuke.threadr.client.gui.component.panel;
 
+import com.hamusuke.threadr.Constants;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.component.list.NumberCardList;
+import com.hamusuke.threadr.client.gui.component.panel.misc.ImagePanel;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
@@ -42,6 +45,27 @@ public abstract class Panel extends JPanel implements ActionListener, ComponentL
     }
 
     public void tick() {
+    }
+
+    protected ImagePanel createZeroCardImagePanel() {
+        var image = new ImagePanel("/zero.jpg");
+        image.setMaximumSize(new Dimension(Constants.CARD_WIDTH, Integer.MAX_VALUE));
+        image.setPreferredSize(new Dimension(Constants.CARD_WIDTH, Constants.CARD_HEIGHT));
+        return image;
+    }
+
+    protected JPanel createGamePanel() {
+        var p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(this.createZeroCardImagePanel());
+        p.add(new JScrollPane(this.createNumberCardList()));
+        return p;
+    }
+
+    protected NumberCardList createNumberCardList() {
+        var list = NumberCardList.play(this.client);
+        list.setModel(this.client.model);
+        return list;
     }
 
     @Nullable

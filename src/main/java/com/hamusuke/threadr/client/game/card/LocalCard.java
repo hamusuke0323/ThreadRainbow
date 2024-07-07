@@ -1,13 +1,11 @@
 package com.hamusuke.threadr.client.game.card;
 
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
-import com.hamusuke.threadr.game.card.NumberCard;
 import com.hamusuke.threadr.network.Spider;
 
-public class LocalCard implements NumberCard {
+public class LocalCard extends AbstractClientCard {
     private final LocalSpider owner;
     private final byte num;
-    private boolean uncovered;
 
     public LocalCard(LocalSpider owner, byte num) {
         this.owner = owner;
@@ -27,14 +25,5 @@ public class LocalCard implements NumberCard {
     @Override
     public boolean canBeSeen() {
         return true;
-    }
-
-    @Override
-    public boolean isUncovered() {
-        return this.uncovered;
-    }
-
-    public void uncover() {
-        this.uncovered = true;
     }
 }

@@ -12,6 +12,7 @@ import com.hamusuke.threadr.room.RoomInfo;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -52,8 +53,9 @@ public class LobbyPanel extends Panel implements ListSelectionListener {
         this.list.addListSelectionListener(this);
         this.list.setOpaque(true);
         this.list.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
-            var p = value.toPanel();
+            var p = value.toPanel(isSelected ? this.list.getSelectionForeground() : Color.BLACK);
             p.setBackground(isSelected ? this.list.getSelectionBackground() : Color.WHITE);
+            p.setBorder(new LineBorder(isSelected ? this.list.getSelectionForeground() : this.list.getSelectionBackground(), 1));
             return p;
         });
         this.add(new JScrollPane(this.list), BorderLayout.CENTER);

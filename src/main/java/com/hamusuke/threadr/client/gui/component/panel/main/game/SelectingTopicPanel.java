@@ -20,7 +20,6 @@ public class SelectingTopicPanel extends Panel {
     public void init() {
         super.init();
 
-        SwingUtilities.invokeLater(this.client.spiderTable::addCardNumCol);
         this.client.setWindowTitle("ゲーム - お題決定 " + this.client.getGameTitle());
 
         if (this.client.amIHost()) {

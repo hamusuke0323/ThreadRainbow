@@ -11,6 +11,7 @@ public class SpiderInfoRenderer extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (value instanceof AbstractClientSpider spider) {
             var label = new JLabel(spider.getName(), CENTER);
+            label.setForeground(spider.myTeam == null ? Color.BLACK : spider.myTeam.getColor());
             label.setToolTipText(String.format("id: %s, ping: %dms", spider.getId(), spider.getPing()));
             return label;
         }

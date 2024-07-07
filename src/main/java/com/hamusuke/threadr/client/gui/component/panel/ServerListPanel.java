@@ -36,9 +36,10 @@ public class ServerListPanel extends Panel implements ListSelectionListener {
         this.list.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             var label = new JLabel(value.toString());
             label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setForeground(isSelected ? this.list.getSelectionForeground() : Color.BLACK);
             var panel = new JPanel();
             panel.setBackground(isSelected ? this.list.getSelectionBackground() : Color.WHITE);
-            panel.setBorder(new LineBorder(Color.BLACK, 1));
+            panel.setBorder(new LineBorder(isSelected ? this.list.getSelectionForeground() : this.list.getSelectionBackground(), 1));
             panel.add(label);
             return panel;
         });

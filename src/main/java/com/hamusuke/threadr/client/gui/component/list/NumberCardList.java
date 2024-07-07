@@ -62,10 +62,14 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
         return new NumberCardList(client, true);
     }
 
-    private void drawCardImage(Graphics g, int x) {
+    private void drawCardImage(Graphics g, int x, int y) {
         if (this.card != null) {
-            g.drawImage(this.card, x, 0, null);
+            g.drawImage(this.card, x, y, null);
         }
+    }
+
+    protected int getCardY(NumberCard card) {
+        return card.isOut() ? this.getFixedCellHeight() / 4 : 0;
     }
 
     @Override
@@ -74,22 +78,34 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
 
         for (int i = 0; i < this.getModel().getSize(); i++) {
             var card = this.getModel().getElementAt(i);
+            int y = this.getCardY(card);
+            int strY = y + 20;
+            int bottom = y + this.getFixedCellHeight();
+
+            if (card.isUncovered()) {
+                g.drawRoundRect(i * this.getFixedCellWidth(), y, this.getFixedCellWidth(), this.getFixedCellHeight(), 10, 10);
+            }
+
             if (card instanceof LocalCard) {
                 if (card.isUncovered()) {
-                    g.drawString("あなたのカード", i * this.getFixedCellWidth(), 20);
-                    g.drawString("" + card.getNumber(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 4, this.getFixedCellHeight() / 2 - 4);
+                    g.drawString("あなたのカード", i * this.getFixedCellWidth() + 4, strY);
+                    g.drawString("" + card.getNumber(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 11, y + this.getFixedCellHeight() / 2 - 4);
                 } else {
-                    this.drawCardImage(g, i * this.getFixedCellWidth());
-                    g.drawString("あなたのカード: " + card.getNumber(), i * this.getFixedCellWidth(), 20);
+                    this.drawCardImage(g, i * this.getFixedCellWidth(), y);
+                    g.drawString("あなたのカード: " + card.getNumber(), i * this.getFixedCellWidth() + 4, strY);
                 }
             } else {
                 if (card.isUncovered()) {
-                    g.drawString("" + card.getNumber(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 4, this.getFixedCellHeight() / 2 - 4);
+                    g.drawString("" + card.getNumber(), i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 11, y + this.getFixedCellHeight() / 2 - 4);
                 } else {
-                    this.drawCardImage(g, i * this.getFixedCellWidth());
+                    this.drawCardImage(g, i * this.getFixedCellWidth(), y);
                 }
 
-                g.drawString(card.getOwner().getName(), i * this.getFixedCellWidth(), 20);
+                g.drawString(card.getOwner().getName(), i * this.getFixedCellWidth() + 4, strY);
+            }
+
+            if (card.isOut()) {
+                g.drawString("アウト！", i * this.getFixedCellWidth() + this.getFixedCellWidth() / 2 - 28, bottom + 15);
             }
         }
 

@@ -3,6 +3,7 @@ package com.hamusuke.threadr.room;
 import com.hamusuke.threadr.game.topic.TopicList;
 import com.hamusuke.threadr.network.Spider;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,5 +43,10 @@ public abstract class Room {
 
     public TopicList getTopicList() {
         return this.topicList;
+    }
+
+    @Nullable
+    public Spider getSpider(int id) {
+        return this.getSpiders().stream().filter(spider -> spider.getId() == id).findFirst().orElse(null);
     }
 }

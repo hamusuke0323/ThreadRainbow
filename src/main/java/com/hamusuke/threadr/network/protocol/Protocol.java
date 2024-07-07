@@ -21,6 +21,7 @@ import com.hamusuke.threadr.network.protocol.packet.clientbound.info.ServerInfoR
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.login.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.room.GameModeSyncNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.handshake.HandshakeReq;
@@ -33,6 +34,8 @@ import com.hamusuke.threadr.network.protocol.packet.serverbound.login.KeyExchang
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ChooseTopicReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.ClientCommandReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.MoveCardReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.play.TeamToggleReq;
+import com.hamusuke.threadr.network.protocol.packet.serverbound.room.SelectGameModeReq;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.room.StartGameReq;
 import com.hamusuke.threadr.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -87,6 +90,7 @@ public enum Protocol {
 
                     // room
                     .add(StartGameNotify.class, StartGameNotify::new)
+                    .add(GameModeSyncNotify.class, GameModeSyncNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerRoomPacketListener>()
                     // common
@@ -101,6 +105,7 @@ public enum Protocol {
 
                     // room
                     .add(StartGameReq.class, StartGameReq::new)
+                    .add(SelectGameModeReq.class, SelectGameModeReq::new)
             )
     ),
     PLAY(2, protocol()
@@ -131,6 +136,17 @@ public enum Protocol {
                     .add(RestartGameNotify.class, RestartGameNotify::new)
                     .add(ExitGameNotify.class, ExitGameNotify::new)
                     .add(SpiderExitGameNotify.class, SpiderExitGameNotify::new)
+                    .add(StartMakingTeamNotify.class, StartMakingTeamNotify::new)
+                    .add(TeamToggleSyncNotify.class, TeamToggleSyncNotify::new)
+                    .add(MakingTeamDoneNotify.class, MakingTeamDoneNotify::new)
+                    .add(TimerStartNotify.class, TimerStartNotify::new)
+                    .add(TimerSyncNotify.class, TimerSyncNotify::new)
+                    .add(TeamFirstFinishGameNotify.class, TeamFirstFinishGameNotify::new)
+                    .add(StartTeamResultNotify.class, StartTeamResultNotify::new)
+                    .add(TeamCardDataNotify.class, TeamCardDataNotify::new)
+                    .add(GameEndNotify.class, GameEndNotify::new)
+                    .add(FirstTeamResultDoneNotify.class, FirstTeamResultDoneNotify::new)
+                    .add(FinishButtonAckNotify.class, FinishButtonAckNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     // common
@@ -147,6 +163,7 @@ public enum Protocol {
                     .add(ClientCommandReq.class, ClientCommandReq::new)
                     .add(MoveCardReq.class, MoveCardReq::new)
                     .add(ChooseTopicReq.class, ChooseTopicReq::new)
+                    .add(TeamToggleReq.class, TeamToggleReq::new)
             )
     ),
     LOGIN(3, protocol()

@@ -1,7 +1,11 @@
 package com.hamusuke.threadr.server.room;
 
 import com.google.common.collect.Lists;
+import com.hamusuke.threadr.game.card.GameDeck;
+import com.hamusuke.threadr.game.mode.Game;
+import com.hamusuke.threadr.game.mode.GameMode;
 import com.hamusuke.threadr.game.mode.SpidersThreadV2Game;
+import com.hamusuke.threadr.game.mode.ThreadRainbowGame;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.Spider;
@@ -9,15 +13,14 @@ import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.*;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.lobby.JoinRoomSuccNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.ExitGameNotify;
-import com.hamusuke.threadr.network.protocol.packet.clientbound.play.RestartGameNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
 import com.hamusuke.threadr.room.Room;
 import com.hamusuke.threadr.room.RoomInfo;
 import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.game.topic.ServerTopicList;
 import com.hamusuke.threadr.server.network.ServerSpider;
-import com.hamusuke.threadr.server.network.listener.main.ServerPlayPacketListenerImpl;
 import com.hamusuke.threadr.server.network.listener.main.ServerRoomPacketListenerImpl;
+import com.hamusuke.threadr.server.network.listener.main.play.ServerPlayPacketListenerImpl;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -31,7 +34,10 @@ public class ServerRoom extends Room {
     private final String password;
     @Nullable
     private ServerSpider host;
-    private SpidersThreadV2Game game;
+    private final GameDeck deck = new GameDeck();
+    public GameMode curGameMode = GameMode.SPIDERS_THREAD_V2;
+    @Nullable
+    private Game game;
 
     public ServerRoom(ThreadRainbowServer server, String roomName, String password) {
         super(roomName, new ServerTopicList(server.getTopicLoader().getTopics()));
@@ -69,7 +75,7 @@ public class ServerRoom extends Room {
         }
 
         this.sendPacketToAllInRoom(new ChangeHostNotify(this.host));
-        this.sendPacketToAllInRoom(new ChatNotify("%s[%s] が部屋に参加しました".formatted(serverSpider.getDisplayName(), serverSpider.connection.getConnection().getAddress())));
+        this.sendPacketToAllInRoom(new ChatNotify("%s が部屋に参加しました".formatted(serverSpider.getDisplayName())));
     }
 
     @Override
@@ -99,7 +105,7 @@ public class ServerRoom extends Room {
             this.sendPacketToAllInRoom(new ChangeHostNotify(this.host));
         }
 
-        this.sendPacketToAllInRoom(new ChatNotify("%s[%s] が部屋から退出しました".formatted(serverSpider.getDisplayName(), serverSpider.connection.getConnection().getAddress())));
+        this.sendPacketToAllInRoom(new ChatNotify("%s が部屋から退出しました".formatted(serverSpider.getDisplayName())));
     }
 
     @Override
@@ -141,32 +147,40 @@ public class ServerRoom extends Room {
         return (ServerTopicList) this.topicList;
     }
 
+    private Game newGameByGameMode(List<ServerSpider> spiders) {
+        return switch (this.curGameMode) {
+            case SPIDERS_THREAD_V2 -> new SpidersThreadV2Game(this.server, this, spiders);
+            case THREAD_RAINBOW -> new ThreadRainbowGame(this.server, this, spiders);
+        };
+    }
+
     public void startGame() {
         var spiders = this.getSpiders();
-        if (spiders.size() > 100) {
-            this.sendPacketToAllInRoom(new ChatNotify("このゲームは100人まで遊べます"));
+        var mode = this.curGameMode;
+        if (spiders.size() > mode.getMaxSpiders()) {
+            this.sendPacketToAllInRoom(new ChatNotify("このゲームモードでは%d人まで遊べます".formatted(mode.getMaxSpiders())));
             return;
         }
 
-        this.game = new SpidersThreadV2Game(this.server, this, spiders);
+        if (spiders.size() < mode.getMinSpiders()) {
+            this.sendPacketToAllInRoom(new ChatNotify("このゲームモードで遊ぶためには%d人以上必要です".formatted(mode.getMinSpiders())));
+            return;
+        }
+
+        this.deck.returnAllCards();
+        this.game = this.newGameByGameMode(spiders);
         this.game.getPlayingSpiders().forEach(spider -> {
-            spider.sendPacket(new StartGameNotify());
-            new ServerPlayPacketListenerImpl(this.server, spider.connection.getConnection(), spider);
+            spider.sendPacket(new StartGameNotify(mode));
+            ServerPlayPacketListenerImpl.newListenerByGameMode(mode, this.server, spider.connection.getConnection(), spider);
         });
         this.game.start();
     }
 
-    public void restartGame() {
+    public synchronized void endGame() {
         if (this.game == null) {
             return;
         }
 
-        this.game = new SpidersThreadV2Game(this.server, this, this.game.getPlayingSpiders());
-        this.game.sendPacketToAllInGame(new RestartGameNotify());
-        this.game.start();
-    }
-
-    public synchronized void endGame() {
         this.game.getPlayingSpiders().forEach(serverSpider -> {
             serverSpider.sendPacket(new ExitGameNotify());
             new ServerRoomPacketListenerImpl(this.server, serverSpider.connection.getConnection(), serverSpider);
@@ -174,7 +188,8 @@ public class ServerRoom extends Room {
         this.game = null;
     }
 
-    public SpidersThreadV2Game getGame() {
+    @Nullable
+    public Game getGame() {
         return this.game;
     }
 
@@ -194,6 +209,10 @@ public class ServerRoom extends Room {
 
     public String getPassword() {
         return this.password;
+    }
+
+    public GameDeck getDeck() {
+        return this.deck;
     }
 
     public boolean isHost(ServerSpider spider) {
@@ -222,5 +241,11 @@ public class ServerRoom extends Room {
 
     public boolean isHost(String name) {
         return this.host != null && this.host.getName().equals(name);
+    }
+
+    @Nullable
+    @Override
+    public ServerSpider getSpider(int id) {
+        return (ServerSpider) super.getSpider(id);
     }
 }

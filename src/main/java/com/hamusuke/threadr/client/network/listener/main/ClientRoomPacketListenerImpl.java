@@ -1,9 +1,13 @@
 package com.hamusuke.threadr.client.network.listener.main;
 
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.gui.component.panel.dialog.CenteredMessagePanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
+import com.hamusuke.threadr.client.network.listener.main.play.ClientPlayPacketListenerImpl;
 import com.hamusuke.threadr.network.channel.Connection;
 import com.hamusuke.threadr.network.listener.client.main.ClientRoomPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChangeHostNotify;
+import com.hamusuke.threadr.network.protocol.packet.clientbound.room.GameModeSyncNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.room.StartGameNotify;
 
 public class ClientRoomPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientRoomPacketListener {
@@ -20,8 +24,16 @@ public class ClientRoomPacketListenerImpl extends ClientCommonPacketListenerImpl
 
     @Override
     public void handleStartGame(StartGameNotify packet) {
-        var listener = new ClientPlayPacketListenerImpl(this.client, this.connection);
+        this.client.setPanel(new CenteredMessagePanel("ゲームを開始しています..."));
+        var listener = ClientPlayPacketListenerImpl.newListenerByGameMode(packet.mode(), this.client, this.connection);
         this.connection.setListener(listener);
         this.connection.setProtocol(packet.nextProtocol());
+    }
+
+    @Override
+    public void handleGameModeSync(GameModeSyncNotify packet) {
+        if (this.client.getPanel() instanceof RoomPanel roomPanel) {
+            roomPanel.setSelectedItem(packet.gameMode());
+        }
     }
 }

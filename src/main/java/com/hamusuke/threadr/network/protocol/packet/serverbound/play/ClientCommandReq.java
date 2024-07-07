@@ -20,12 +20,17 @@ public record ClientCommandReq(Command command) implements Packet<ServerPlayPack
     }
 
     public enum Command {
+        FINISH_MAKING_TEAM,
         START_TOPIC_SELECTION,
         CHANGE_TOPIC,
         DECIDE_TOPIC,
+        START_MAIN_GAME,
         FINISH,
+        TEAM_FINISH(false),
         UNCOVER,
+        NEXT,
         RESTART,
+        RESTART_WITH_THE_SAME_TEAM,
         EXIT(false);
 
         private final boolean hostOnly;

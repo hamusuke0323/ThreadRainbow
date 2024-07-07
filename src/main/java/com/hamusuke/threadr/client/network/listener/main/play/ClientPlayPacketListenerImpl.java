@@ -1,14 +1,20 @@
-package com.hamusuke.threadr.client.network.listener.main;
+package com.hamusuke.threadr.client.network.listener.main.play;
 
 import com.google.common.collect.Maps;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
 import com.hamusuke.threadr.client.game.card.LocalCard;
 import com.hamusuke.threadr.client.game.card.RemoteCard;
-import com.hamusuke.threadr.client.gui.component.panel.main.game.*;
+import com.hamusuke.threadr.client.gui.component.panel.main.game.EndPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.game.PlayingPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.game.ResultPanel;
+import com.hamusuke.threadr.client.gui.component.panel.main.game.SelectingTopicPanel;
 import com.hamusuke.threadr.client.gui.component.panel.main.room.RoomPanel;
+import com.hamusuke.threadr.client.network.listener.main.ClientCommonPacketListenerImpl;
+import com.hamusuke.threadr.client.network.listener.main.ClientRoomPacketListenerImpl;
 import com.hamusuke.threadr.client.network.spider.LocalSpider;
 import com.hamusuke.threadr.client.network.spider.RemoteSpider;
 import com.hamusuke.threadr.game.card.NumberCard;
+import com.hamusuke.threadr.game.mode.GameMode;
 import com.hamusuke.threadr.game.topic.Topic;
 import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.channel.Connection;
@@ -25,17 +31,24 @@ import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 
-public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
+public abstract class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl implements ClientPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final TopicEntry EMPTY = new TopicEntry(-1, new Topic(List.of("お題のデータをサーバーに問い合わせています..."), "-", "-"));
-    private final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
+    protected final Map<Integer, NumberCard> cardMap = Maps.newConcurrentMap();
     private TopicEntry topicEntry;
     private int unknownTopicId = -1;
-    private boolean selectingTopic;
+    protected boolean selectingTopic;
 
     public ClientPlayPacketListenerImpl(ThreadRainbowClient client, Connection connection) {
         super(client, client.curRoom, connection);
         this.clientSpider = client.clientSpider;
+    }
+
+    public static ClientPlayPacketListenerImpl newListenerByGameMode(GameMode mode, ThreadRainbowClient client, Connection connection) {
+        return switch (mode) {
+            case SPIDERS_THREAD_V2 -> new ClientPlay4SpidersThreadV2GamePacketListener(client, connection);
+            case THREAD_RAINBOW -> new ClientPlay4ThreadRainbowGamePacketListener(client, connection);
+        };
     }
 
     @Override
@@ -53,10 +66,9 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
     @Override
     public void handleGiveCard(LocalCardHandedNotify packet) {
         var card = new LocalCard(this.clientSpider, packet.num());
-        this.clientSpider.takeCard(card);
+        this.clientSpider.setClientCard(card);
         this.cardMap.clear();
         this.cardMap.put(this.clientSpider.getId(), card);
-        this.client.setPanel(new HandedCardPanel());
     }
 
     @Override
@@ -70,7 +82,7 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
                             LOGGER.warn("Remote card came on me, should never happen!");
                         } else if (s instanceof RemoteSpider spider) {
                             var card = new RemoteCard(spider);
-                            spider.haveRemoteCard(card);
+                            spider.setClientCard(card);
                             this.cardMap.put(spider.getId(), card);
                         }
                     });
@@ -140,7 +152,11 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
             this.client.model.addElement(card);
         });
 
-        this.client.setPanel(new PlayingPanel(this.topicEntry.topic()));
+        this.client.setPanel(this.getPlayingPanel(this.topicEntry.topic()));
+    }
+
+    protected PlayingPanel getPlayingPanel(Topic topic) {
+        return new PlayingPanel(topic);
     }
 
     @Override
@@ -176,21 +192,19 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
                     .filter(s -> s.getId() == packet.id())
                     .findFirst()
                     .ifPresent(s -> {
-                        if (s instanceof RemoteSpider r) {
-                            r.getRemoteCard().setNumber(packet.num());
-                            r.getRemoteCard().uncover();
-                        } else if (s instanceof LocalSpider l) {
-                            l.getLocalCard().uncover();
+                        if (s.getClientCard() != null) {
+                            s.getClientCard().setNumber(packet.num());
+                            s.getClientCard().setOut(packet.isOut());
+                            s.getClientCard().uncover();
                         }
                     });
         }
 
         this.client.getPanel().repaint();
+    }
 
-        if (!packet.last()) {
-            return;
-        }
-
+    @Override
+    public void handleGameEnd(GameEndNotify packet) {
         this.client.setPanel(new EndPanel());
     }
 
@@ -218,6 +232,56 @@ public class ClientPlayPacketListenerImpl extends ClientCommonPacketListenerImpl
 
             this.cardMap.remove(packet.id());
         }
+    }
+
+    @Override
+    public void handleStartMakingTeam(StartMakingTeamNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleTeamToggleSync(TeamToggleSyncNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleMakingTeamDone(MakingTeamDoneNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleTimerStart(TimerStartNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleTimerSync(TimerSyncNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleFinishButtonAck(FinishButtonAckNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleTeamFirstFinishGame(TeamFirstFinishGameNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleStartTeamResult(StartTeamResultNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleTeamCardData(TeamCardDataNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleFirstTeamResultDone(FirstTeamResultDoneNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Nullable

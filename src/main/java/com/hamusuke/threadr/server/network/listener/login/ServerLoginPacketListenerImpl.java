@@ -193,7 +193,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     private enum LoginResult {
-        OK(s -> s),
+        OK(Function.identity()),
         INVALID_CHARS_IN_NAME(s -> "使用不可能な文字が含まれています"),
         DUPLICATED_NAME(s -> String.format("'%s' という名前は既に使われています。別の名前を使用してください", s));
 

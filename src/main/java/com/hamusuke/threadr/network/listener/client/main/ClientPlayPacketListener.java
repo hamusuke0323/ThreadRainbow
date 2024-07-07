@@ -19,9 +19,31 @@ public interface ClientPlayPacketListener extends ClientCommonPacketListener {
 
     void handleUncoverCard(UncoverCardNotify packet);
 
+    void handleGameEnd(GameEndNotify packet);
+
     void handleRestart(RestartGameNotify packet);
 
     void handleExit(ExitGameNotify packet);
 
     void handleSpiderExit(SpiderExitGameNotify packet);
+
+    void handleStartMakingTeam(StartMakingTeamNotify packet);
+
+    void handleTeamToggleSync(TeamToggleSyncNotify packet);
+
+    void handleMakingTeamDone(MakingTeamDoneNotify packet);
+
+    void handleTimerStart(TimerStartNotify packet);
+
+    void handleTimerSync(TimerSyncNotify packet);
+
+    void handleFinishButtonAck(FinishButtonAckNotify packet);
+
+    void handleTeamFirstFinishGame(TeamFirstFinishGameNotify packet);
+
+    void handleStartTeamResult(StartTeamResultNotify packet);
+
+    void handleTeamCardData(TeamCardDataNotify packet);
+
+    void handleFirstTeamResultDone(FirstTeamResultDoneNotify packet);
 }
