@@ -69,7 +69,7 @@ public class NumberCardList extends JList<NumberCard> implements DragGestureList
     }
 
     protected int getCardY(NumberCard card) {
-        return card.isOut() ? this.getFixedCellHeight() / 4 : 0;
+        return card.isOut() ? this.getFixedCellHeight() / 8 : 0;
     }
 
     @Override

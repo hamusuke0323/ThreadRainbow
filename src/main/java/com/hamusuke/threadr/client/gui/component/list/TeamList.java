@@ -2,6 +2,7 @@ package com.hamusuke.threadr.client.gui.component.list;
 
 import com.google.common.collect.ImmutableList;
 import com.hamusuke.threadr.client.ThreadRainbowClient;
+import com.hamusuke.threadr.client.network.spider.AbstractClientSpider;
 import com.hamusuke.threadr.game.team.TeamEntry;
 import com.hamusuke.threadr.network.protocol.packet.serverbound.play.TeamToggleReq;
 
@@ -45,6 +46,22 @@ public class TeamList extends JList<TeamEntry> {
         }
 
         MODEL.addAll(entries);
+    }
+
+    public void removeSpiderFromTeam(AbstractClientSpider spider) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> this.removeSpiderFromTeam(spider));
+            return;
+        }
+
+        var it = MODEL.elements();
+        while (it.hasMoreElements()) {
+            var e = it.nextElement();
+            if (spider == e.getSpider()) {
+                MODEL.removeElement(e);
+                break;
+            }
+        }
     }
 
     public void onMakingTeamDone(List<TeamEntry> entries) {

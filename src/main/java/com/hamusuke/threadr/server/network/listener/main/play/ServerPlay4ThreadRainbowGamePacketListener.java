@@ -39,7 +39,7 @@ public class ServerPlay4ThreadRainbowGamePacketListener extends ServerPlayPacket
             case START_MAIN_GAME -> this.game.startMainGame();
             case TEAM_FINISH -> this.game.onFinishBtnPressed(this.myTeamType, this.spider);
             case UNCOVER -> this.game.uncoverCard();
-            case NEXT -> this.game.startResultingNextTeam();
+            case NEXT -> this.game.onNextCommand();
             case RESTART -> this.game.restart();
             case RESTART_WITH_THE_SAME_TEAM -> this.game.restartWithTheSameTeam();
             case EXIT -> {

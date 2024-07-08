@@ -41,23 +41,22 @@ public class TeamPlayingPanel extends PlayingPanel {
     @Override
     protected void placeComponents(JPanel p, GridBagLayout l) {
         addButton(this, p, l, 0, 1, 1, 1, 1.0D);
-
-        if (!this.finishBtnPressed) {
-            addButton(this, this.finish, l, 0, 2, 1, 1, 0.125D);
-        }
+        addButton(this, this.finish, l, 0, 2, 1, 1, 0.125D);
 
         this.placeTimer();
     }
 
-    public void removeFinishBtn() {
+    public void disableFinishBtn() {
         if (this.finishBtnPressed) {
             return;
         }
 
         this.finishBtnPressed = true;
-        this.finish.setVisible(false);
         this.finish.setEnabled(false);
-        this.remove(this.finish);
+    }
+
+    public void setPressNum(int pressNum, int maxPressNum) {
+        this.finish.setText("完成！（%d / %d）".formatted(pressNum, maxPressNum));
     }
 
     public void startTimer() {
@@ -84,6 +83,10 @@ public class TeamPlayingPanel extends PlayingPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (this.finishBtnPressed) {
+            return;
+        }
+
         this.client.getConnection().sendPacket(new ClientCommandReq(Command.TEAM_FINISH));
     }
 }

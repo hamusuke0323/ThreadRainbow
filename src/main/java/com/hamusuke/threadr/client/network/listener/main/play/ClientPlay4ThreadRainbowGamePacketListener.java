@@ -78,31 +78,33 @@ public class ClientPlay4ThreadRainbowGamePacketListener extends ClientPlayPacket
             }
         });
 
-        this.client.spiderTable.setOverrideRenderer(model -> {
-            synchronized (this.curRoom.getSpiders()) {
-                List<AbstractClientSpider> opponentMember = Lists.newArrayList();
-                List<AbstractClientSpider> allSpiders = Lists.newArrayList(this.curRoom.getSpiders());
-                this.curRoom.getSpiders().stream()
-                        .filter(spider -> spider.myTeam != this.myTeam)
-                        .forEach(opponentTeamSpider -> {
-                            allSpiders.remove(opponentTeamSpider);
-                            opponentMember.add(opponentTeamSpider);
-                        });
-                allSpiders.addAll(opponentMember);
-                allSpiders.forEach(spider -> {
-                    if (model.getColumnCount() == 2) {
-                        var num = "";
+        SwingUtilities.invokeLater(() -> {
+            this.client.spiderTable.setOverrideRenderer(model -> {
+                synchronized (this.curRoom.getSpiders()) {
+                    List<AbstractClientSpider> opponentMember = Lists.newArrayList();
+                    List<AbstractClientSpider> allSpiders = Lists.newArrayList(this.curRoom.getSpiders());
+                    this.curRoom.getSpiders().stream()
+                            .filter(spider -> spider.myTeam != this.myTeam)
+                            .forEach(opponentTeamSpider -> {
+                                allSpiders.remove(opponentTeamSpider);
+                                opponentMember.add(opponentTeamSpider);
+                            });
+                    allSpiders.addAll(opponentMember);
+                    allSpiders.forEach(spider -> {
+                        if (model.getColumnCount() == 2) {
+                            var num = "";
 
-                        if (spider.getClientCard() != null) {
-                            num = spider.getClientCard().toString();
+                            if (spider.getClientCard() != null) {
+                                num = spider.getClientCard().toString();
+                            }
+
+                            model.addRow(new Object[]{spider, num});
+                        } else {
+                            model.addRow(new Object[]{spider});
                         }
-
-                        model.addRow(new Object[]{spider, num});
-                    } else {
-                        model.addRow(new Object[]{spider});
-                    }
-                });
-            }
+                    });
+                }
+            });
         });
     }
 
@@ -135,7 +137,7 @@ public class ClientPlay4ThreadRainbowGamePacketListener extends ClientPlayPacket
     @Override
     public void handleFinishButtonAck(FinishButtonAckNotify packet) {
         if (this.client.getPanel() instanceof TeamPlayingPanel panel) {
-            panel.removeFinishBtn();
+            panel.disableFinishBtn();
         }
     }
 
@@ -175,8 +177,15 @@ public class ClientPlay4ThreadRainbowGamePacketListener extends ClientPlayPacket
     }
 
     @Override
-    public void handleFirstTeamResultDone(FirstTeamResultDoneNotify packet) {
+    public void handleTeamResultDone(TeamResultDoneNotify packet) {
         this.client.setPanel(new TeamNextResultPanel(this.teamCards, packet.teamType() == this.myTeam));
+    }
+
+    @Override
+    public void handleTeamFinishButtonPressNumSync(TeamFinishButtonPressNumSyncNotify packet) {
+        if (this.client.getPanel() instanceof TeamPlayingPanel panel) {
+            panel.setPressNum(packet.pressNum(), packet.maxPressNum());
+        }
     }
 
     @Override
@@ -190,7 +199,10 @@ public class ClientPlay4ThreadRainbowGamePacketListener extends ClientPlayPacket
             this.curRoom.getSpiders().stream()
                     .filter(spider -> spider.getId() == packet.id())
                     .findFirst()
-                    .ifPresent(spider -> spider.myTeam = null);
+                    .ifPresent(spider -> {
+                        this.teamList.removeSpiderFromTeam(spider);
+                        spider.myTeam = null;
+                    });
         }
 
         super.handleSpiderExit(packet);

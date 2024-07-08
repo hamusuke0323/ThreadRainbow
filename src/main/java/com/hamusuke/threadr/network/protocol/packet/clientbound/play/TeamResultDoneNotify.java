@@ -5,8 +5,8 @@ import com.hamusuke.threadr.network.channel.IntelligentByteBuf;
 import com.hamusuke.threadr.network.listener.client.main.ClientPlayPacketListener;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 
-public record FirstTeamResultDoneNotify(TeamType teamType) implements Packet<ClientPlayPacketListener> {
-    public FirstTeamResultDoneNotify(IntelligentByteBuf buf) {
+public record TeamResultDoneNotify(TeamType teamType) implements Packet<ClientPlayPacketListener> {
+    public TeamResultDoneNotify(IntelligentByteBuf buf) {
         this(buf.readEnum(TeamType.class));
     }
 
@@ -17,6 +17,6 @@ public record FirstTeamResultDoneNotify(TeamType teamType) implements Packet<Cli
 
     @Override
     public void handle(ClientPlayPacketListener listener) {
-        listener.handleFirstTeamResultDone(this);
+        listener.handleTeamResultDone(this);
     }
 }

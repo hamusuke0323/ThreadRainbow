@@ -123,6 +123,12 @@ public abstract class ClientPlayPacketListenerImpl extends ClientCommonPacketLis
         }
 
         this.topicEntry = e;
+
+        if (this.client.getPanel() instanceof SelectingTopicPanel panel) {
+            panel.changeTopic(this.topicEntry.topic());
+            return;
+        }
+
         this.client.setPanel(new SelectingTopicPanel(this.topicEntry.topic()));
     }
 
@@ -280,7 +286,12 @@ public abstract class ClientPlayPacketListenerImpl extends ClientCommonPacketLis
     }
 
     @Override
-    public void handleFirstTeamResultDone(FirstTeamResultDoneNotify packet) {
+    public void handleTeamResultDone(TeamResultDoneNotify packet) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public void handleTeamFinishButtonPressNumSync(TeamFinishButtonPressNumSyncNotify packet) {
         throw new UnsupportedOperationException("Not supported");
     }
 

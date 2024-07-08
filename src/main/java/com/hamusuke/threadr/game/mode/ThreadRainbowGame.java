@@ -9,7 +9,6 @@ import com.hamusuke.threadr.game.topic.TopicList.TopicEntry;
 import com.hamusuke.threadr.network.protocol.packet.Packet;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.common.ChatNotify;
 import com.hamusuke.threadr.network.protocol.packet.clientbound.play.*;
-import com.hamusuke.threadr.server.ThreadRainbowServer;
 import com.hamusuke.threadr.server.game.team.ServerTeam;
 import com.hamusuke.threadr.server.game.team.ServerTeamEntry;
 import com.hamusuke.threadr.server.network.ServerSpider;
@@ -19,7 +18,6 @@ import com.hamusuke.threadr.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +27,6 @@ import java.util.function.Consumer;
 public class ThreadRainbowGame implements Game {
     public static final int ONE_MINUTE_TICKS = 20 * 60;
     private static final Logger LOGGER = LogManager.getLogger();
-    private final ThreadRainbowServer server;
     private final ServerRoom room;
     private final Random random = new SecureRandom();
     private final List<ServerSpider> spiders;
@@ -40,15 +37,13 @@ public class ThreadRainbowGame implements Game {
     private TopicEntry topic;
     private int timer;
     private boolean timerStarted;
-    @Nullable
     private TeamType firstFinishedTeam;
     private byte lastOkCardNum;
     private boolean firstTeamResultFinished;
     private int blueTeamOutNum;
     private int redTeamOutNum;
 
-    public ThreadRainbowGame(ThreadRainbowServer server, ServerRoom room, List<ServerSpider> spidersToPlay) {
-        this.server = server;
+    public ThreadRainbowGame(ServerRoom room, List<ServerSpider> spidersToPlay) {
         this.room = room;
         this.spiders = Collections.synchronizedList(Lists.newArrayList(spidersToPlay));
         this.blueTeamCards = new Cards(room.getDeck());
@@ -90,7 +85,7 @@ public class ThreadRainbowGame implements Game {
     }
 
     public void finishMakingTeam() {
-        if (this.status != Status.MAKING_TEAM) {
+        if (this.status != Status.MAKING_TEAM || this.invalidateTeam()) {
             return;
         }
 
@@ -98,6 +93,18 @@ public class ThreadRainbowGame implements Game {
         this.sendPacketToAllInGame(new MakingTeamDoneNotify(this.team.getTeamEntries().values().stream().map(TeamEntry::toSerializer).toList()));
         this.sendPacketToAllInGame(new ChatNotify("チームが決まりました"));
         this.startTopicSelection();
+    }
+
+    private boolean invalidateTeam() {
+        int blues = this.team.getBlueSpiders().size();
+        int reds = this.team.getRedSpiders().size();
+
+        if (blues <= 1 || reds <= 1) {
+            this.sendPacketToAllInGame(new ChatNotify("各チーム2人以上必要です！"));
+            return true;
+        }
+
+        return false;
     }
 
     public void toggleTeam(ServerTeamEntry teamEntry) {
@@ -223,6 +230,12 @@ public class ThreadRainbowGame implements Game {
 
         this.team.pressFinishBtn(presserTeam, presser);
         presser.sendPacket(new FinishButtonAckNotify());
+        switch (presserTeam) {
+            case BLUE ->
+                    this.team.sendPacketToBlueTeam(new TeamFinishButtonPressNumSyncNotify(this.team.getBlueFinishBtnPressersNum(), this.team.getBlueSpiders().size()));
+            case RED ->
+                    this.team.sendPacketToRedTeam(new TeamFinishButtonPressNumSyncNotify(this.team.getRedFinishBtnPressersNum(), this.team.getRedSpiders().size()));
+        }
 
         this.checkIfTeamFinished();
     }
@@ -337,7 +350,7 @@ public class ThreadRainbowGame implements Game {
         }
 
         if (this.firstTeamResultFinished) {
-            this.showFinalResult();
+            this.onLastTeamResultFinished();
             return;
         }
 
@@ -345,16 +358,29 @@ public class ThreadRainbowGame implements Game {
     }
 
     private void onFirstTeamResultFinished() {
-        this.firstTeamResultFinished = true;
-        this.sendPacketToAllInGame(new FirstTeamResultDoneNotify(this.firstFinishedTeam));
+        this.sendPacketToAllInGame(new TeamResultDoneNotify(this.firstFinishedTeam));
     }
 
-    public void startResultingNextTeam() {
+    private void startResultingNextTeam() {
         this.sendPacketToAllInGame(new ChatNotify("最後に完成させたチームのカードをめくります"));
         this.sendPacketToAllInGame(new ChatNotify("ホストはカードをめくってください"));
         this.sendPacketToAllInGame(new StartTeamResultNotify());
 
         this.sendPacketToAllInGame(new TeamCardDataNotify(this.firstFinishedTeam.opposite(), this.firstFinishedTeam.opposite() == TeamType.BLUE ? this.blueTeamCards.getCards() : this.redTeamCards.getCards()));
+    }
+
+    private void onLastTeamResultFinished() {
+        this.sendPacketToAllInGame(new TeamResultDoneNotify(this.firstFinishedTeam.opposite()));
+    }
+
+    public void onNextCommand() {
+        if (!this.firstTeamResultFinished) {
+            this.firstTeamResultFinished = true;
+            this.startResultingNextTeam();
+            return;
+        }
+
+        this.showFinalResult();
     }
 
     private void showFinalResult() {
@@ -496,11 +522,15 @@ public class ThreadRainbowGame implements Game {
         if (!this.firstTeamResultFinished && this.firstFinishedTeam == e.getType() && !cards.hasCoveredCards()) {
             this.onFirstTeamResultFinished();
         } else if (this.firstTeamResultFinished && this.firstFinishedTeam.opposite() == e.getType() && !cards.hasCoveredCards()) {
-            this.showFinalResult();
+            this.onLastTeamResultFinished();
         }
     }
 
     private void checkIfGameContinuable() {
+        if (this.status == Status.NONE || this.status == Status.MAKING_TEAM) {
+            return;
+        }
+
         int blues = this.team.getBlueSpiders().size();
         int reds = this.team.getRedSpiders().size();
         if (blues <= 1 || reds <= 1) {

@@ -1,5 +1,6 @@
 package com.hamusuke.threadr.server.game.team;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hamusuke.threadr.game.team.Team;
@@ -22,7 +23,7 @@ public class ServerTeam extends Team {
 
     @Override
     public Map<ServerSpider, ServerTeamEntry> getTeamEntries() {
-        return this.teamEntries;
+        return ImmutableMap.copyOf(this.teamEntries);
     }
 
     @Override
@@ -69,12 +70,20 @@ public class ServerTeam extends Team {
         set.add(spider.getId());
     }
 
+    public int getBlueFinishBtnPressersNum() {
+        return this.blueFinishBtnPressers.size();
+    }
+
+    public int getRedFinishBtnPressersNum() {
+        return this.redFinishBtnPressers.size();
+    }
+
     public boolean isBlueTeamFinished() {
-        return this.blueFinishBtnPressers.size() >= this.getBlueSpiders().size();
+        return this.getBlueFinishBtnPressersNum() >= this.getBlueSpiders().size();
     }
 
     public boolean isRedTeamFinished() {
-        return this.redFinishBtnPressers.size() >= this.getRedSpiders().size();
+        return this.getRedFinishBtnPressersNum() >= this.getRedSpiders().size();
     }
 
     public ServerTeamEntry removeSpider(ServerSpider spider) {

@@ -45,5 +45,7 @@ public interface ClientPlayPacketListener extends ClientCommonPacketListener {
 
     void handleTeamCardData(TeamCardDataNotify packet);
 
-    void handleFirstTeamResultDone(FirstTeamResultDoneNotify packet);
+    void handleTeamResultDone(TeamResultDoneNotify packet);
+
+    void handleTeamFinishButtonPressNumSync(TeamFinishButtonPressNumSyncNotify packet);
 }

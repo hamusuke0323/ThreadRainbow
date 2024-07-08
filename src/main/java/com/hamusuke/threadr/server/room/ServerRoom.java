@@ -150,7 +150,7 @@ public class ServerRoom extends Room {
     private Game newGameByGameMode(List<ServerSpider> spiders) {
         return switch (this.curGameMode) {
             case SPIDERS_THREAD_V2 -> new SpidersThreadV2Game(this.server, this, spiders);
-            case THREAD_RAINBOW -> new ThreadRainbowGame(this.server, this, spiders);
+            case THREAD_RAINBOW -> new ThreadRainbowGame(this, spiders);
         };
     }
 

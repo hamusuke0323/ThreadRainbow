@@ -145,8 +145,9 @@ public enum Protocol {
                     .add(StartTeamResultNotify.class, StartTeamResultNotify::new)
                     .add(TeamCardDataNotify.class, TeamCardDataNotify::new)
                     .add(GameEndNotify.class, GameEndNotify::new)
-                    .add(FirstTeamResultDoneNotify.class, FirstTeamResultDoneNotify::new)
+                    .add(TeamResultDoneNotify.class, TeamResultDoneNotify::new)
                     .add(FinishButtonAckNotify.class, FinishButtonAckNotify::new)
+                    .add(TeamFinishButtonPressNumSyncNotify.class, TeamFinishButtonPressNumSyncNotify::new)
             )
             .addDirection(PacketDirection.SERVERBOUND, new PacketSet<ServerPlayPacketListener>()
                     // common
